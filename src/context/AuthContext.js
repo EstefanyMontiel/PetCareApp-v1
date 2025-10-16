@@ -102,23 +102,44 @@
     // Función para agregar mascota
     const addPet = async (petData) => {
         try {
-        if (!user) throw new Error('No hay usuario autenticado');
+        console.log('🐾 Iniciando registro de mascota...');
+        console.log('👤 Usuario actual:', user?.email, user?.uid);
+        
+        if (!user) {
+            throw new Error('No hay usuario autenticado');
+        }
+        
+        // Verificar que el usuario está autenticado en Firebase
+        const currentUser = auth.currentUser;
+        console.log('🔐 Usuario en Firebase Auth:', currentUser?.email, currentUser?.uid);
+        
+        if (!currentUser) {
+            throw new Error('Usuario no autenticado en Firebase');
+        }
         
         const petDoc = {
             ...petData,
             userId: user.uid,
-            fechaRegistro: new Date()
+            fechaRegistro: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
+        console.log('📝 Datos de mascota a guardar:', petDoc);
+        console.log('💾 Guardando en colección: mascotas');
+        
         const docRef = await db.collection('mascotas').add(petDoc);
+        
+        console.log('✅ Mascota registrada con ID:', docRef.id);
         
         // Recargar las mascotas del usuario
         await loadUserPets(user.uid);
         
-        console.log('🐾 Mascota registrada con ID:', docRef.id);
         return docRef;
         } catch (error) {
-        console.error('Error adding pet:', error);
+        console.error('❌ Error adding pet:', error);
+        console.error('❌ Error code:', error.code);
+        console.error('❌ Error message:', error.message);
         throw error;
         }
     };

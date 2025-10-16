@@ -2,19 +2,24 @@ import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
-    StyleSheet,
     ScrollView,
     TouchableOpacity,
     RefreshControl,
     Alert,
-    Image
+    Image,
+    ActivityIndicator
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
+import { petImageService } from '../services/petServices';
+import { useImagePicker } from '../hooks/useImagePicker';
+import styles from '../styles/HomeScreenStyles';
 
 const HomeScreen = ({ navigation }) => {
     const { user, userProfile, userPets, logout, loadUserPets } = useAuth();
     const [refreshing, setRefreshing] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState({});
+    const { pickImage, takePhoto } = useImagePicker();
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -41,86 +46,212 @@ const HomeScreen = ({ navigation }) => {
         }
     };
 
-    const handleLogout = () => {
+    const navigateToOption = (pet, option) => {
+        switch(option) {
+            case 'vaccination':
+                navigation.navigate('Vacunación', { 
+                    petId: pet.id, 
+                    petName: pet.nombre 
+                });
+                break;
+            case 'deworming':
+                navigation.navigate('Desparasitación', { 
+                    petId: pet.id, 
+                    petName: pet.nombre 
+                });
+                break;
+            case 'annual':
+                navigation.navigate('Examen anual', { 
+                    petId: pet.id, 
+                    petName: pet.nombre 
+                });
+                break;
+        }
+    };
+
+    const handleImageSelection = (petId) => {
         Alert.alert(
-            'Cerrar Sesión',
-            '¿Estás seguro que quieres cerrar sesión?',
+            'Cambiar foto de perfil',
+            'Selecciona una opción',
             [
-                { text: 'Cancelar', style: 'cancel' },
-                { 
-                    text: 'Cerrar Sesión', 
-                    style: 'destructive',
-                    onPress: logout
+                {
+                    text: 'Cámara',
+                    onPress: () => selectImageFromCamera(petId)
+                },
+                {
+                    text: 'Galería',
+                    onPress: () => selectImageFromGallery(petId)
+                },
+                {
+                    text: 'Cancelar',
+                    style: 'cancel'
                 }
             ]
         );
     };
 
+    const selectImageFromCamera = async (petId) => {
+        const imageUri = await takePhoto();
+        if (imageUri) {
+            await uploadPetImage(petId, imageUri);
+        }
+    };
+
+    const selectImageFromGallery = async (petId) => {
+        const imageUri = await pickImage();
+        if (imageUri) {
+            await uploadPetImage(petId, imageUri);
+        }
+    };
+
+    const uploadPetImage = async (petId, imageUri) => {
+        try {
+            setUploadingImage(prev => ({ ...prev, [petId]: true }));
+            
+            // Subir imagen a Storage
+            const imageUrl = await petImageService.uploadPetImage(petId, imageUri);
+            
+            // Actualizar URL en Firestore
+            await petImageService.updatePetImage(petId, imageUrl);
+            
+            // Recargar las mascotas para mostrar la nueva imagen
+            await loadUserPets(user.uid);
+            
+            Alert.alert('Éxito', 'Foto actualizada correctamente');
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            Alert.alert('Error', 'No se pudo actualizar la foto');
+        } finally {
+            setUploadingImage(prev => ({ ...prev, [petId]: false }));
+        }
+    };
+
     const PetCard = ({ pet }) => (
         <View style={styles.petCard}>
-            <View style={styles.petHeader}>
-                <View style={styles.petAvatar}>
-                    <Ionicons 
-                        name={pet.especie === 'Perro' ? 'paw' : 'paw'} 
-                        size={30} 
-                        color="#fff" 
-                    />
-                </View>
-                <View style={styles.petInfo}>
-                    <Text style={styles.petName}>{pet.nombre}</Text>
-                    <Text style={styles.petBreed}>{pet.raza}</Text>
-                </View>
-            </View>
-            
-            <View style={styles.petDetails}>
-                <View style={styles.petDetailItem}>
-                    <Ionicons name="paw-outline" size={16} color="#666" />
-                    <Text style={styles.petDetailText}>{pet.especie}</Text>
-                </View>
+            {/* Imagen de la mascota */}
+            <View style={styles.petImageContainer}>
+                <TouchableOpacity 
+                    style={styles.petImage}
+                    onPress={() => handleImageSelection(pet.id)}
+                >
+                    {pet.imageUrl ? (
+                        <Image 
+                            source={{ uri: pet.imageUrl }} 
+                            style={styles.petImageStyle}
+                            resizeMode="cover"
+                        />
+                    ) : (
+                        <View style={styles.placeholderImage}>
+                            <Ionicons 
+                                name={pet.especie === 'Perro' ? 'paw' : 'paw'} 
+                                size={30} 
+                                color="#fff" 
+                            />
+                        </View>
+                    )}
+                    
+                    {uploadingImage[pet.id] && (
+                        <View style={styles.loadingOverlay}>
+                            <ActivityIndicator size="small" color="#fff" />
+                        </View>
+                    )}
+                </TouchableOpacity>
                 
-                <View style={styles.petDetailItem}>
-                    <Ionicons name="calendar-outline" size={16} color="#666" />
-                    <Text style={styles.petDetailText}>
-                        {calculateAge(pet.fechaNacimiento)}
-                    </Text>
-                </View>
+                <TouchableOpacity 
+                    style={styles.editIcon}
+                    onPress={() => handleImageSelection(pet.id)}
+                >
+                    <Ionicons name="camera" size={12} color="#666" />
+                </TouchableOpacity>
+            </View>
+
+            {/* Información de la mascota */}
+            <View style={styles.petInfo}>
+                <Text style={styles.petName}>{pet.nombre}</Text>
+                <Text style={styles.petBreed}>{pet.raza}</Text>
+                <Text style={styles.petAge}>{calculateAge(pet.fechaNacimiento)}</Text>
+            </View>
+
+            {/* Opciones */}
+            <View style={styles.optionsList}>
+                <TouchableOpacity 
+                    style={styles.optionItem}
+                    onPress={() => navigateToOption(pet, 'vaccination')}
+                >
+                    <View style={styles.optionLeft}>
+                        <Ionicons 
+                            name="medical-outline" 
+                            size={20} 
+                            color="#666" 
+                            style={styles.optionIcon}
+                        />
+                        <Text style={styles.optionText}>Vacunación</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#666" />
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                    style={styles.optionItem}
+                    onPress={() => navigateToOption(pet, 'deworming')}
+                >
+                    <View style={styles.optionLeft}>
+                        <Ionicons 
+                            name="bug-outline" 
+                            size={20} 
+                            color="#666" 
+                            style={styles.optionIcon}
+                        />
+                        <Text style={styles.optionText}>Desparasitación</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#666" />
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                    style={styles.optionItem}
+                    onPress={() => navigateToOption(pet, 'annual')}
+                >
+                    <View style={styles.optionLeft}>
+                        <Ionicons 
+                            name="clipboard-outline" 
+                            size={20} 
+                            color="#666" 
+                            style={styles.optionIcon}
+                        />
+                        <Text style={styles.optionText}>Examen anual</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#666" />
+                </TouchableOpacity>
             </View>
         </View>
     );
 
     return (
-        <ScrollView 
-            style={styles.container}
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-        >
-            {/* Header */}
+        <View style={styles.container}>
+            {/* Header con logo */}
             <View style={styles.header}>
-                <View>
-                    <Text style={styles.greeting}>¡Hola!</Text>
-                    <Text style={styles.userName}>
-                        {userProfile?.nombre || user?.displayName || 'Usuario'}
-                    </Text>
+                <View style={styles.logo}>
+                    <View style={styles.logoIcon}>
+                        <Ionicons name="paw" size={24} color="#fff" />
+                    </View>
+                    <Text style={styles.logoText}>PetCare</Text>
                 </View>
-                <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-                    <Ionicons name="log-out-outline" size={24} color="#666" />
+                
+                <TouchableOpacity 
+                    style={styles.addPetButton}
+                    onPress={() => navigation.navigate('PetRegister')}
+                >
+                    <Ionicons name="add" size={20} color="#4ECDC4" />
                 </TouchableOpacity>
             </View>
 
-            {/* Mascotas */}
-            <View style={styles.section}>
-                <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>Mis Mascotas</Text>
-                    <TouchableOpacity 
-                        onPress={() => navigation.navigate('PetRegister')}
-                        style={styles.addButton}
-                    >
-                        <Ionicons name="add" size={20} color="#007AFF" />
-                        <Text style={styles.addButtonText}>Agregar</Text>
-                    </TouchableOpacity>
-                </View>
-
+            {/* Lista de mascotas */}
+            <ScrollView 
+                style={styles.petsContainer}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+                showsVerticalScrollIndicator={false}
+            >
                 {userPets.length > 0 ? (
                     userPets.map((pet) => (
                         <PetCard key={pet.id} pet={pet} />
@@ -140,141 +271,9 @@ const HomeScreen = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                 )}
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 20,
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    greeting: {
-        fontSize: 16,
-        color: '#666',
-    },
-    userName: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    logoutButton: {
-        padding: 8,
-    },
-    section: {
-        padding: 20,
-    },
-    sectionHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 15,
-    },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    addButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#f0f8ff',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-    },
-    addButtonText: {
-        marginLeft: 4,
-        color: '#007AFF',
-        fontWeight: '600',
-    },
-    petCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    petHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    petAvatar: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: '#007AFF',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 12,
-    },
-    petInfo: {
-        flex: 1,
-    },
-    petName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    petBreed: {
-        fontSize: 14,
-        color: '#666',
-    },
-    petDetails: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-    },
-    petDetailItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    petDetailText: {
-        marginLeft: 4,
-        fontSize: 14,
-        color: '#666',
-    },
-    emptyState: {
-        alignItems: 'center',
-        paddingVertical: 40,
-    },
-    emptyStateTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-        marginTop: 16,
-        marginBottom: 8,
-    },
-    emptyStateText: {
-        fontSize: 14,
-        color: '#666',
-        textAlign: 'center',
-        marginBottom: 20,
-    },
-    emptyStateButton: {
-        backgroundColor: '#007AFF',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 8,
-    },
-    emptyStateButtonText: {
-        color: '#fff',
-        fontWeight: '600',
-    },
-});
 
 export default HomeScreen;

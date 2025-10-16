@@ -9,7 +9,8 @@ import {
     ActivityIndicator,
     ScrollView,
     KeyboardAvoidingView,
-    Platform
+    Platform, 
+    Image
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import styles from '../styles/LoginScreenStyles';
@@ -184,10 +185,10 @@ export default function RegisterScreen({ navigation }) {
     };
 
     const isFormValid = Object.keys(errors).length === 0 && 
-                       formData.nombre && 
-                       formData.correo && 
-                       formData.password && 
-                       formData.confirmPassword;
+                    formData.nombre && 
+                    formData.correo && 
+                    formData.password && 
+                    formData.confirmPassword;
 
     return (
         <KeyboardAvoidingView
@@ -199,8 +200,10 @@ export default function RegisterScreen({ navigation }) {
                 contentContainerStyle={{ paddingBottom: 50 }}
                 showsVerticalScrollIndicator={false}
             >
-                <Text style={styles.title}>Crear Cuenta</Text>
-
+                <Image style={styles.logo}
+                    source={require('../../assets/LogoApp.png')}
+                    resizeMode="contain"
+                    />
                 {/* Campo Nombre */}
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Nombre completo</Text>

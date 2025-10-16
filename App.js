@@ -6,14 +6,19 @@ import { ActivityIndicator, View } from 'react-native';
 // ✅ Importar contexto desde la ruta correcta
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 
-// ✅ Importar pantallas desde la ruta correcta
+// Importar pantallas desde la ruta correcta
 import LoginScreen from './src/components/LoginScreen';
 import RegisterScreen from './src/components/RegisterScreen';
 import PetRegisterScreen from './src/components/PetRegisterScreen';
 import HomeScreen from './src/components/HomeScreen';
+import VaccinationScreen from './src/components/VaccinationScreen';
+import DewormingScreen from './src/components/DewormingScreen';
+import AnnualExamScreen from './src/components/AnnualExamScreen';
+
 
 const Stack = createNativeStackNavigator();
 
+//PANTALLA LOGIN  REGISTER 
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -42,6 +47,9 @@ function AppStack() {
           headerShown: true 
         }}
       />
+    <Stack.Screen name="Vacunación" component={VaccinationScreen} />
+    <Stack.Screen name="Desparasitación" component={DewormingScreen} />
+    <Stack.Screen name="Examen anual" component={AnnualExamScreen} />
     </Stack.Navigator>
   );
 }
