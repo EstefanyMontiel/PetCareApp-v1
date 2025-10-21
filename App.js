@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
+import BottomTabNavigator from './src/navigation/BottomTabNavigatior';
 
 // ✅ Importar contexto desde la ruta correcta
 import { AuthProvider, useAuth } from './src/context/AuthContext';
@@ -14,7 +15,7 @@ import HomeScreen from './src/components/HomeScreen';
 import VaccinationScreen from './src/components/VaccinationScreen';
 import DewormingScreen from './src/components/DewormingScreen';
 import AnnualExamScreen from './src/components/AnnualExamScreen';
-
+import HuellitasEternasScreen from './src/components/HuellitasEternasScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,14 +32,15 @@ function AuthStack() {
 function AppStack() {
   return (
     <Stack.Navigator>
+
       <Stack.Screen 
         name="Home" 
-        component={HomeScreen} 
+        component={BottomTabNavigator} 
         options={{ 
-          title: 'Mis Mascotas',
-          headerShown: true 
+          headerShown: false 
         }}
       />
+
       <Stack.Screen 
         name="PetRegister" 
         component={PetRegisterScreen} 
@@ -47,6 +49,7 @@ function AppStack() {
           headerShown: true 
         }}
       />
+        <Stack.Screen name="HuellitasEternas" component={HuellitasEternasScreen} />
     <Stack.Screen name="Vacunación" component={VaccinationScreen} />
     <Stack.Screen name="Desparasitación" component={DewormingScreen} />
     <Stack.Screen name="Examen anual" component={AnnualExamScreen} />

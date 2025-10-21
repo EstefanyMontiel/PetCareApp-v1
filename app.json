@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "RegistroTest",
@@ -7,6 +8,15 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "La aplicación necesita acceso a tus fotos para actualizar la imagen de tu mascota",
+          "cameraPermission": "La aplicación necesita acceso a tu cámara para tomar fotos de tu mascota"
+        }
+      ]
+    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",

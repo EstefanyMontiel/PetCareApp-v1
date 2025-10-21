@@ -177,70 +177,93 @@
     }
     };
 
-    // Servicios para imágenes de mascotas
-    export const petImageService = {
-    // Subir imagen de mascota
-    uploadPetImage: async (petId, imageUri) => {
-        try {
-        console.log('📸 Subiendo imagen para mascota:', petId);
-        console.log('📸 URI de imagen:', imageUri);
-        
-        // Verificar que el usuario esté autenticado
-        const currentUser = auth.currentUser;
-        if (!currentUser) {
-            throw new Error('Usuario no autenticado');
-        }
-        console.log('👤 Usuario autenticado:', currentUser.email);
-        
-        const response = await fetch(imageUri);
-        if (!response.ok) {
-            throw new Error(`Error al obtener imagen: ${response.status}`);
-        }
-        
-        const blob = await response.blob();
-        console.log('📦 Blob creado, tamaño:', blob.size);
-        
-        const timestamp = Date.now();
-        const imageRef = storage.ref(`pets/${petId}/profile_${timestamp}.jpg`);
-        
-        console.log('📤 Iniciando upload a:', `pets/${petId}/profile_${timestamp}.jpg`);
-        const snapshot = await imageRef.put(blob);
-        
-        const downloadURL = await snapshot.ref.getDownloadURL();
-        console.log('✅ Imagen subida correctamente:', downloadURL);
-        return downloadURL;
-        } catch (error) {
-        console.error('❌ Error uploading pet image:', error);
-        console.error('❌ Error details:', error.message);
-        throw error;
-        }
-    },
+        // Servicios para imágenes de mascotas
+        export const petImageService = {
+        uploadPetImage: async (petId, imageUri) => {
+            try {
+                console.log('📸 Subiendo imagen para mascota:', petId);
+                console.log('📸 URI de imagen:', imageUri);
+                
+                // Verificar que el usuario esté autenticado
+                const currentUser = auth.currentUser;
+                if (!currentUser) {
+                    throw new Error('Usuario no autenticado');
+                }
+                console.log('👤 Usuario autenticado:', currentUser.email);
+                
+                // Verificar configuración de Storage
+                console.log('🗄️ Storage Bucket:', storage.app.options.storageBucket);
+                
+                const response = await fetch(imageUri);
+                if (!response.ok) {
+                    throw new Error(`Error al obtener imagen: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                console.log('📦 Blob creado, tamaño:', blob.size, 'bytes');
+                console.log('📦 Tipo de blob:', blob.type);
+                
+                const timestamp = Date.now();
+                const imagePath = `pets/${petId}/profile_${timestamp}.jpg`;
+                const imageRef = storage.ref(imagePath);
+                
+                console.log('📤 Iniciando upload a:', imagePath);
+                console.log('📤 Storage URL:', imageRef.toString());
+                
+                // Subir con metadata
+                const metadata = {
+                    contentType: 'image/jpeg',
+                    customMetadata: {
+                        uploadedBy: currentUser.uid,
+                        uploadedAt: new Date().toISOString()
+                    }
+                };
+                
+                const snapshot = await imageRef.put(blob, metadata);
+                console.log('📊 Upload completo:', snapshot.state);
+                
+                const downloadURL = await snapshot.ref.getDownloadURL();
+                console.log('✅ Imagen subida correctamente:', downloadURL);
+                return downloadURL;
+            } catch (error) {
+                console.error('❌ Error uploading pet image:', error);
+                console.error('❌ Error code:', error.code);
+                console.error('❌ Error message:', error.message);
+                
+                // Errores específicos
+                if (error.code === 'storage/unauthorized') {
+                    throw new Error('No tienes permisos para subir imágenes. Verifica las reglas de Storage.');
+                } else if (error.code === 'storage/unknown') {
+                    throw new Error('Error de conexión con Firebase Storage. Verifica tu configuración.');
+                }
+                
+                throw error;
+            }
+        },
 
-    // Actualizar imagen de mascota en Firestore
-    updatePetImage: async (petId, imageUrl) => {
-        try {
-        console.log('📝 Actualizando URL de imagen en Firestore para:', petId);
-        
-        await db.collection('mascotas').doc(petId).update({
-            imageUrl,
-            updatedAt: new Date()
-        });
-        
-        console.log('✅ URL de imagen actualizada en Firestore');
-        } catch (error) {
-        console.error('❌ Error updating pet image:', error);
-        throw error;
-        }
-    },
+        updatePetImage: async (petId, imageUrl) => {
+            try {
+                console.log('📝 Actualizando URL de imagen en Firestore para:', petId);
+                
+                await db.collection('mascotas').doc(petId).update({
+                    imageUrl,
+                    updatedAt: new Date()
+                });
+                
+                console.log('✅ URL de imagen actualizada en Firestore');
+            } catch (error) {
+                console.error('❌ Error updating pet image:', error);
+                throw error;
+            }
+        },
 
-    // Eliminar imagen anterior
-    deletePetImage: async (petId) => {
-        try {
-        const imageRef = storage.ref(`pets/${petId}/profile.jpg`);
-        await imageRef.delete();
-        console.log('🗑️ Imagen anterior eliminada');
-        } catch (error) {
-        console.log('ℹ️ No hay imagen anterior para eliminar');
+        deletePetImage: async (petId) => {
+            try {
+                const imageRef = storage.ref(`pets/${petId}/profile.jpg`);
+                await imageRef.delete();
+                console.log('🗑️ Imagen anterior eliminada');
+            } catch (error) {
+                console.log('ℹ️ No hay imagen anterior para eliminar');
+            }
         }
-    }
-    };
+        };

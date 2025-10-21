@@ -246,6 +246,33 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: 20,
     },
+
+    //Boton registar mascotas inactivas 
+
+    eternasButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#6B9B8E',
+        margin: 15,
+        padding: 15,
+        borderRadius: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    eternasButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: '600',
+        flex: 1,
+        marginLeft: 10,
+    },
+    petsContainer: {
+        padding: 15,
+    },
 });
 
 export default styles;
