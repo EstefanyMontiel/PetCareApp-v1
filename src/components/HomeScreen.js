@@ -242,7 +242,9 @@ const HomeScreen = ({ navigation }) => {
                 >
                     <Ionicons name="add" size={20} color="#4ECDC4" />
                 </TouchableOpacity>
+
             </View>
+
 
             {/* Lista de mascotas */}
             <ScrollView 
@@ -269,8 +271,20 @@ const HomeScreen = ({ navigation }) => {
                         >
                             <Text style={styles.emptyStateButtonText}>Registrar Mascota</Text>
                         </TouchableOpacity>
+
                     </View>
                 )}
+                <View style={styles.eternasContainer}>
+                      {/* Botón para Huellitas Eternas */}
+                <TouchableOpacity 
+                    style={styles.eternasButton}
+                    onPress={() => navigation.navigate('HuellitasEternas')}
+                >
+                    <Ionicons name="heart" size={24} color="#fff" />
+                    <Text style={styles.eternasButtonText}>Huellitas Eternas</Text>
+                    <Ionicons name="chevron-forward" size={24} color="#fff" />
+                </TouchableOpacity>
+            </View>
             </ScrollView>
         </View>
     );
