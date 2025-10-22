@@ -1,31 +1,82 @@
 import { StyleSheet } from 'react-native';
-import { Dimensions } from 'react-native';
+import { Dimensions, Platform } from 'react-native';
+import { SHADOW_STYLE, SAFE_AREA_PADDING, scale, verticalScale } from '../components/responsive';
+
+const { width } = Dimensions.get('window');
+
+const createShadow = (elevation = 2) => ({
+    ...Platform.select({
+        ios: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: elevation },
+            shadowOpacity: 0.1,
+            shadowRadius: elevation * 2,
+        },
+        android: {
+            elevation: elevation,
+        },
+    }),
+});
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#f8fafb',
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 20,
+        paddingHorizontal: 20,
+        paddingTop: 20, // Ahora solo el padding interno, SafeAreaView maneja el resto
+        paddingBottom: 20,
         backgroundColor: '#fff',
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
     },
     greeting: {
-        fontSize: 16,
+        fontSize: scale(16),
         color: '#666',
     },
     userName: {
-        fontSize: 24,
+        fontSize: scale(24),
         fontWeight: 'bold',
         color: '#333',
     },
     logoutButton: {
         padding: 8,
     },
+    // Botones con altura diferente según plataforma
+    button: {
+        backgroundColor: '#3db2d2ff',
+        borderRadius: Platform.select({
+            ios: 8,
+            android: 10, // Android prefiere bordes más redondeados
+        }),
+        paddingVertical: Platform.select({
+            ios: 16,
+            android: 14,
+        }),
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    // Input con altura específica para cada plataforma
+    input: {
+        backgroundColor: '#F7FAFA',
+        borderWidth: 1,
+        borderColor: '#D1DBE5',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: Platform.select({
+            ios: 12,
+            android: 10, // Android necesita menos padding
+        }),
+        fontSize: 16,
+        color: '#333',
+        // ✅ Altura mínima para evitar problemas táctiles
+        minHeight: 48,
+    },
+
     section: {
         padding: 20,
     },
@@ -36,7 +87,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     sectionTitle: {
-        fontSize: 20,
+        fontSize: scale(20),
         fontWeight: 'bold',
         color: '#333',
     },
@@ -63,6 +114,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 3,
+        ...SHADOW_STYLE,
     },
     petHeader: {
         flexDirection: 'row',

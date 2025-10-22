@@ -1,5 +1,6 @@
 import { StyleSheet, Dimensions, LogBox } from 'react-native';
 const { width } = Dimensions.get('window');
+import { SHADOW_STYLE, SAFE_AREA_PADDING } from '../components/responsive';
 
 const styles = StyleSheet.create({
     container: {
@@ -7,6 +8,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F2F8F9',
         paddingHorizontal: 24,
         paddingTop: 50,
+
     },
     logoContainer: {
         backgroundColor: '#F2F8F9',

@@ -4,7 +4,6 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    StyleSheet,
     ScrollView,
     Alert,
     Platform,
@@ -13,7 +12,10 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuth } from '../context/AuthContext';
 import styles from '../styles/PetRegisterStyles';
-
+import KeyboardAvoidingContainer from './KeyboardAvoidingView';
+import SafeContainer from './SafeContainer';
+import Button from './Button';
+    
 const PetRegisterScreen = ({ navigation }) => {
     const { user, addPet } = useAuth();
     const [selectedSpecies, setSelectedSpecies] = useState('Perro');
@@ -100,8 +102,9 @@ const PetRegisterScreen = ({ navigation }) => {
     };
 
     return (
-        <ScrollView style={styles.container}>
-            <View style={styles.content}>
+        <SafeContainer>
+            <KeyboardAvoidingContainer>
+                <View style={styles.content}>
                 <Text style={styles.labelTitle}>¡Registra a tu peludo!</Text>
 
                 {/* Nombre de la Mascota */}
@@ -175,31 +178,24 @@ const PetRegisterScreen = ({ navigation }) => {
                     )}
                 </View>
 
-                {/* Botón Registrar */}
-                <TouchableOpacity 
-                    style={[
-                        styles.button,
-                        loading && styles.buttonDisabled
-                    ]} 
-                    onPress={handleRegister}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <ActivityIndicator color="white" />
-                    ) : (
-                        <Text style={styles.buttonText}>Registrar Mascota</Text>
-                    )}
-                </TouchableOpacity>
+                    {/* Botón Registrar */}
+                    <Button
+                        title="Registrar Mascota"
+                        onPress={handleRegister}
+                        disabled={loading}
+                        loading={loading}
+                    />
 
-                {/* Botón para saltar registro de mascota */}
-                <TouchableOpacity 
-                    style={styles.link}
-                    onPress={() => navigation.navigate('Home')}
-                >
-                    <Text style={styles.linkText}>Registrar mascota más tarde</Text>
-                </TouchableOpacity>
-            </View>
-        </ScrollView>
+                    {/* Botón para saltar registro de mascota */}
+                    <TouchableOpacity 
+                        style={styles.link}
+                        onPress={() => navigation.navigate('Home')}
+                    >
+                        <Text style={styles.linkText}>Registrar mascota más tarde</Text>
+                    </TouchableOpacity>
+                </View>
+            </KeyboardAvoidingContainer>
+        </SafeContainer>
     );
 };
 

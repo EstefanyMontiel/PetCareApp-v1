@@ -4,8 +4,12 @@ import {
     Alert, ActivityIndicator, ScrollView, KeyboardAvoidingView, 
     Image, Platform
     } from 'react-native';
-import styles from '../styles/LoginScreenStyles';
+
 import { useAuth } from '../context/AuthContext';
+import KeyboardAvoidingContainer from './KeyboardAvoidingView';
+import SafeContainer from './SafeContainer';
+import styles from '../styles/LoginScreenStyles';
+
 
 const LoginScreen = ({ navigation }) => {
     const { login } = useAuth();
@@ -155,6 +159,7 @@ const LoginScreen = ({ navigation }) => {
     const isFormValid = Object.keys(errors).length === 0 && formData.correo && formData.password;
 
     return (
+        <SafeContainer>
         <KeyboardAvoidingView
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -231,6 +236,7 @@ const LoginScreen = ({ navigation }) => {
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>
+    </SafeContainer>
     );
 };
 

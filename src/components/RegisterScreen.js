@@ -14,7 +14,10 @@ import {
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import styles from '../styles/LoginScreenStyles';
-
+import KeyboardAvoidingContainer from './KeyboardAvoidingView';
+import SafeContainer from './SafeContainer';
+import Button from './Button';
+    
 export default function RegisterScreen({ navigation }) {
     const [formData, setFormData] = useState({
         nombre: '',
@@ -191,19 +194,14 @@ export default function RegisterScreen({ navigation }) {
                     formData.confirmPassword;
 
     return (
-        <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
-            <ScrollView
-                style={styles.container}
-                contentContainerStyle={{ paddingBottom: 50 }}
-                showsVerticalScrollIndicator={false}
-            >
-                <Image style={styles.logo}
-                    source={require('../../assets/LogoApp.png')}
-                    resizeMode="contain"
+        <SafeContainer>
+            <KeyboardAvoidingContainer>
+                <View style={styles.container}>
+                    <Image style={styles.logo}
+                        source={require('../../assets/LogoApp.png')}
+                        resizeMode="contain"
                     />
+                    <Text style={styles.labelTitle}>Crear Cuenta</Text>
                 {/* Campo Nombre */}
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Nombre completo</Text>
@@ -281,30 +279,23 @@ export default function RegisterScreen({ navigation }) {
                     )}
                 </View>
 
-                {/* Botón de Registro */}
-                <TouchableOpacity
-                    style={[
-                        styles.button,
-                        (!isFormValid || loading) && styles.buttonDisabled
-                    ]}
-                    onPress={handleRegister}
-                    disabled={!isFormValid || loading}
-                >
-                    {loading ? (
-                        <ActivityIndicator color="white" />
-                    ) : (
-                        <Text style={styles.buttonText}>Crear Cuenta</Text>
-                    )}
-                </TouchableOpacity>
+                    {/* Botón de Registro */}
+                    <Button
+                        title="Crear Cuenta"
+                        onPress={handleRegister}
+                        disabled={!isFormValid}
+                        loading={loading}
+                    />
 
-                {/* Botón de Login */}
-                <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.link}>
-                    <Text style={styles.linkText}>
-                        ¿Ya tienes cuenta? Inicia sesión aquí
-                    </Text>
-                </TouchableOpacity>
-            </ScrollView>
-        </KeyboardAvoidingView>
+                    {/* Botón de Login */}
+                    <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.link}>
+                        <Text style={styles.linkText}>
+                            ¿Ya tienes cuenta? Inicia sesión aquí
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </KeyboardAvoidingContainer>
+        </SafeContainer>
     );
 }
 

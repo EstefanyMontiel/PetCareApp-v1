@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
 import BottomTabNavigator from './src/navigation/BottomTabNavigatior';
-
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 // Importar contexto desde la ruta correcta
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 
@@ -84,10 +84,13 @@ function RootNavigator() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <RootNavigator />
-      </NavigationContainer>
-    </AuthProvider>
+
+    <SafeAreaProvider>
+            <AuthProvider>
+                <NavigationContainer>
+                    <RootNavigator />
+                </NavigationContainer>
+            </AuthProvider>
+        </SafeAreaProvider>
   );
 }
