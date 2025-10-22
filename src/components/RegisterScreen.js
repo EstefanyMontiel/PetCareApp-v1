@@ -128,7 +128,7 @@ export default function RegisterScreen({ navigation }) {
 
         setLoading(true);
         try {
-            console.log('🔐 Intentando registro...');
+            console.log('Intentando registro...');
             
             const result = await register(formData.correo, formData.password, formData.nombre);
             

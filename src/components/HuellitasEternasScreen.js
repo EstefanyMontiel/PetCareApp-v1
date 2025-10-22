@@ -10,11 +10,10 @@ import {
     TextInput,
     Modal,
     RefreshControl,
-    ActionSheetIOS,
-    Platform
+    KeyboardAvoidingView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker'; // ✅ Importar ImagePicker
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
 import { petArchiveService } from '../services/petServices';
 import { communityService } from '../services/communityService';
@@ -32,13 +31,17 @@ export default function HuellitasEternasScreen({ navigation }) {
     const [shareMessage, setShareMessage] = useState('');
     const [sharing, setSharing] = useState(false);
     const [uploadingImage, setUploadingImage] = useState({}); // ✅ Estado para loading de imágenes
+    const [showCommentsModal, setShowCommentsModal] = useState(false);
+    const [selectedPost, setSelectedPost] = useState(null);
+    const [commentText, setCommentText] = useState('');
+    const [addingComment, setAddingComment] = useState(false);
 
     useEffect(() => {
-        requestPermissions(); // ✅ Solicitar permisos al cargar
+        requestPermissions(); // Solicitar permisos al cargar
         loadData();
     }, []);
 
-    // ✅ NUEVO: Solicitar permisos de cámara y galería
+    // Solicitar permisos de cámara y galería
     const requestPermissions = async () => {
         try {
             const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
@@ -52,37 +55,20 @@ export default function HuellitasEternasScreen({ navigation }) {
         }
     };
 
-    // ✅ NUEVO: Abrir selector de imagen
+    // Abrir selector de imagen (simplificado para evitar problemas con Platform)
     const handleAddPhoto = async (pet) => {
-        if (Platform.OS === 'ios') {
-            ActionSheetIOS.showActionSheetWithOptions(
-                {
-                    options: ['Cancelar', 'Tomar Foto', 'Elegir de Galería'],
-                    cancelButtonIndex: 0,
-                },
-                async (buttonIndex) => {
-                    if (buttonIndex === 1) {
-                        await takePhoto(pet);
-                    } else if (buttonIndex === 2) {
-                        await pickImageFromGallery(pet);
-                    }
-                }
-            );
-        } else {
-            // Android
-            Alert.alert(
-                'Agregar Foto',
-                'Elige una opción',
-                [
-                    { text: 'Cancelar', style: 'cancel' },
-                    { text: 'Tomar Foto', onPress: () => takePhoto(pet) },
-                    { text: 'Elegir de Galería', onPress: () => pickImageFromGallery(pet) },
-                ]
-            );
-        }
+        Alert.alert(
+            'Agregar Foto',
+            'Elige una opción',
+            [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Tomar Foto', onPress: () => takePhoto(pet) },
+                { text: 'Elegir de Galería', onPress: () => pickImageFromGallery(pet) },
+            ]
+        );
     };
 
-    // ✅ NUEVO: Tomar foto con cámara
+    // Tomar foto con cámara
     const takePhoto = async (pet) => {
         try {
             const result = await ImagePicker.launchCameraAsync({
@@ -101,7 +87,7 @@ export default function HuellitasEternasScreen({ navigation }) {
         }
     };
 
-    // ✅ NUEVO: Elegir imagen de galería
+    // Elegir imagen de galería
     const pickImageFromGallery = async (pet) => {
         try {
             const result = await ImagePicker.launchImageLibraryAsync({
@@ -120,15 +106,15 @@ export default function HuellitasEternasScreen({ navigation }) {
         }
     };
 
-    // ✅ NUEVO: Subir imagen al servidor
+    // Subir imagen al servidor
     const uploadPetImage = async (petId, imageUri) => {
         try {
             setUploadingImage(prev => ({ ...prev, [petId]: true }));
-            console.log('📸 Subiendo imagen para:', petId);
+            console.log(' Subiendo imagen para:', petId);
 
             const imageUrl = await petArchiveService.uploadArchivedPetImage(petId, imageUri);
             
-            console.log('✅ Imagen subida exitosamente');
+            console.log(' Imagen subida exitosamente');
             Alert.alert('✓ Éxito', 'Foto actualizada correctamente');
             
             // Recargar mascotas archivadas
@@ -155,11 +141,11 @@ export default function HuellitasEternasScreen({ navigation }) {
     const loadArchivedPets = async () => {
         try {
             setLoading(true);
-            console.log('🔄 Iniciando carga de mascotas archivadas para usuario:', user.uid);
+            console.log(' Iniciando carga de mascotas archivadas para usuario:', user.uid);
             
             const pets = await petArchiveService.getArchivedPets(user.uid);
-            console.log('📦 Mascotas archivadas encontradas:', pets.length);
-            console.log('📋 Datos de mascotas:', pets);
+            console.log(' Mascotas archivadas encontradas:', pets.length);
+            console.log(' Datos de mascotas:', pets);
             
             setArchivedPets(pets);
         } catch (error) {
@@ -177,9 +163,9 @@ export default function HuellitasEternasScreen({ navigation }) {
 
     const loadCommunityPosts = async () => {
         try {
-            console.log('🔄 Cargando posts comunitarios...');
+            console.log('Cargando posts comunitarios...');
             const posts = await communityService.getCommunityPosts(50);
-            console.log('✅ Posts cargados:', posts.length);
+            console.log('Posts cargados:', posts.length);
             setCommunityPosts(posts);
         } catch (error) {
             console.error('❌ Error cargando posts comunitarios:', error);
@@ -193,7 +179,7 @@ export default function HuellitasEternasScreen({ navigation }) {
     };
 
     const handleShareToCommunity = (pet) => {
-        // ✅ Validar que la mascota tenga imagen
+        // Validar que la mascota tenga imagen
         if (!pet.imageUrl) {
             Alert.alert(
                 '📸 Foto requerida',
@@ -218,7 +204,7 @@ export default function HuellitasEternasScreen({ navigation }) {
 
         try {
             setSharing(true);
-            console.log('📤 Compartiendo mascota:', selectedPet);
+            console.log('Compartiendo mascota:', selectedPet);
             
             await communityService.shareMemorial(selectedPet, shareMessage, true);
             
@@ -277,6 +263,131 @@ export default function HuellitasEternasScreen({ navigation }) {
             Alert.alert('Error', 'No se pudo dar like. Intenta nuevamente.');
         }
     };
+
+    // Abrir modal de comentarios
+    const handleOpenComments = (post) => {
+        setSelectedPost(post);
+        setShowCommentsModal(true);
+    };
+
+    // Agregar comentario
+    const handleAddComment = async () => {
+        if (!commentText.trim()) {
+            Alert.alert('Error', 'Escribe un comentario antes de enviar');
+            return;
+        }
+
+        try {
+            setAddingComment(true);
+            console.log('💬 Agregando comentario al post:', selectedPost.id);
+
+            const result = await communityService.addComment(
+                selectedPost.id,
+                user.uid,
+                userProfile?.nombre || user.displayName || 'Usuario',
+                commentText.trim()
+            );
+
+            // Actualizar estado local
+            setCommunityPosts(prevPosts =>
+                prevPosts.map(post => {
+                    if (post.id === selectedPost.id) {
+                        return {
+                            ...post,
+                            comments: [...(post.comments || []), result.comment]
+                        };
+                    }
+                    return post;
+                })
+            );
+
+            // Actualizar selectedPost para el modal
+            setSelectedPost(prev => ({
+                ...prev,
+                comments: [...(prev.comments || []), result.comment]
+            }));
+
+            // Limpiar input
+            setCommentText('');
+            
+            console.log('Comentario agregado');
+        } catch (error) {
+            console.error('Error agregando comentario:', error);
+            Alert.alert('Error', 'No se pudo agregar el comentario');
+        } finally {
+            setAddingComment(false);
+        }
+    };
+
+    ///////////////////////
+
+    const handlePostOptions = (post) => {
+        const isOwnPost = post.userId === user.uid;
+
+        // Usar Alert para ambas plataformas (simplificado)
+        const buttons = isOwnPost
+            ? [
+                { text: 'Cancelar', style: 'cancel' },
+                { 
+                    text: 'Eliminar', 
+                    style: 'destructive',
+                    onPress: () => handleDeletePost(post)
+                },
+                { 
+                    text: 'Reportar', 
+                    onPress: () => handleReportPost(post)
+                }
+            ]
+            : [
+                { text: 'Cancelar', style: 'cancel' },
+                { 
+                    text: 'Reportar', 
+                    onPress: () => handleReportPost(post)
+                }
+            ];
+
+        Alert.alert('Opciones del post', 'Selecciona una opción', buttons);
+    };
+
+    // ✅ NUEVO: Eliminar post
+    const handleDeletePost = (post) => {
+        Alert.alert(
+            '🗑️ Eliminar Post',
+            `¿Estás seguro de que deseas eliminar este recuerdo de ${post.petName}?`,
+            [
+                {
+                    text: 'Cancelar',
+                    style: 'cancel'
+                },
+                {
+                    text: 'Eliminar',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            console.log('🗑️ Eliminando post:', post.id);
+                            
+                            await communityService.deletePost(post.id, user.uid);
+                            
+                            // Actualizar estado local
+                            setCommunityPosts(prevPosts => 
+                                prevPosts.filter(p => p.id !== post.id)
+                            );
+                            
+                            Alert.alert('✓ Eliminado', 'El post ha sido eliminado');
+                        } catch (error) {
+                            console.error('❌ Error eliminando:', error);
+                            Alert.alert('Error', error.message || 'No se pudo eliminar el post');
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
+
+    ///////////////////////
+
+
 
     const handleRestorePet = (pet) => {
         Alert.alert(
@@ -351,7 +462,7 @@ export default function HuellitasEternasScreen({ navigation }) {
                     )}
                     <View style={styles.imageOverlay} />
                     
-                    {/* ✅ Botón de cámara flotante */}
+                    {/* Botón de cámara flotante */}
                     <TouchableOpacity 
                         style={styles.cameraButton}
                         onPress={() => handleAddPhoto(pet)}
@@ -400,7 +511,7 @@ export default function HuellitasEternasScreen({ navigation }) {
 
     const CommunityPostCard = ({ post }) => {
         const hasLiked = post.likedBy?.includes(user.uid);
-
+        const isOwnPost = post.userId === user.uid;
         return (
             <View style={styles.communityCard}>
                 <View style={styles.postHeader}>
@@ -413,6 +524,14 @@ export default function HuellitasEternasScreen({ navigation }) {
                             <Text style={styles.postTime}>{formatRelativeTime(post.createdAt)}</Text>
                         </View>
                     </View>
+
+                     {/* ✅ Botón de opciones (3 puntos) */}
+                    <TouchableOpacity 
+                        onPress={() => handlePostOptions(post)}
+                        style={styles.optionsButton}
+                    >
+                        <Ionicons name="ellipsis-horizontal" size={20} color="#666" />
+                    </TouchableOpacity>
                 </View>
 
                 {post.imageUrl && (
@@ -434,7 +553,12 @@ export default function HuellitasEternasScreen({ navigation }) {
                             color={hasLiked ? "#FF6B6B" : "#333"} 
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionButton}>
+
+                    {/* ✅ Botón de comentarios */}
+                    <TouchableOpacity 
+                        style={styles.actionButton}
+                        onPress={() => handleOpenComments(post)}
+                    >
                         <Ionicons name="chatbubble-outline" size={24} color="#333" />
                     </TouchableOpacity>
                 </View>
@@ -458,7 +582,10 @@ export default function HuellitasEternasScreen({ navigation }) {
                 </View>
 
                 {post.comments && post.comments.length > 0 && (
-                    <TouchableOpacity style={styles.commentsSection}>
+                    <TouchableOpacity 
+                        style={styles.commentsSection}
+                        onPress={() => handleOpenComments(post)}
+                    >
                         <Text style={styles.viewComments}>
                             Ver {post.comments.length === 1 ? 'el comentario' : `los ${post.comments.length} comentarios`}
                         </Text>
@@ -561,7 +688,111 @@ export default function HuellitasEternasScreen({ navigation }) {
                     </>
                 )}
             </ScrollView>
+ {/* ✅ NUEVO: Modal de Comentarios con KeyboardAvoidingView */}
+            <Modal
+                visible={showCommentsModal}
+                animationType="slide"
+                transparent={false}
+                onRequestClose={() => {
+                    setShowCommentsModal(false);
+                    setCommentText('');
+                }}
+            >
+                <KeyboardAvoidingView 
+                    style={styles.commentsModalContainer}
+                    behavior="padding"
+                    keyboardVerticalOffset={10}
+                >
+                    {/* Header del modal */}
+                    <View style={styles.commentsHeader}>
+                        <TouchableOpacity 
+                            style={styles.backButtonFloating}
+                            onPress={() => {
+                                setShowCommentsModal(false);
+                                setCommentText('');
+                            }}
+                        >
+                            <Ionicons name="arrow-back" size={24} color="#262626" />
+                        </TouchableOpacity>
+                        <Text style={styles.commentsHeaderTitle}>Comentarios</Text>
+                        <View style={{ width: 32 }} />
+                    </View>
 
+                    {/* Lista de comentarios */}
+                    <ScrollView 
+                        style={styles.commentsList}
+                        contentContainerStyle={{ paddingBottom: 20 }}
+                    >
+                        {selectedPost && selectedPost.comments && selectedPost.comments.length > 0 ? (
+                            selectedPost.comments.map((comment) => (
+                                <View key={comment.id} style={styles.commentItem}>
+                                    <View style={styles.commentAvatar}>
+                                        <Ionicons name="person" size={16} color="#fff" />
+                                    </View>
+                                    <View style={styles.commentContent}>
+                                        <View style={styles.commentHeader}>
+                                            <Text style={styles.commentUserName}>
+                                                {comment.userName}
+                                            </Text>
+                                            <Text style={styles.commentText}>
+                                                {comment.text}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            ))
+                        ) : (
+                            <View style={styles.noCommentsContainer}>
+                                <Ionicons name="chatbubbles-outline" size={80} color="#c7c7cc" />
+                                <Text style={styles.noCommentsText}>
+                                    Sin comentarios
+                                </Text>
+                                <Text style={styles.noCommentsSubtext}>
+                                    Empieza la conversación.
+                                </Text>
+                            </View>
+                        )}
+                    </ScrollView>
+
+                    {/* Input de comentario (siempre visible) */}
+                    <View style={styles.commentInputContainer}>
+                        <View style={styles.commentInputWrapper}>
+                            <TextInput
+                                style={styles.commentInput}
+                                placeholder="Agrega un comentario..."
+                                placeholderTextColor="#8e8e8e"
+                                value={commentText}
+                                onChangeText={setCommentText}
+                                multiline
+                                maxLength={500}
+                                returnKeyType="send"
+                                onSubmitEditing={handleAddComment}
+                                blurOnSubmit={false}
+                            />
+                        </View>
+                        <TouchableOpacity 
+                            style={[
+                                styles.sendButton,
+                                (!commentText.trim() || addingComment) && styles.sendButtonDisabled
+                            ]}
+                            onPress={handleAddComment}
+                            disabled={!commentText.trim() || addingComment}
+                        >
+                            {addingComment ? (
+                                <ActivityIndicator size="small" color="#0095f6" />
+                            ) : (
+                                <Text style={[
+                                    styles.sendButtonText,
+                                    (!commentText.trim() || addingComment) && styles.sendButtonDisabled
+                                ]}>
+                                    Publicar
+                                </Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                </KeyboardAvoidingView>
+            </Modal>
+                {/* Modal para compartir en comunidad */}
             <Modal
                 visible={showShareModal}
                 animationType="slide"

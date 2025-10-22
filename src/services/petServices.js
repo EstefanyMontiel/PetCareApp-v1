@@ -358,6 +358,38 @@
             console.error('Error actualizando imagen:', error);
             throw error;
         }
+    },
+
+    // 🔧 FUNCIÓN DE DEBUGGING - Obtener TODAS las mascotas de un usuario para ver su estado
+    debugGetAllPets: async (userId) => {
+        try {
+            console.log('🔍 DEBUG: Obteniendo TODAS las mascotas para usuario:', userId);
+            
+            const snapshot = await db.collection('mascotas')
+                .where('userId', '==', userId)
+                .get();
+            
+            const allPets = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            
+            console.log('🔍 DEBUG: Total de mascotas encontradas:', allPets.length);
+            allPets.forEach((pet, index) => {
+                console.log(`🔍 DEBUG Mascota ${index + 1}:`, {
+                    id: pet.id,
+                    nombre: pet.nombre,
+                    isActive: pet.isActive,
+                    archived: pet.archived,
+                    archivedDate: pet.archivedDate
+                });
+            });
+            
+            return allPets;
+        } catch (error) {
+            console.error('❌ DEBUG Error obteniendo todas las mascotas:', error);
+            throw error;
+        }
     }
 };
 
