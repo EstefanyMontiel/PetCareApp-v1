@@ -43,18 +43,26 @@
         }
     };
 
-    // Cargar mascotas del usuario
+
+    // Cargar mascotas del usuario (solo activas)
     const loadUserPets = async (uid) => {
         try {
-        const petsSnapshot = await db.collection('mascotas').where('userId', '==', uid).get();
-        const pets = petsSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-        setUserPets(pets);
-        console.log('🐾 Mascotas cargadas:', pets.length);
+            // Filtrar solo mascotas activas o sin el campo isActive (para compatibilidad)
+            const petsSnapshot = await db.collection('mascotas')
+                .where('userId', '==', uid)
+                .get();
+            
+            const pets = petsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }))
+            // Filtrar en cliente para compatibilidad con mascotas antiguas
+            .filter(pet => pet.isActive !== false);
+            
+            setUserPets(pets);
+            console.log('🐾 Mascotas cargadas:', pets.length);
         } catch (error) {
-        console.error('Error loading user pets:', error);
+            console.error('Error loading user pets:', error);
         }
     };
 
@@ -120,6 +128,7 @@
         const petDoc = {
             ...petData,
             userId: user.uid,
+            isActive: true, //siempre activa al crear
             fechaRegistro: new Date(),
             createdAt: new Date(),
             updatedAt: new Date()

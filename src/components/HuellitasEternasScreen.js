@@ -1,178 +1,154 @@
-    import React, { useState } from 'react';
-    import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    Image,
+import React, { useState, useEffect } from 'react';
+import { 
+    View, 
+    Text, 
+    ScrollView, 
+    Image, 
+    StyleSheet, 
     TouchableOpacity,
-    TextInput,
-    FlatList,
-    Dimensions,
-    } from 'react-native';
-    import { Ionicons } from '@expo/vector-icons';
-    import styles from '../styles/HuellitasScreenStyles';
-    
-    const { width } = Dimensions.get('window');
-    const ITEM_WIDTH = (width - 45) / 2;
+    Alert,
+    ActivityIndicator
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';
+import { petArchiveService } from '../services/petServices';
+import styles from '../styles/HuellitasScreenStyles';
 
-    export default function HuellitasEternasScreen() {
-    const [activeTab, setActiveTab] = useState('misPeludos'); // 'misPeludos' o 'galeria'
-    
-    // Datos de ejemplo - conectar con tu base de datos
-    const [misMascotasInactivas] = useState([
-        {
-        id: '1',
-        nombre: 'Luna',
-        foto: 'https://www.aon.es/personales/seguro-perro-gato/wp-content/uploads/sites/2/2021/04/bichon-maltes.jpg',
-        fechaDespedida: '2024-05-15',
-        mensaje: 'Siempre fuiste mi compañera fiel',
-        likes: 15,
-        },
-    ]);
+export default function HuellitasEternasScreen() {
+    const { user } = useAuth();
+    const [archivedPets, setArchivedPets] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const [galeriaComunitaria] = useState([
-        {
-        id: '1',
-        usuario: 'María García',
-        mascota: 'Daisy',
-        foto: 'https://example.com/daisy.jpg',
-        mensaje: 'Tu lealtad quedó marcada en mi corazón',
-        likes: 16,
-        comentarios: 3,
-        },
-        {
-        id: '2',
-        usuario: 'Carlos Ruiz',
-        mascota: 'Buddy',
-        foto: 'https://example.com/buddy.jpg',
-        mensaje: 'Siempre serás parte de nuestra familia',
-        likes: 23,
-        comentarios: 5,
-        },
-    ]);
+    useEffect(() => {
+        loadArchivedPets();
+    }, []);
 
-    const renderMiMascotaCard = ({ item }) => (
-        <View style={styles.myPetCard}>
-        <Image source={{ uri: item.foto }} style={styles.petImage} />
-        <View style={styles.petInfo}>
-            <Text style={styles.petName}>{item.nombre}</Text>
-            <Text style={styles.petDate}>{item.fechaDespedida}</Text>
-            <Text style={styles.petMessage}>{item.mensaje}</Text>
-            <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.actionButton}>
-                <Ionicons name="heart" size={20} color="#6B9B8E" />
-                <Text style={styles.actionText}>{item.likes}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-                <Ionicons name="share-social-outline" size={20} color="#6B9B8E" />
-                <Text style={styles.actionText}>Compartir</Text>
-            </TouchableOpacity>
+    const loadArchivedPets = async () => {
+        try {
+            setLoading(true);
+            const pets = await petArchiveService.getArchivedPets(user.uid);
+            setArchivedPets(pets);
+        } catch (error) {
+            console.error('Error cargando mascotas archivadas:', error);
+            Alert.alert('Error', 'No se pudieron cargar las mascotas archivadas');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRestorePet = (pet) => {
+        Alert.alert(
+            '🔄 Restaurar Mascota',
+            `¿Deseas restaurar a ${pet.nombre} a tu lista de mascotas activas?`,
+            [
+                {
+                    text: 'Cancelar',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Restaurar',
+                    onPress: async () => {
+                        try {
+                            await petArchiveService.restorePet(pet.id);
+                            await loadArchivedPets();
+                            Alert.alert('✓', `${pet.nombre} ha sido restaurada`);
+                        } catch (error) {
+                            Alert.alert('Error', 'No se pudo restaurar la mascota');
+                        }
+                    },
+                },
+            ]
+        );
+    };
+
+    const formatDate = (date) => {
+        if (!date) return 'Fecha desconocida';
+        const d = date.toDate ? date.toDate() : new Date(date);
+        return d.toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+
+    const ArchivedPetCard = ({ pet }) => (
+        <View style={styles.petCard}>
+            {/* Imagen con overlay */}
+            <View style={styles.petImageContainer}>
+                {pet.imageUrl ? (
+                    <Image 
+                        source={{ uri: pet.imageUrl }} 
+                        style={styles.petImage}
+                        resizeMode="cover"
+                    />
+                ) : (
+                    <View style={[styles.petImage, styles.placeholderImage]}>
+                        <Ionicons name="paw" size={40} color="#fff" />
+                    </View>
+                )}
+                {/* Overlay con efecto de memoria */}
+                <View style={styles.imageOverlay} />
             </View>
-        </View>
+
+            {/* Información */}
+            <View style={styles.petInfo}>
+                <Text style={styles.petName}>{pet.nombre}</Text>
+                <Text style={styles.petDetails}>
+                    {pet.especie} • {pet.raza}
+                </Text>
+                <Text style={styles.archivedDate}>
+                    💫 {formatDate(pet.archivedDate)}
+                </Text>
+                
+                {/* Botón opcional para restaurar */}
+                <TouchableOpacity
+                    style={styles.restoreButton}
+                    onPress={() => handleRestorePet(pet)}
+                >
+                    <Ionicons name="arrow-undo" size={16} color="#4CAF50" />
+                    <Text style={styles.restoreText}>Restaurar</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 
-    const renderGaleriaCard = ({ item }) => (
-        <View style={styles.galeriaCard}>
-        <View style={styles.cardHeader}>
-            <View style={styles.userInfo}>
-            <View style={styles.avatar}>
-                <Ionicons name="person" size={20} color="#fff" />
+    if (loading) {
+        return (
+            <View style={styles.centerContainer}>
+                <ActivityIndicator size="large" color="#FF6B6B" />
             </View>
-            <View>
-                <Text style={styles.userName}>{item.usuario}</Text>
-                <Text style={styles.petNameSmall}>En memoria de {item.mascota}</Text>
-            </View>
-            </View>
-            <Ionicons name="ellipsis-horizontal" size={24} color="#666" />
-        </View>
-
-        <Image source={{ uri: item.foto }} style={styles.galeriaImage} />
-
-        <View style={styles.cardActions}>
-            <View style={styles.leftActions}>
-            <TouchableOpacity style={styles.iconButton}>
-                <Ionicons name="heart-outline" size={28} color="#000" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
-                <Ionicons name="chatbubble-outline" size={26} color="#000" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
-                <Ionicons name="share-outline" size={26} color="#000" />
-            </TouchableOpacity>
-            </View>
-        </View>
-
-        <View style={styles.cardFooter}>
-            <Text style={styles.likes}>{item.likes} me gusta</Text>
-            <Text style={styles.caption}>
-            <Text style={styles.captionUser}>{item.usuario}</Text> {item.mensaje}
-            </Text>
-            <TouchableOpacity>
-            <Text style={styles.viewComments}>
-                Ver los {item.comentarios} comentarios
-            </Text>
-            </TouchableOpacity>
-        </View>
-        </View>
-    );
+        );
+    }
 
     return (
         <View style={styles.container}>
-        {/* Header con descripción */}
-        <View style={styles.headerSection}>
-            <Text style={styles.headerTitle}>Huellitas Eternas</Text>
-            <Text style={styles.headerSubtitle}>
-            Un espacio para honrar y recordar a nuestros compañeros que dejaron huellas
-            en nuestros corazones
-            </Text>
-        </View>
-
-        {/* Tabs */}
-        <View style={styles.tabsContainer}>
-            <TouchableOpacity
-            style={[styles.tab, activeTab === 'misPeludos' && styles.activeTab]}
-            onPress={() => setActiveTab('misPeludos')}
-            >
-            <Text
-                style={[styles.tabText, activeTab === 'misPeludos' && styles.activeTabText]}
-            >
-                Mis Peludos
-            </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-            style={[styles.tab, activeTab === 'galeria' && styles.activeTab]}
-            onPress={() => setActiveTab('galeria')}
-            >
-            <Text
-                style={[styles.tabText, activeTab === 'galeria' && styles.activeTabText]}
-            >
-                Galería Comunitaria
-            </Text>
-            </TouchableOpacity>
-        </View>
-
-        {/* Sección "Rincón de recuerdos" para compartir */}
-        {activeTab === 'misPeludos' && (
-            <View style={styles.shareSection}>
-            <TouchableOpacity style={styles.shareButton}>
-                <Ionicons name="add-circle-outline" size={24} color="#6B9B8E" />
-                <Text style={styles.shareButtonText}>Compartir recuerdo</Text>
-            </TouchableOpacity>
+            {/* Header */}
+            <View style={styles.header}>
+                <Ionicons name="heart" size={40} color="#FF6B6B" />
+                <Text style={styles.headerTitle}>Huellitas Eternas</Text>
+                <Text style={styles.headerSubtitle}>
+                    Siempre en nuestros corazones 🐾
+                </Text>
             </View>
-        )}
 
-        {/* Contenido según tab activo */}
-        <FlatList
-            data={activeTab === 'misPeludos' ? misMascotasInactivas : galeriaComunitaria}
-            renderItem={
-            activeTab === 'misPeludos' ? renderMiMascotaCard : renderGaleriaCard
-            }
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContainer}
-            showsVerticalScrollIndicator={false}
-        />
+            {/* Lista de mascotas archivadas */}
+            <ScrollView style={styles.content}>
+                {archivedPets.length > 0 ? (
+                    archivedPets.map(pet => (
+                        <ArchivedPetCard key={pet.id} pet={pet} />
+                    ))
+                ) : (
+                    <View style={styles.emptyContainer}>
+                        <Ionicons name="heart-outline" size={80} color="#ccc" />
+                        <Text style={styles.emptyText}>
+                            No hay mascotas en Huellitas Eternas
+                        </Text>
+                        <Text style={styles.emptySubtext}>
+                            Este espacio guardará los recuerdos de tus compañeros
+                        </Text>
+                    </View>
+                )}
+            </ScrollView>
         </View>
     );
-    }
+}
