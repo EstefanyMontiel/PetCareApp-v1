@@ -1,5 +1,5 @@
     import { db, storage, auth } from '../config/firebase';
-    
+    import { imageUploadService } from './imageUploadService';
     // Servicios para Vacunación
     export const vaccinationService = {
     // Agregar nueva vacuna
@@ -178,84 +178,48 @@
     };
 
         // Servicios para imágenes de mascotas
-        export const petImageService = {
+    export const petImageService = {
         uploadPetImage: async (petId, imageUri) => {
             try {
-                console.log('📸 Subiendo imagen para mascota:', petId);
-                console.log('📸 URI de imagen:', imageUri);
-                
-                // Verificar que el usuario esté autenticado
-                const currentUser = auth.currentUser;
-                if (!currentUser) {
-                    throw new Error('Usuario no autenticado');
-                }
-                console.log('👤 Usuario autenticado:', currentUser.email);
-                
-                // Verificar configuración de Storage
-                console.log('🗄️ Storage Bucket:', storage.app.options.storageBucket);
-                
-                const response = await fetch(imageUri);
-                if (!response.ok) {
-                    throw new Error(`Error al obtener imagen: ${response.status}`);
-                }
-                
-                const blob = await response.blob();
-                console.log('📦 Blob creado, tamaño:', blob.size, 'bytes');
-                console.log('📦 Tipo de blob:', blob.type);
-                
-                const timestamp = Date.now();
-                const imagePath = `pets/${petId}/profile_${timestamp}.jpg`;
-                const imageRef = storage.ref(imagePath);
-                
-                console.log('📤 Iniciando upload a:', imagePath);
-                console.log('📤 Storage URL:', imageRef.toString());
-                
-                // Subir con metadata
-                const metadata = {
-                    contentType: 'image/jpeg',
-                    customMetadata: {
-                        uploadedBy: currentUser.uid,
-                        uploadedAt: new Date().toISOString()
-                    }
-                };
-                
-                const snapshot = await imageRef.put(blob, metadata);
-                console.log('📊 Upload completo:', snapshot.state);
-                
-                const downloadURL = await snapshot.ref.getDownloadURL();
-                console.log('✅ Imagen subida correctamente:', downloadURL);
-                return downloadURL;
-            } catch (error) {
-                console.error('❌ Error uploading pet image:', error);
-                console.error('❌ Error code:', error.code);
-                console.error('❌ Error message:', error.message);
-                
-                // Errores específicos
-                if (error.code === 'storage/unauthorized') {
-                    throw new Error('No tienes permisos para subir imágenes. Verifica las reglas de Storage.');
-                } else if (error.code === 'storage/unknown') {
-                    throw new Error('Error de conexión con Firebase Storage. Verifica tu configuración.');
-                }
-                
-                throw error;
-            }
-        },
+            console.log('📸 Subiendo imagen para mascota activa:', petId);
 
-        updatePetImage: async (petId, imageUrl) => {
-            try {
-                console.log('📝 Actualizando URL de imagen en Firestore para:', petId);
-                
-                await db.collection('mascotas').doc(petId).update({
-                    imageUrl,
-                    updatedAt: new Date()
-                });
-                
-                console.log('✅ URL de imagen actualizada en Firestore');
-            } catch (error) {
-                console.error('❌ Error updating pet image:', error);
-                throw error;
+            const currentUser = auth.currentUser;
+            if (!currentUser) {
+                throw new Error('Usuario no autenticado');
             }
-        },
+
+            // Subir a Cloudinary
+            const result = await imageUploadService.uploadImage(imageUri, 'active_pets');
+
+            console.log('✅ Imagen subida:', result.url);
+
+            // Actualizar Firestore
+            await db.collection('mascotas').doc(petId).update({
+                imageUrl: result.url,
+                imagePublicId: result.publicId,
+                updatedAt: new Date()
+            });
+
+            return result.url;
+        } catch (error) {
+            console.error('Error subiendo imagen:', error);
+            throw error;
+        }
+    },
+
+    // Actualizar URL de imagen
+    updatePetImage: async (petId, imageUrl) => {
+        try {
+            await db.collection('mascotas').doc(petId).update({
+                imageUrl: imageUrl,
+                updatedAt: new Date()
+            });
+            return { success: true };
+        } catch (error) {
+            console.error('Error actualizando imagen:', error);
+            throw error;
+        }
+    }, 
 
         deletePetImage: async (petId) => {
             try {
@@ -266,7 +230,7 @@
                 console.log('ℹ️ No hay imagen anterior para eliminar');
             }
         }, 
-        };
+    };
 
         export const petArchiveService = {
     // Archivar una mascota (moverla a "Huellitas Eternas")
@@ -276,6 +240,7 @@
             
             await db.collection('mascotas').doc(petId).update({
                 isActive: false,
+                archived: true,  // ✅ Agregar campo archived también
                 archivedDate: new Date(),
                 updatedAt: new Date()
             });
@@ -288,27 +253,12 @@
         }
     },
 
-    // Obtener mascotas activas de un usuario
-    getActivePets: async (userId) => {
-        try {
-            const snapshot = await db.collection('mascotas')
-                .where('userId', '==', userId)
-                .where('isActive', '==', true)  // Solo activas
-                .get();
-            
-            return snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-        } catch (error) {
-            console.error('❌ Error obteniendo mascotas activas:', error);
-            throw error;
-        }
-    },
 
     // Obtener mascotas archivadas de un usuario
     getArchivedPets: async (userId) => {
         try {
+            console.log('🔍 Buscando mascotas archivadas para usuario:', userId);
+            
             // Consulta simplificada sin orderBy para evitar el índice
             const snapshot = await db.collection('mascotas')
                 .where('userId', '==', userId)
@@ -319,6 +269,8 @@
                 id: doc.id,
                 ...doc.data()
             }));
+            
+            console.log('📦 Mascotas archivadas encontradas:', pets.length);
             
             // Ordenar en cliente por archivedDate
             return pets.sort((a, b) => {
@@ -332,13 +284,14 @@
         }
     },
 
-    // Restaurar una mascota archivada (opcional)
+    // Restaurar una mascota archivada
     restorePet: async (petId) => {
         try {
             console.log('🔄 Restaurando mascota:', petId);
             
             await db.collection('mascotas').doc(petId).update({
                 isActive: true,
+                archived: false,  // ✅ Actualizar ambos campos
                 archivedDate: null,
                 updatedAt: new Date()
             });
@@ -349,5 +302,63 @@
             console.error('❌ Error restaurando mascota:', error);
             throw error;
         }
+    }, 
+
+    // ✅ Subir imagen usando Cloudinary (SIN Firebase Storage)
+    uploadArchivedPetImage: async (petId, imageUri) => {
+        try {
+            const currentUser = auth.currentUser;
+            if (!currentUser) {
+                throw new Error('Usuario no autenticado');
+            }
+
+            console.log('📸 Subiendo imagen para mascota:', petId);
+            console.log('👤 Usuario:', currentUser.uid);
+
+            // Subir a Cloudinary
+            const uploadResult = await imageUploadService.uploadImage(
+                imageUri,
+                'archived_pets' // Carpeta en Cloudinary
+            );
+
+            if (!uploadResult.success) {
+                throw new Error('No se pudo subir la imagen');
+            }
+
+            const imageUrl = uploadResult.url;
+            console.log('✅ Imagen subida a Cloudinary:', imageUrl);
+
+            // Guardar URL en Firestore
+            await db.collection('mascotas').doc(petId).update({
+                imageUrl: imageUrl,
+                imagePublicId: uploadResult.publicId,
+                imageWidth: uploadResult.width,
+                imageHeight: uploadResult.height,
+                updatedAt: new Date()
+            });
+
+            console.log('✅ Firestore actualizado');
+
+            return imageUrl;
+        } catch (error) {
+            console.error('❌ Error en uploadArchivedPetImage:', error);
+            throw error;
+        }
+    },
+
+    // Actualizar imagen de mascota archivada
+    updateArchivedPetImage: async (petId, imageUrl) => {
+        try {
+            await db.collection('mascotas').doc(petId).update({
+                imageUrl: imageUrl,
+                updatedAt: new Date()
+            });
+            return { success: true };
+        } catch (error) {
+            console.error('Error actualizando imagen:', error);
+            throw error;
+        }
     }
 };
+
+export { communityService } from './communityService';
