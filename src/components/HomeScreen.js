@@ -51,22 +51,24 @@ const HomeScreen = ({ navigation }) => {
     const navigateToOption = (pet, option) => {
         switch(option) {
             case 'vaccination':
-                navigation.navigate('Vacunación', { 
-                    petId: pet.id, 
-                    petName: pet.nombre,
-                    petSpecies: pet.especie
-                });
-                break;
+            navigation.navigate('Vacunación', { 
+                petId: pet.id, 
+                petName: pet.nombre,
+                petSpecies: pet.especie // ✅ Agregar la especie
+            });
+            break;
             case 'deworming':
                 navigation.navigate('Desparasitación', { 
                     petId: pet.id, 
-                    petName: pet.nombre 
+                    petName: pet.nombre,
+                    petSpecies: pet.especie // ✅ Agregar la especie
                 });
                 break;
             case 'annual':
                 navigation.navigate('Examen anual', { 
                     petId: pet.id, 
-                    petName: pet.nombre 
+                    petName: pet.nombre,
+                    petSpecies: pet.especie // ✅ Agregar la especie
                 });
                 break;
         }
