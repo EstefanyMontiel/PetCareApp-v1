@@ -3,198 +3,120 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#F5F5F5',
     },
-    headerSection: {
-        backgroundColor: '#fff',
-        padding: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    header: {
+        backgroundColor: '#FFE5E5',
+        padding: 30,
+        alignItems: 'center',
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
     },
     headerTitle: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 8,
+        color: '#FF6B6B',
+        marginTop: 10,
     },
     headerSubtitle: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#666',
-        lineHeight: 20,
+        marginTop: 5,
     },
-    tabsContainer: {
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    tab: {
+    content: {
         flex: 1,
-        paddingVertical: 15,
-        alignItems: 'center',
-        borderBottomWidth: 2,
-        borderBottomColor: 'transparent',
+        padding: 16,
     },
-    activeTab: {
-        borderBottomColor: '#6B9B8E',
-    },
-    tabText: {
-        fontSize: 16,
-        color: '#666',
-        fontWeight: '500',
-    },
-    activeTabText: {
-        color: '#6B9B8E',
-        fontWeight: 'bold',
-    },
-    shareSection: {
+    petCard: {
         backgroundColor: '#fff',
-        padding: 15,
-        marginBottom: 10,
-    },
-    shareButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 12,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#6B9B8E',
-        borderStyle: 'dashed',
-    },
-    shareButtonText: {
-        marginLeft: 8,
-        fontSize: 16,
-        color: '#6B9B8E',
-        fontWeight: '600',
-    },
-    listContainer: {
-        padding: 10,
-    },
-    myPetCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        marginBottom: 15,
+        borderRadius: 16,
+        marginBottom: 16,
         overflow: 'hidden',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowRadius: 8,
         elevation: 3,
+    },
+    petImageContainer: {
+        width: '100%',
+        height: 200,
+        position: 'relative',
     },
     petImage: {
         width: '100%',
-        height: 250,
-        resizeMode: 'cover',
+        height: '100%',
     },
-    petInfo: {
-        padding: 15,
-    },
-    petName: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 5,
-    },
-    petDate: {
-        fontSize: 14,
-        color: '#999',
-        marginBottom: 10,
-    },
-    petMessage: {
-        fontSize: 15,
-        color: '#666',
-        fontStyle: 'italic',
-        marginBottom: 15,
-    },
-    actionsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        borderTopWidth: 1,
-        borderTopColor: '#e0e0e0',
-        paddingTop: 10,
-    },
-    actionButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    actionText: {
-        marginLeft: 5,
-        color: '#6B9B8E',
-        fontWeight: '600',
-    },
-    galeriaCard: {
-        backgroundColor: '#fff',
-        marginBottom: 15,
-        borderRadius: 12,
-        overflow: 'hidden',
-    },
-    cardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 12,
-    },
-    userInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    avatar: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: '#6B9B8E',
+    placeholderImage: {
+        backgroundColor: '#DDD',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 10,
     },
-    userName: {
-        fontSize: 14,
+    imageOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.15)', // Efecto nostálgico
+    },
+    petInfo: {
+        padding: 16,
+    },
+    petName: {
+        fontSize: 22,
         fontWeight: 'bold',
         color: '#333',
+        marginBottom: 4,
     },
-    petNameSmall: {
-        fontSize: 12,
+    petDetails: {
+        fontSize: 16,
         color: '#666',
+        marginBottom: 8,
     },
-    galeriaImage: {
-        width: '100%',
-        height: 400,
-        resizeMode: 'cover',
-    },
-    cardActions: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 12,
-    },
-    leftActions: {
-        flexDirection: 'row',
-    },
-    iconButton: {
-        marginRight: 15,
-    },
-    cardFooter: {
-        paddingHorizontal: 12,
-        paddingBottom: 12,
-    },
-    likes: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 5,
-    },
-    caption: {
-        fontSize: 14,
-        color: '#333',
-        marginBottom: 5,
-    },
-    captionUser: {
-        fontWeight: 'bold',
-    },
-    viewComments: {
+    archivedDate: {
         fontSize: 14,
         color: '#999',
+        fontStyle: 'italic',
     },
-    });
+    restoreButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#E8F5E9',
+        padding: 10,
+        borderRadius: 8,
+        marginTop: 12,
+        alignSelf: 'flex-start',
+    },
+    restoreText: {
+        color: '#4CAF50',
+        marginLeft: 6,
+        fontWeight: '600',
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: 60,
+    },
+    emptyText: {
+        fontSize: 18,
+        color: '#999',
+        marginTop: 20,
+        textAlign: 'center',
+    },
+    emptySubtext: {
+        fontSize: 14,
+        color: '#BBB',
+        marginTop: 8,
+        textAlign: 'center',
+        paddingHorizontal: 40,
+    },
+});
 
 export default styles;

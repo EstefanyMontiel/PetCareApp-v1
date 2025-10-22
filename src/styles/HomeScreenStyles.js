@@ -67,7 +67,19 @@ const styles = StyleSheet.create({
     petHeader: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
         marginBottom: 12,
+        width: '100%',
+    },
+    petBasicInfo: {
+        flex: 1,
+    },
+    // Botón de archivar discreto
+    archiveButton: {
+        padding: 8,
+        borderRadius: 20,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        opacity: 0.7,
     },
     petAvatar: {
         width: 50,

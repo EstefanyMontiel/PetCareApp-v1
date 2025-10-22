@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
-import { petImageService } from '../services/petServices';
+import { petImageService, petArchiveService } from '../services/petServices';
 import { useImagePicker } from '../hooks/useImagePicker';
 import styles from '../styles/HomeScreenStyles';
 
@@ -126,7 +126,45 @@ const HomeScreen = ({ navigation }) => {
         }
     };
 
-    const PetCard = ({ pet }) => (
+    // Función para archivar mascota
+    const handleArchivePet = (pet) => {
+        Alert.alert(
+            '💔 Archivar Mascota',
+            `¿Deseas mover a ${pet.nombre} a "Huellitas Eternas"?\n\nEsta acción marcará a tu mascota como inactiva y la podrás ver en el apartado de recuerdos.`,
+            [
+                {
+                    text: 'Cancelar',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Archivar',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await petArchiveService.archivePet(pet.id);
+                            
+                            // Recargar las mascotas
+                            await loadUserPets(user.uid);
+                            
+                            Alert.alert(
+                                '✓ Archivada', 
+                                `${pet.nombre} ha sido movida a Huellitas Eternas`
+                            );
+                        } catch (error) {
+                            console.error('Error archivando mascota:', error);
+                            Alert.alert(
+                                'Error', 
+                                'No se pudo archivar la mascota. Intenta de nuevo.'
+                            );
+                        }
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
+    };
+
+ const PetCard = ({ pet }) => (
         <View style={styles.petCard}>
             {/* Imagen de la mascota */}
             <View style={styles.petImageContainer}>
@@ -167,9 +205,21 @@ const HomeScreen = ({ navigation }) => {
 
             {/* Información de la mascota */}
             <View style={styles.petInfo}>
-                <Text style={styles.petName}>{pet.nombre}</Text>
-                <Text style={styles.petBreed}>{pet.raza}</Text>
-                <Text style={styles.petAge}>{calculateAge(pet.fechaNacimiento)}</Text>
+                <View style={styles.petHeader}>
+                    <View style={styles.petBasicInfo}>
+                        <Text style={styles.petName}>{pet.nombre}</Text>
+                        <Text style={styles.petBreed}>{pet.raza}</Text>
+                        <Text style={styles.petAge}>{calculateAge(pet.fechaNacimiento)}</Text>
+                    </View>
+                    
+                    {/* Botón de archivar discreto */}
+                    <TouchableOpacity
+                        style={styles.archiveButton}
+                        onPress={() => handleArchivePet(pet)}
+                    >
+                        <Ionicons name="archive-outline" size={18} color="#999" />
+                    </TouchableOpacity>
+                </View>
             </View>
 
             {/* Opciones */}
@@ -274,8 +324,8 @@ const HomeScreen = ({ navigation }) => {
 
                     </View>
                 )}
-                <View style={styles.eternasContainer}>
-                      {/* Botón para Huellitas Eternas */}
+                
+                {/* Botón para Huellitas Eternas */}
                 <TouchableOpacity 
                     style={styles.eternasButton}
                     onPress={() => navigation.navigate('HuellitasEternas')}
@@ -284,8 +334,8 @@ const HomeScreen = ({ navigation }) => {
                     <Text style={styles.eternasButtonText}>Huellitas Eternas</Text>
                     <Ionicons name="chevron-forward" size={24} color="#fff" />
                 </TouchableOpacity>
-            </View>
             </ScrollView>
+
         </View>
     );
 };

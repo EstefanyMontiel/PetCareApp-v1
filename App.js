@@ -49,7 +49,14 @@ function AppStack() {
           headerShown: true 
         }}
       />
-        <Stack.Screen name="HuellitasEternas" component={HuellitasEternasScreen} />
+        <Stack.Screen 
+          name="HuellitasEternas" 
+          component={HuellitasEternasScreen} 
+          options={{ 
+            title: 'Huellitas Eternas',
+            headerShown: true 
+          }}
+        />
     <Stack.Screen name="Vacunación" component={VaccinationScreen} />
     <Stack.Screen name="Desparasitación" component={DewormingScreen} />
     <Stack.Screen name="Examen anual" component={AnnualExamScreen} />

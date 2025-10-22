@@ -265,5 +265,89 @@
             } catch (error) {
                 console.log('ℹ️ No hay imagen anterior para eliminar');
             }
-        }
+        }, 
         };
+
+        export const petArchiveService = {
+    // Archivar una mascota (moverla a "Huellitas Eternas")
+    archivePet: async (petId) => {
+        try {
+            console.log('📦 Archivando mascota:', petId);
+            
+            await db.collection('mascotas').doc(petId).update({
+                isActive: false,
+                archivedDate: new Date(),
+                updatedAt: new Date()
+            });
+            
+            console.log('✅ Mascota archivada exitosamente');
+            return true;
+        } catch (error) {
+            console.error('❌ Error archivando mascota:', error);
+            throw error;
+        }
+    },
+
+    // Obtener mascotas activas de un usuario
+    getActivePets: async (userId) => {
+        try {
+            const snapshot = await db.collection('mascotas')
+                .where('userId', '==', userId)
+                .where('isActive', '==', true)  // Solo activas
+                .get();
+            
+            return snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+        } catch (error) {
+            console.error('❌ Error obteniendo mascotas activas:', error);
+            throw error;
+        }
+    },
+
+    // Obtener mascotas archivadas de un usuario
+    getArchivedPets: async (userId) => {
+        try {
+            // Consulta simplificada sin orderBy para evitar el índice
+            const snapshot = await db.collection('mascotas')
+                .where('userId', '==', userId)
+                .where('isActive', '==', false)  // Solo archivadas
+                .get();
+            
+            const pets = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            
+            // Ordenar en cliente por archivedDate
+            return pets.sort((a, b) => {
+                const dateA = a.archivedDate ? (a.archivedDate.seconds || 0) : 0;
+                const dateB = b.archivedDate ? (b.archivedDate.seconds || 0) : 0;
+                return dateB - dateA; // Descendente (más reciente primero)
+            });
+        } catch (error) {
+            console.error('❌ Error obteniendo mascotas archivadas:', error);
+            throw error;
+        }
+    },
+
+    // Restaurar una mascota archivada (opcional)
+    restorePet: async (petId) => {
+        try {
+            console.log('🔄 Restaurando mascota:', petId);
+            
+            await db.collection('mascotas').doc(petId).update({
+                isActive: true,
+                archivedDate: null,
+                updatedAt: new Date()
+            });
+            
+            console.log('✅ Mascota restaurada exitosamente');
+            return true;
+        } catch (error) {
+            console.error('❌ Error restaurando mascota:', error);
+            throw error;
+        }
+    }
+};
