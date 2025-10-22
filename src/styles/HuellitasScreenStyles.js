@@ -1,122 +1,349 @@
-import { StyleSheet } from 'react-native';
+    import { StyleSheet, Dimensions } from 'react-native';
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F5F5F5',
-    },
-    centerContainer: {
-        flex: 1,
+    const { width } = Dimensions.get('window');
+
+    export default StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: '#f8f9fa',
+        },
+        centerContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        header: {
+            backgroundColor: '#fff',
+            padding: 20,
+            alignItems: 'center',
+            borderBottomWidth: 1,
+            borderBottomColor: '#eee',
+        },
+        headerTitle: {
+            fontSize: 24,
+            fontWeight: 'bold',
+            color: '#333',
+            marginTop: 10,
+        },
+        headerSubtitle: {
+            fontSize: 14,
+            color: '#666',
+            marginTop: 5,
+        },
+        
+        // Tabs
+        tabContainer: {
+            flexDirection: 'row',
+            backgroundColor: '#fff',
+            borderBottomWidth: 1,
+            borderBottomColor: '#eee',
+        },
+        tab: {
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingVertical: 15,
+            gap: 8,
+        },
+        activeTab: {
+            borderBottomWidth: 2,
+            borderBottomColor: '#4ECDC4',
+        },
+        tabText: {
+            fontSize: 15,
+            color: '#999',
+            fontWeight: '500',
+        },
+        activeTabText: {
+            color: '#4ECDC4',
+            fontWeight: '600',
+        },
+        
+        content: {
+            flex: 1,
+        },
+        
+        // Tarjeta personal
+        petCard: {
+            backgroundColor: '#fff',
+            marginHorizontal: 15,
+            marginVertical: 10,
+            borderRadius: 15,
+            overflow: 'hidden',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+        },
+        petImageContainer: {
+            position: 'relative',
+            width: '100%',
+            height: 200,
+        },
+        petImage: {
+            width: '100%',
+            height: '100%',
+        },
+        placeholderImage: {
+            backgroundColor: '#ddd',
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        imageOverlay: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        },
+        petInfo: {
+            padding: 15,
+        },
+        petName: {
+            fontSize: 20,
+            fontWeight: 'bold',
+            color: '#333',
+            marginBottom: 5,
+        },
+        petDetails: {
+            fontSize: 14,
+            color: '#666',
+            marginBottom: 5,
+        },
+        archivedDate: {
+            fontSize: 13,
+            color: '#FF6B6B',
+            marginBottom: 15,
+        },
+        cardActions: {
+            flexDirection: 'row',
+            gap: 10,
+        },
+        shareButton: {
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#E8F9F7',
+            paddingVertical: 10,
+            borderRadius: 8,
+            gap: 5,
+        },
+        shareButtonText: {
+            color: '#4ECDC4',
+            fontSize: 14,
+            fontWeight: '600',
+        },
+        restoreButton: {
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#E8F5E9',
+            paddingVertical: 10,
+            borderRadius: 8,
+            gap: 5,
+        },
+        restoreText: {
+            color: '#4CAF50',
+            fontSize: 14,
+            fontWeight: '600',
+        },
+        
+        // Tarjetas comunitarias (estilo Instagram)
+        communityCard: {
+            backgroundColor: '#fff',
+            marginBottom: 15,
+            borderTopWidth: 1,
+            borderBottomWidth: 1,
+            borderColor: '#eee',
+        },
+        postHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: 12,
+        },
+        userInfo: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 10,
+        },
+        userAvatar: {
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: '#4ECDC4',
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        userName: {
+            fontSize: 14,
+            fontWeight: '600',
+            color: '#333',
+        },
+        postTime: {
+            fontSize: 11,
+            color: '#999',
+        },
+        postImage: {
+            width: width,
+            height: width,
+        },
+        postActions: {
+            flexDirection: 'row',
+            padding: 12,
+            gap: 15,
+        },
+        actionButton: {
+            padding: 5,
+        },
+        likesCount: {
+            paddingHorizontal: 12,
+            fontSize: 14,
+            fontWeight: '600',
+            color: '#333',
+            marginBottom: 8,
+        },
+        postContent: {
+            paddingHorizontal: 12,
+            paddingBottom: 12,
+        },
+        petNameBold: {
+            fontSize: 15,
+            fontWeight: '700',
+            color: '#333',
+            marginBottom: 5,
+        },
+        petBreed: {
+            fontWeight: '400',
+            color: '#666',
+        },
+        postMessage: {
+            fontSize: 14,
+            color: '#333',
+            lineHeight: 20,
+        },
+        commentsSection: {
+            paddingHorizontal: 12,
+            paddingBottom: 12,
+        },
+        viewComments: {
+            fontSize: 13,
+            color: '#999',
+        },
+        
+        // Modal
+        modalContainer: {
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            justifyContent: 'flex-end',
+        },
+        modalContent: {
+            backgroundColor: '#fff',
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            padding: 20,
+            maxHeight: '80%',
+        },
+        modalHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 20,
+        },
+        modalTitle: {
+            fontSize: 20,
+            fontWeight: 'bold',
+            color: '#333',
+        },
+        previewSection: {
+            alignItems: 'center',
+            marginBottom: 20,
+        },
+        previewImage: {
+            width: 120,
+            height: 120,
+            borderRadius: 60,
+            marginBottom: 10,
+        },
+        previewPetName: {
+            fontSize: 18,
+            fontWeight: '600',
+            color: '#333',
+        },
+        messageInput: {
+            backgroundColor: '#f8f9fa',
+            borderRadius: 10,
+            padding: 15,
+            fontSize: 15,
+            color: '#333',
+            minHeight: 100,
+            marginBottom: 20,
+        },
+        confirmShareButton: {
+            backgroundColor: '#4ECDC4',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 15,
+            borderRadius: 10,
+            gap: 8,
+        },
+        confirmShareText: {
+            color: '#fff',
+            fontSize: 16,
+            fontWeight: '600',
+        },
+        
+        // Empty state
+        emptyContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingVertical: 60,
+            paddingHorizontal: 40,
+        },
+        emptyText: {
+            fontSize: 18,
+            fontWeight: '600',
+            color: '#666',
+            textAlign: 'center',
+            marginTop: 20,
+        },
+        emptySubtext: {
+            fontSize: 14,
+            color: '#999',
+            textAlign: 'center',
+            marginTop: 10,
+        },
+       // ✅ NUEVOS estilos para botón de cámara
+    cameraButton: {
+        position: 'absolute',
+        bottom: 10,
+        right: 10,
+        backgroundColor: 'rgba(76, 205, 196, 0.9)',
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    header: {
-        backgroundColor: '#FFE5E5',
-        padding: 30,
-        alignItems: 'center',
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-    },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#FF6B6B',
-        marginTop: 10,
-    },
-    headerSubtitle: {
-        fontSize: 16,
-        color: '#666',
-        marginTop: 5,
-    },
-    content: {
-        flex: 1,
-        padding: 16,
-    },
-    petCard: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        marginBottom: 16,
-        overflow: 'hidden',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 3,
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        elevation: 5,
     },
-    petImageContainer: {
-        width: '100%',
-        height: 200,
-        position: 'relative',
-    },
-    petImage: {
-        width: '100%',
-        height: '100%',
-    },
-    placeholderImage: {
-        backgroundColor: '#DDD',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    imageOverlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.15)', // Efecto nostálgico
-    },
-    petInfo: {
-        padding: 16,
-    },
-    petName: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 4,
-    },
-    petDetails: {
-        fontSize: 16,
-        color: '#666',
-        marginBottom: 8,
-    },
-    archivedDate: {
-        fontSize: 14,
-        color: '#999',
-        fontStyle: 'italic',
-    },
-    restoreButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#E8F5E9',
-        padding: 10,
-        borderRadius: 8,
-        marginTop: 12,
-        alignSelf: 'flex-start',
-    },
-    restoreText: {
-        color: '#4CAF50',
-        marginLeft: 6,
-        fontWeight: '600',
-    },
-    emptyContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: 60,
-    },
-    emptyText: {
-        fontSize: 18,
-        color: '#999',
-        marginTop: 20,
-        textAlign: 'center',
-    },
-    emptySubtext: {
-        fontSize: 14,
-        color: '#BBB',
+    addPhotoText: {
+        color: '#fff',
+        fontSize: 12,
         marginTop: 8,
-        textAlign: 'center',
-        paddingHorizontal: 40,
+        fontWeight: '500',
     },
-});
-
-export default styles;
+    disabledText: {
+        color: '#ccc',
+    },
+    });
