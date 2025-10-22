@@ -1,4 +1,4 @@
-    import { StyleSheet, Dimensions } from 'react-native';
+    import { StyleSheet, Dimensions, Platform } from 'react-native';
 
     const { width } = Dimensions.get('window');
 
@@ -320,7 +320,7 @@
             textAlign: 'center',
             marginTop: 10,
         },
-       // ✅ NUEVOS estilos para botón de cámara
+       //  estilos para botón de cámara
     cameraButton: {
         position: 'absolute',
         bottom: 10,
@@ -346,4 +346,184 @@
     disabledText: {
         color: '#ccc',
     },
-    });
+
+    //  Botón de opciones en post
+    optionsButton: {
+        padding: 8,
+    },
+
+    // Modal de comentarios
+    commentsModalContainer: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    commentsHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#dbdbdb',
+        backgroundColor: '#fff',
+        ...Platform.select({
+            ios: {
+                paddingTop: 50, // Para el notch en iOS
+            },
+            android: {
+                paddingTop: 16,
+            },
+        }),
+    },
+    backButtonFloating: {
+        padding: 8,
+    },
+    commentsHeaderTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#262626',
+        textAlign: 'center',
+        flex: 1,
+    },
+    commentsList: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    commentItem: {
+        flexDirection: 'row',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        backgroundColor: '#fff',
+    },
+    commentAvatar: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#4ECDC4',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    commentContent: {
+        flex: 1,
+    },
+    commentHeader: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        marginBottom: 2,
+    },
+    commentUserName: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#262626',
+        marginRight: 8,
+    },
+    commentText: {
+        fontSize: 13,
+        color: '#262626',
+        lineHeight: 18,
+        flex: 1,
+    },
+    commentActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 8,
+    },
+    commentTime: {
+        fontSize: 12,
+        color: '#8e8e8e',
+        marginRight: 16,
+    },
+    commentLikeButton: {
+        marginRight: 16,
+    },
+    commentLikeText: {
+        fontSize: 12,
+        color: '#8e8e8e',
+        fontWeight: '600',
+    },
+    commentReplyButton: {
+        marginRight: 16,
+    },
+    commentReplyText: {
+        fontSize: 12,
+        color: '#8e8e8e',
+        fontWeight: '600',
+    },
+    noCommentsContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 60,
+        paddingHorizontal: 40,
+    },
+    noCommentsText: {
+        fontSize: 22,
+        fontWeight: '600',
+        color: '#262626',
+        marginTop: 15,
+        textAlign: 'center',
+    },
+    noCommentsSubtext: {
+        fontSize: 14,
+        color: '#8e8e8e',
+        marginTop: 8,
+        textAlign: 'center',
+        lineHeight: 18,
+    },
+    
+    // Input de comentario (fijo abajo)
+    commentInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        backgroundColor: '#fff',
+        borderTopWidth: 0.5,
+        borderTopColor: '#dbdbdb',
+        ...Platform.select({
+            ios: {
+                paddingBottom: 34, // Espacio para el indicator home en iOS
+            },
+            android: {
+                paddingBottom: 12,
+            },
+        }),
+    },
+    commentInputWrapper: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#dbdbdb',
+        borderRadius: 22,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        marginRight: 8,
+    },
+    commentInput: {
+        flex: 1,
+        fontSize: 14,
+        color: '#262626',
+        paddingVertical: 0,
+        maxHeight: 80,
+    },
+    sendButton: {
+        paddingHorizontal: 8,
+        paddingVertical: 8,
+    },
+    sendButtonText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#0095f6',
+    },
+    sendButtonDisabled: {
+        opacity: 0.3,
+    },
+
+    // Para evitar que el teclado tape
+    buttonDisabled: {
+        opacity: 0.6,
+    },
+});

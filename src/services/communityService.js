@@ -134,12 +134,29 @@ export const communityService = {
     },
 
     // Eliminar post
-    deletePost: async (postId) => {
+    deletePost: async (postId, userId) => {
         try {
-            await db.collection('memorialPosts').doc(postId).delete();
+            const postRef = db.collection('memorialPosts').doc(postId);
+            const postDoc = await postRef.get();
+
+            if (!postDoc.exists) {
+                throw new Error('El post no existe');
+            }
+
+            const postData = postDoc.data();
+
+            // Verificar que el usuario sea el dueño
+            if (postData.userId !== userId) {
+                throw new Error('No tienes permiso para eliminar este post');
+            }
+
+            // Eliminar el post
+            await postRef.delete();
+            
+            console.log('✅ Post eliminado exitosamente');
             return { success: true };
         } catch (error) {
-            console.error('Error eliminando post:', error);
+            console.error('❌ Error eliminando post:', error);
             throw error;
         }
     }

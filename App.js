@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
 import BottomTabNavigator from './src/navigation/BottomTabNavigatior';
 
-// ✅ Importar contexto desde la ruta correcta
+// Importar contexto desde la ruta correcta
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 
 // Importar pantallas desde la ruta correcta
