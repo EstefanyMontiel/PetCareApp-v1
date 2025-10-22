@@ -1,5 +1,8 @@
 import { StyleSheet } from 'react-native';
 import { Dimensions } from 'react-native';
+import { SHADOW_STYLE, SAFE_AREA_PADDING } from '../components/responsive';
+
+    const { width } = Dimensions.get('window');
 
     const styles = StyleSheet.create({
     container: {

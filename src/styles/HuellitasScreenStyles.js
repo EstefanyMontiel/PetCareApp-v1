@@ -1,11 +1,13 @@
     import { StyleSheet, Dimensions, Platform } from 'react-native';
+    import { SHADOW_STYLE, SAFE_AREA_PADDING, scale, verticalScale } from '../components/responsive';
+    import { COLORS, SPACING } from './theme';
 
     const { width } = Dimensions.get('window');
 
     export default StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: '#f8f9fa',
+            backgroundColor: COLORS.surface,
         },
         centerContainer: {
             flex: 1,
@@ -13,22 +15,31 @@
             alignItems: 'center',
         },
         header: {
-            backgroundColor: '#fff',
-            padding: 20,
+            backgroundColor: COLORS.background,
+            padding: SPACING.md + SPACING.xs,
             alignItems: 'center',
             borderBottomWidth: 1,
             borderBottomColor: '#eee',
+             // ✅ Safe area para iOS
+        ...Platform.select({
+            ios: {
+                paddingTop: 60, // Espacio para notch
+            },
+            android: {
+                paddingTop: SPACING.md + SPACING.xs,
+            },
+        }),
         },
         headerTitle: {
-            fontSize: 24,
+            fontSize: scale(24),
             fontWeight: 'bold',
-            color: '#333',
-            marginTop: 10,
+            color: COLORS.textPrimary,
+            marginTop: verticalScale(10),
         },
         headerSubtitle: {
-            fontSize: 14,
-            color: '#666',
-            marginTop: 5,
+            fontSize: scale(14),
+            color: COLORS.textSecondary,
+            marginTop: verticalScale(5),
         },
         
         // Tabs

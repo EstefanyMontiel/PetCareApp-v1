@@ -14,7 +14,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { petImageService, petArchiveService } from '../services/petServices';
 import { useImagePicker } from '../hooks/useImagePicker';
 import styles from '../styles/HomeScreenStyles';
-
+import SafeContainer from './SafeContainer';
+import Button from './Button';
+    
 const HomeScreen = ({ navigation }) => {
     const { user, userProfile, userPets, logout, loadUserPets } = useAuth();
     const [refreshing, setRefreshing] = useState(false);
@@ -49,21 +51,24 @@ const HomeScreen = ({ navigation }) => {
     const navigateToOption = (pet, option) => {
         switch(option) {
             case 'vaccination':
-                navigation.navigate('Vacunación', { 
-                    petId: pet.id, 
-                    petName: pet.nombre 
-                });
-                break;
+            navigation.navigate('Vacunación', { 
+                petId: pet.id, 
+                petName: pet.nombre,
+                petSpecies: pet.especie // ✅ Agregar la especie
+            });
+            break;
             case 'deworming':
                 navigation.navigate('Desparasitación', { 
                     petId: pet.id, 
-                    petName: pet.nombre 
+                    petName: pet.nombre,
+                    petSpecies: pet.especie // ✅ Agregar la especie
                 });
                 break;
             case 'annual':
                 navigation.navigate('Examen anual', { 
                     petId: pet.id, 
-                    petName: pet.nombre 
+                    petName: pet.nombre,
+                    petSpecies: pet.especie // ✅ Agregar la especie
                 });
                 break;
         }
@@ -276,7 +281,7 @@ const HomeScreen = ({ navigation }) => {
     );
 
     return (
-        <View style={styles.container}>
+        <SafeContainer style={styles.container}>
             {/* Header con logo */}
             <View style={styles.header}>
                 <View style={styles.logo}>
@@ -336,7 +341,7 @@ const HomeScreen = ({ navigation }) => {
                 </TouchableOpacity>
             </ScrollView>
 
-        </View>
+        </SafeContainer>
     );
 };
 
