@@ -1,0 +1,69 @@
+    {
+    "settings": {
+        "title": "Configuración",
+        "profile": "Perfil",
+        "editProfile": "Editar perfil",
+        "editProfileDesc": "Cambiar nombre, foto y correo",
+        "notifications": "Notificaciones",
+        "notificationsDesc": "Gestionar alertas y recordatorios",
+        "privacy": "Privacidad y Seguridad",
+        "changePassword": "Cambiar contraseña",
+        "changePasswordDesc": "Actualizar credenciales de acceso",
+        "language": "Idioma",
+        "languageDesc": "Español / English",
+        "logout": "Cerrar sesión"
+    },
+    "editProfile": {
+        "title": "Editar Perfil",
+        "name": "Nombre",
+        "namePlaceholder": "Ingresa tu nombre",
+        "email": "Correo Electrónico",
+        "emailPlaceholder": "correo@ejemplo.com",
+        "changePhoto": "Cambiar foto de perfil",
+        "selectOption": "Selecciona una opción",
+        "camera": "Cámara",
+        "gallery": "Galería",
+        "cancel": "Cancelar",
+        "save": "Guardar Cambios",
+        "saving": "Guardando...",
+        "success": "Perfil actualizado exitosamente",
+        "error": "Error al actualizar perfil",
+        "nameError": "El nombre debe tener al menos 3 caracteres",
+        "emailError": "Ingresa un correo electrónico válido"
+    },
+    "notifications": {
+        "title": "Notificaciones",
+        "generalTitle": "Notificaciones Generales",
+        "enableAll": "Activar todas las notificaciones",
+        "remindersTitle": "Recordatorios",
+        "vaccines": "Recordatorios de vacunas",
+        "deworming": "Recordatorios de desparasitación",
+        "annualExam": "Recordatorios de exámenes anuales",
+        "save": "Guardar Preferencias",
+        "saving": "Guardando...",
+        "success": "Preferencias guardadas exitosamente",
+        "error": "Error al guardar preferencias"
+    },
+    "changePassword": {
+        "title": "Cambiar Contraseña",
+        "currentPassword": "Contraseña Actual",
+        "newPassword": "Nueva Contraseña",
+        "confirmPassword": "Confirmar Nueva Contraseña",
+        "save": "Cambiar Contraseña",
+        "saving": "Actualizando...",
+        "success": "Contraseña actualizada exitosamente",
+        "error": "Error al cambiar contraseña",
+        "currentPasswordError": "Ingresa tu contraseña actual",
+        "newPasswordError": "La contraseña debe tener al menos 6 caracteres",
+        "confirmPasswordError": "Las contraseñas no coinciden",
+        "samePasswordError": "La nueva contraseña debe ser diferente a la actual",
+        "wrongPasswordError": "La contraseña actual es incorrecta"
+    },
+    "common": {
+        "loading": "Cargando...",
+        "error": "Error",
+        "success": "Éxito",
+        "ok": "Aceptar",
+        "cancel": "Cancelar"
+    }
+    }

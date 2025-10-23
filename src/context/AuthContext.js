@@ -174,6 +174,12 @@
         logout,
         addPet,
         loadUserPets,
+        updateUserProfile,      // ✅ Nueva
+        updateUserEmail,        // ✅ Nueva
+        changePassword,         // ✅ Nueva
+        updateNotificationPreferences,  // ✅ Nueva
+        uploadProfilePhoto,     // ✅ Nueva
+        loadUserProfile, 
         isLoading
     };
 
@@ -182,4 +188,181 @@
         {children}
         </AuthContext.Provider>
     );
+
+    ////////////////////// Agregar estas funciones en src/context/AuthContext.js
+
+// Actualizar perfil de usuario
+const updateUserProfile = async (updates) => {
+    try {
+        console.log('🔄 Actualizando perfil de usuario...');
+        
+        if (!user) {
+            throw new Error('No hay usuario autenticado');
+        }
+
+        const currentUser = auth.currentUser;
+        
+        // Actualizar en Firebase Auth si hay cambios en displayName
+        if (updates.nombre && updates.nombre !== user.displayName) {
+            await currentUser.updateProfile({
+                displayName: updates.nombre
+            });
+        }
+
+        // Actualizar en Firestore
+        const updateData = {
+            ...updates,
+            updatedAt: new Date()
+        };
+
+        await db.collection('users').doc(user.uid).update(updateData);
+
+        // Recargar perfil
+        await loadUserProfile(user.uid);
+        
+        console.log('✅ Perfil actualizado exitosamente');
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Error actualizando perfil:', error);
+        throw error;
+    }
+};
+
+// Actualizar email
+const updateUserEmail = async (newEmail, currentPassword) => {
+    try {
+        console.log('📧 Actualizando email...');
+        
+        if (!user) {
+            throw new Error('No hay usuario autenticado');
+        }
+
+        const currentUser = auth.currentUser;
+        
+        // Re-autenticar antes de cambiar email
+        const credential = auth.EmailAuthProvider.credential(
+            currentUser.email,
+            currentPassword
+        );
+        
+        await currentUser.reauthenticateWithCredential(credential);
+        
+        // Actualizar email en Firebase Auth
+        await currentUser.updateEmail(newEmail);
+        
+        // Actualizar en Firestore
+        await db.collection('users').doc(user.uid).update({
+            correo: newEmail,
+            updatedAt: new Date()
+        });
+
+        // Recargar perfil
+        await loadUserProfile(user.uid);
+        
+        console.log('✅ Email actualizado exitosamente');
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Error actualizando email:', error);
+        throw error;
+    }
+};
+
+// Cambiar contraseña
+const changePassword = async (currentPassword, newPassword) => {
+    try {
+        console.log('🔐 Cambiando contraseña...');
+        
+        if (!user) {
+            throw new Error('No hay usuario autenticado');
+        }
+
+        const currentUser = auth.currentUser;
+        
+        // Re-autenticar con la contraseña actual
+        const credential = auth.EmailAuthProvider.credential(
+            currentUser.email,
+            currentPassword
+        );
+        
+        await currentUser.reauthenticateWithCredential(credential);
+        
+        // Actualizar contraseña
+        await currentUser.updatePassword(newPassword);
+        
+        console.log('✅ Contraseña actualizada exitosamente');
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Error cambiando contraseña:', error);
+        throw error;
+    }
+};
+
+// Actualizar preferencias de notificaciones
+const updateNotificationPreferences = async (preferences) => {
+    try {
+        console.log('🔔 Actualizando preferencias de notificaciones...');
+        
+        if (!user) {
+            throw new Error('No hay usuario autenticado');
+        }
+
+        await db.collection('users').doc(user.uid).update({
+            notifications: preferences,
+            updatedAt: new Date()
+        });
+
+        // Recargar perfil
+        await loadUserProfile(user.uid);
+        
+        console.log('✅ Preferencias de notificaciones actualizadas');
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Error actualizando notificaciones:', error);
+        throw error;
+    }
+};
+
+// Subir foto de perfil a Firebase Storage
+const uploadProfilePhoto = async (imageUri) => {
+    try {
+        console.log('📸 Subiendo foto de perfil...');
+        
+        if (!user) {
+            throw new Error('No hay usuario autenticado');
+        }
+
+        // Crear referencia única para la foto
+        const filename = `profile_${user.uid}_${Date.now()}.jpg`;
+        const storageRef = storage.ref(`profilePhotos/${filename}`);
+
+        // Convertir URI a blob
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+
+        // Subir a Firebase Storage
+        await storageRef.put(blob);
+
+        // Obtener URL de descarga
+        const downloadURL = await storageRef.getDownloadURL();
+
+        // Actualizar en Auth y Firestore
+        await auth.currentUser.updateProfile({
+            photoURL: downloadURL
+        });
+
+        await db.collection('users').doc(user.uid).update({
+            photoURL: downloadURL,
+            updatedAt: new Date()
+        });
+
+        // Recargar perfil
+        await loadUserProfile(user.uid);
+
+        console.log('✅ Foto de perfil subida exitosamente');
+        return { success: true, photoURL: downloadURL };
+    } catch (error) {
+        console.error('❌ Error subiendo foto:', error);
+        throw error;
+    }
+};
     };
