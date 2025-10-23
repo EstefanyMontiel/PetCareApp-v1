@@ -4,38 +4,74 @@ import { Ionicons } from '@expo/vector-icons';
 import SafeContainer from './SafeContainer';
 import { scale, verticalScale, SHADOW_STYLE } from './responsive';
 import { COLORS, SPACING, BORDER_RADIUS } from '../styles/theme';
+import { useLanguage } from '../context/LanguageContext';
 
-export default function SettingScreen() {
+export default function SettingScreen({ navigation }) {
+    const { t, language, changeLanguage } = useLanguage();
+
     const settingsSections = [
         {
-            title: 'Perfil',
+            title: t('settings.profile'),
             items: [
-                { icon: 'person-outline', title: 'Editar perfil', description: 'Cambiar nombre y foto' },
-                { icon: 'notifications-outline', title: 'Notificaciones', description: 'Gestionar alertas y recordatorios' },
+                { 
+                    icon: 'person-outline', 
+                    title: t('settings.editProfile'), 
+                    description: t('settings.editProfileDesc'),
+                    screen: 'EditProfile'
+                },
+                { 
+                    icon: 'notifications-outline', 
+                    title: t('settings.notifications'), 
+                    description: t('settings.notificationsDesc'),
+                    screen: 'Notifications'
+                },
             ]
         },
         {
-            title: 'Privacidad',
+            title: t('settings.privacy'),
             items: [
-                { icon: 'shield-outline', title: 'Privacidad de datos', description: 'Controlar información compartida' },
-                { icon: 'lock-closed-outline', title: 'Cambiar contraseña', description: 'Actualizar credenciales de acceso' },
+                { 
+                    icon: 'lock-closed-outline', 
+                    title: t('settings.changePassword'), 
+                    description: t('settings.changePasswordDesc'),
+                    screen: 'ChangePassword'
+                },
             ]
         },
         {
-            title: 'Acerca de',
+            title: t('settings.about'),
             items: [
-                { icon: 'help-circle-outline', title: 'Ayuda y soporte', description: 'Preguntas frecuentes y contacto' },
-                { icon: 'information-circle-outline', title: 'Acerca de PetCare', description: 'Versión e información de la app' },
+                { 
+                    icon: 'help-circle-outline', 
+                    title: t('settings.helpSupport'), 
+                    description: t('settings.helpSupportDesc') 
+                },
+                { 
+                    icon: 'information-circle-outline', 
+                    title: t('settings.aboutPetCare'), 
+                    description: t('settings.aboutPetCareDesc') 
+                },
             ]
         }
     ];
+
+    const handleNavigate = (screen) => {
+        if (screen) {
+            navigation.navigate(screen);
+        }
+    };
+
+    const handleLanguageToggle = () => {
+        const newLanguage = language === 'es' ? 'en' : 'es';
+        changeLanguage(newLanguage);
+    };
 
     return (
         <SafeContainer style={styles.container}>
             <View style={styles.header}>
                 <Ionicons name="settings-outline" size={60} color={COLORS.primary} />
-                <Text style={styles.title}>Configuraciones</Text>
-                <Text style={styles.subtitle}>Personaliza tu experiencia</Text>
+                <Text style={styles.title}>{t('settings.title')}</Text>
+                <Text style={styles.subtitle}>{t('settings.subtitle')}</Text>
             </View>
             
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -47,6 +83,7 @@ export default function SettingScreen() {
                                 key={itemIndex} 
                                 style={styles.settingItem}
                                 activeOpacity={0.7}
+                                onPress={() => handleNavigate(item.screen)}
                             >
                                 <View style={styles.settingIconContainer}>
                                     <Ionicons name={item.icon} size={24} color={COLORS.primary} />
@@ -61,10 +98,29 @@ export default function SettingScreen() {
                     </View>
                 ))}
                 
-                <View style={styles.comingSoonContainer}>
-                    <Text style={styles.comingSoon}>
-                        Más opciones de configuración estarán disponibles pronto
-                    </Text>
+                {/* Language Selector */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>{t('settings.language')}</Text>
+                    <TouchableOpacity 
+                        style={styles.settingItem}
+                        activeOpacity={0.7}
+                        onPress={handleLanguageToggle}
+                    >
+                        <View style={styles.settingIconContainer}>
+                            <Ionicons name="language" size={24} color={COLORS.primary} />
+                        </View>
+                        <View style={styles.settingContent}>
+                            <Text style={styles.settingTitle}>
+                                {language === 'es' ? t('languages.spanish') : t('languages.english')}
+                            </Text>
+                            <Text style={styles.settingDescription}>{t('settings.languageDesc')}</Text>
+                        </View>
+                        <View style={styles.languageToggle}>
+                            <Text style={styles.languageOption}>
+                                {language === 'es' ? 'ES' : 'EN'}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
         </SafeContainer>
@@ -141,16 +197,18 @@ const styles = StyleSheet.create({
         color: COLORS.textSecondary,
         lineHeight: scale(18),
     },
-    comingSoonContainer: {
+    languageToggle: {
+        paddingHorizontal: SPACING.md,
+        paddingVertical: SPACING.xs,
+        backgroundColor: COLORS.primary,
+        borderRadius: BORDER_RADIUS.sm,
+        minWidth: 45,
         alignItems: 'center',
-        paddingVertical: SPACING.xl,
-        paddingHorizontal: SPACING.lg,
+        justifyContent: 'center',
     },
-    comingSoon: {
+    languageOption: {
         fontSize: scale(14),
-        color: COLORS.textTertiary,
-        textAlign: 'center',
-        fontStyle: 'italic',
-        lineHeight: scale(20),
+        fontWeight: '600',
+        color: '#fff',
     },
 });

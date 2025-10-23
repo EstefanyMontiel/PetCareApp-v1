@@ -6,6 +6,7 @@ import BottomTabNavigator from './src/navigation/BottomTabNavigatior';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 // Importar contexto desde la ruta correcta
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { LanguageProvider } from './src/context/LanguageContext';
 
 // Importar pantallas desde la ruta correcta
 import LoginScreen from './src/components/LoginScreen';
@@ -16,6 +17,9 @@ import VaccinationScreen from './src/components/VaccinationScreen';
 import DewormingScreen from './src/components/DewormingScreen';
 import AnnualExamScreen from './src/components/AnnualExamScreen';
 import HuellitasEternasScreen from './src/components/HuellitasEternasScreen';
+import EditProfileScreen from './src/components/EditProfileScreen';
+import NotificationsScreen from './src/components/NotificationsScreen';
+import ChangePasswordScreen from './src/components/ChangePasswordScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -60,6 +64,32 @@ function AppStack() {
     <Stack.Screen name="Vacunación" component={VaccinationScreen} />
     <Stack.Screen name="Desparasitación" component={DewormingScreen} />
     <Stack.Screen name="Examen anual" component={AnnualExamScreen} />
+    
+    {/* Settings Screens */}
+    <Stack.Screen 
+      name="EditProfile" 
+      component={EditProfileScreen} 
+      options={{ 
+        title: 'Editar Perfil',
+        headerShown: true 
+      }}
+    />
+    <Stack.Screen 
+      name="Notifications" 
+      component={NotificationsScreen} 
+      options={{ 
+        title: 'Notificaciones',
+        headerShown: true 
+      }}
+    />
+    <Stack.Screen 
+      name="ChangePassword" 
+      component={ChangePasswordScreen} 
+      options={{ 
+        title: 'Cambiar Contraseña',
+        headerShown: true 
+      }}
+    />
     </Stack.Navigator>
   );
 }
@@ -84,13 +114,14 @@ function RootNavigator() {
 
 export default function App() {
   return (
-
     <SafeAreaProvider>
-            <AuthProvider>
-                <NavigationContainer>
-                    <RootNavigator />
-                </NavigationContainer>
-            </AuthProvider>
-        </SafeAreaProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+        </LanguageProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
