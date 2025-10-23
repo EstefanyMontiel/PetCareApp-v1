@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { dewormingService } from '../services/dewormingService';
-import styles from '../styles/VaccinationScreenStyles';
+import styles from '../styles/DewormingScreenStyles';
 
 const DewormingScreen = ({ route, navigation }) => {
     const { petId, petName, petSpecies } = route.params;

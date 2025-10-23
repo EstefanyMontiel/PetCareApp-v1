@@ -1,233 +1,135 @@
-import { StyleSheet } from 'react-native';
-import { Dimensions, Platform } from 'react-native';
-import { SHADOW_STYLE, SAFE_AREA_PADDING, scale, verticalScale } from '../components/responsive';
+import { StyleSheet, Platform, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
-
-const createShadow = (elevation = 2) => ({
-    ...Platform.select({
-        ios: {
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: elevation },
-            shadowOpacity: 0.1,
-            shadowRadius: elevation * 2,
-        },
-        android: {
-            elevation: elevation,
-        },
-    }),
-});
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8fafb',
+        backgroundColor: '#F5F7FA',
     },
+    
+    // Header minimalista
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingTop: 20, // Ahora solo el padding interno, SafeAreaView maneja el resto
-        paddingBottom: 20,
+        paddingHorizontal: 24,
+        paddingVertical: 16,
         backgroundColor: '#fff',
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderBottomColor: '#F0F0F0',
     },
-    greeting: {
-        fontSize: scale(16),
-        color: '#666',
-    },
-    userName: {
-        fontSize: scale(24),
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    logoutButton: {
-        padding: 8,
-    },
-    // Botones con altura diferente según plataforma
-    button: {
-        backgroundColor: '#3db2d2ff',
-        borderRadius: Platform.select({
-            ios: 8,
-            android: 10, // Android prefiere bordes más redondeados
-        }),
-        paddingVertical: Platform.select({
-            ios: 16,
-            android: 14,
-        }),
-        alignItems: 'center',
-        marginTop: 10,
-    },
-    // Input con altura específica para cada plataforma
-    input: {
-        backgroundColor: '#F7FAFA',
-        borderWidth: 1,
-        borderColor: '#D1DBE5',
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: Platform.select({
-            ios: 12,
-            android: 10, // Android necesita menos padding
-        }),
-        fontSize: 16,
-        color: '#333',
-        // ✅ Altura mínima para evitar problemas táctiles
-        minHeight: 48,
-    },
-
-    section: {
-        padding: 20,
-    },
-    sectionHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 15,
-    },
-    sectionTitle: {
-        fontSize: scale(20),
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    addButton: {
+    logo: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#f0f8ff',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
     },
-    addButtonText: {
-        marginLeft: 4,
-        color: '#007AFF',
-        fontWeight: '600',
-    },
-    petCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-        ...SHADOW_STYLE,
-    },
-    petHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 12,
-        width: '100%',
-    },
-    petBasicInfo: {
-        flex: 1,
-    },
-    // Botón de archivar discreto
-    archiveButton: {
-        padding: 8,
-        borderRadius: 20,
-        backgroundColor: 'rgba(0,0,0,0.05)',
-        opacity: 0.7,
-    },
-    petAvatar: {
-        width: 50,
-        height: 50,
+    logoIcon: {
+        backgroundColor: '#4ECDC4',
         borderRadius: 25,
-        backgroundColor: '#007AFF',
+        width: 40,
+        height: 40,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 12,
     },
-    petInfo: {
+    logoText: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: '#2C3E50',
+        letterSpacing: 0.5,
+    },
+    addPetButton: {
+        padding: 4,
+    },
+
+    // Contenedor de mascotas con más padding
+    petsContainer: {
         flex: 1,
     },
-    petName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    petBreed: {
-        fontSize: 14,
-        color: '#666',
-    },
-    petDetails: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-    },
-    petDetailItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    petDetailText: {
-        marginLeft: 4,
-        fontSize: 14,
-        color: '#666',
-    },
-    emptyState: {
-        alignItems: 'center',
-        paddingVertical: 40,
-    },
-    emptyStateTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-        marginTop: 16,
-        marginBottom: 8,
-    },
-    emptyStateText: {
-        fontSize: 14,
-        color: '#666',
-        textAlign: 'center',
-        marginBottom: 20,
-    },
-    emptyStateButton: {
-        backgroundColor: '#007AFF',
+    petsContentContainer: {
         paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 8,
+        paddingTop: 24,
+        paddingBottom: 100,
+        alignItems: 'center', // ✅ Centra las tarjetas
     },
-    emptyStateButtonText: {
-        color: '#fff',
-        fontWeight: '600',
+
+    // 🎨 Tarjeta de mascota minimalista y centrada
+    petCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 24,
+        padding: 24,
+        marginBottom: 20,
+        width: width - 40, // Ancho controlado con margen
+        maxWidth: 400, // Máximo para tablets
+        alignSelf: 'center',
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.08,
+                shadowRadius: 12,
+            },
+            android: {
+                elevation: 4,
+            },
+        }),
     },
-    // Estilos para imágenes de mascotas
+
+    // Botón de opciones en la esquina
+    archiveButtonTop: {
+        position: 'absolute',
+        top: 16,
+        right: 16,
+        zIndex: 10,
+        padding: 8,
+        borderRadius: 20,
+        backgroundColor: '#F8F9FA',
+    },
+
+    // Imagen grande y centrada
     petImageContainer: {
-        position: 'relative',
-        marginBottom: 15,
         alignItems: 'center',
+        marginBottom: 20,
+        position: 'relative',
     },
-    petImage: {
+    petImageWrapper: {
         position: 'relative',
     },
     petImageStyle: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        borderWidth: 4,
+        borderColor: '#F8F9FA',
     },
     placeholderImage: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: '#4ECDC4',
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: '#E8A87C',
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 4,
+        borderColor: '#F8F9FA',
     },
     editIcon: {
         position: 'absolute',
-        bottom: -2,
-        right: -2,
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.3,
-        shadowRadius: 2,
-        elevation: 3,
+        bottom: 4,
+        right: 4,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 8,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.15,
+                shadowRadius: 4,
+            },
+            android: {
+                elevation: 3,
+            },
+        }),
     },
     loadingOverlay: {
         position: 'absolute',
@@ -235,108 +137,172 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        borderRadius: 40,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        borderRadius: 60,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    // Estilos para información de la mascota
+
+    // Información centrada
     petInfo: {
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 24,
     },
     petName: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 4,
+        fontSize: 22,
+        fontWeight: '700',
+        color: '#2C3E50',
+        marginBottom: 6,
+        letterSpacing: 0.3,
     },
     petBreed: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 2,
+        fontSize: 15,
+        color: '#7F8C8D',
+        marginBottom: 4,
+        fontWeight: '500',
     },
     petAge: {
-        fontSize: 12,
-        color: '#999',
+        fontSize: 13,
+        color: '#95A5A6',
+        fontWeight: '400',
     },
-    // Estilos para las opciones
+
+    // Opciones con diseño minimalista
     optionsList: {
-        marginTop: 10,
+        gap: 12,
     },
     optionItem: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 12,
-        paddingHorizontal: 15,
-        backgroundColor: '#f8f9fa',
-        marginBottom: 8,
-        borderRadius: 8,
+        paddingVertical: 16,
+        paddingHorizontal: 16,
+        backgroundColor: '#F8F9FA',
+        borderRadius: 12,
+        minHeight: 56,
     },
     optionLeft: {
         flexDirection: 'row',
         alignItems: 'center',
+        flex: 1,
     },
-    optionIcon: {
+    optionIconContainer: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        backgroundColor: '#E8F9F7',
+        alignItems: 'center',
+        justifyContent: 'center',
         marginRight: 12,
     },
     optionText: {
         fontSize: 16,
-        color: '#333',
+        color: '#2C3E50',
+        fontWeight: '500',
+        letterSpacing: 0.2,
     },
-    // Estilos para el header con logo
-    logo: {
-        flexDirection: 'row',
+
+    // Estado vacío
+    emptyState: {
         alignItems: 'center',
+        paddingVertical: 60,
+        paddingHorizontal: 40,
     },
-    logoIcon: {
+    emptyStateTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: '#2C3E50',
+        marginTop: 20,
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    emptyStateText: {
+        fontSize: 15,
+        color: '#7F8C8D',
+        textAlign: 'center',
+        marginBottom: 24,
+        lineHeight: 22,
+    },
+    emptyStateButton: {
         backgroundColor: '#4ECDC4',
-        borderRadius: 20,
+        paddingHorizontal: 32,
+        paddingVertical: 14,
+        borderRadius: 12,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#4ECDC4',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+            },
+            android: {
+                elevation: 4,
+            },
+        }),
+    },
+    emptyStateButtonText: {
+        color: '#FFFFFF',
+        fontWeight: '600',
+        fontSize: 16,
+    },
+     // Botón de opciones (editar/archivar)
+    optionsButton: {
+        position: 'absolute',
+        top: 16,
+        right: 16,
+        zIndex: 10,
         padding: 8,
-        marginRight: 10,
-    },
-    logoText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    addPetButton: {
-        backgroundColor: '#f0f8ff',
         borderRadius: 20,
-        padding: 8,
-    },
-    petsContainer: {
-        flex: 1,
-        paddingHorizontal: 20,
+        backgroundColor: '#F8F9FA',
     },
 
-    //Boton registar mascotas inactivas 
-
-    eternasButton: {
+    // 💝 Botón de Huellitas Eternas minimalista
+    huellitasButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: '#6B9B8E',
-        margin: 15,
-        padding: 15,
-        borderRadius: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        backgroundColor: '#FFF5F5',
+        borderRadius: 16,
+        padding: 20,
+        marginTop: 24,
+        marginBottom: 40,
+        borderWidth: 1,
+        borderColor: '#FFE0E0',
+        ...Platform.select({
+            ios: {
+                shadowColor: '#E74C3C',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.1,
+                shadowRadius: 8,
+            },
+            android: {
+                elevation: 2,
+            },
+        }),
     },
-    eternasButtonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: '600',
+    huellitasIconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: '#FFEBEE',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 16,
+    },
+    huellitasTextContainer: {
         flex: 1,
-        marginLeft: 10,
     },
-    petsContainer: {
-        padding: 15,
+    huellitasTitle: {
+        fontSize: 17,
+        fontWeight: '700',
+        color: '#E74C3C',
+        marginBottom: 4,
+        letterSpacing: 0.2,
     },
+    huellitasSubtitle: {
+        fontSize: 13,
+        color: '#95A5A6',
+        lineHeight: 18,
+    }
 });
 
 export default styles;

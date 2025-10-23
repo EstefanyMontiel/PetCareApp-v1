@@ -1,154 +1,215 @@
-import { StyleSheet } from 'react-native';
-import { Dimensions } from 'react-native';
-import { SHADOW_STYLE, SAFE_AREA_PADDING } from '../components/responsive';
+import { StyleSheet, Platform } from 'react-native';
 
-    const { width } = Dimensions.get('window');
-
-    const styles = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#F5F7FA',
     },
+    
+    // Header
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingTop: Platform.OS === 'ios' ? 60 : 40,
+        paddingBottom: 20,
+        backgroundColor: '#FFFFFF',
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#2C3E50',
+        letterSpacing: 0.3,
+    },
+    
     content: {
         flex: 1,
-        padding: 20,
-        paddingTop: 50,
     },
-    logo: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#4a90e2',
-        textAlign: 'center',
-        marginBottom: 10,
+    contentContainer: {
+        paddingHorizontal: 24,
+        paddingTop: 32,
+        paddingBottom: 40,
+    },
+    
+    // Icono y título
+    iconContainer: {
+        alignItems: 'center',
+        marginBottom: 32,
+    },
+    iconCircle: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: '#E8F9F7',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
     },
     title: {
         fontSize: 24,
-        fontWeight: '600',
-        textAlign: 'center',
-        marginBottom: 30,
-        color: '#333',
+        fontWeight: '700',
+        color: '#2C3E50',
+        marginBottom: 8,
+        letterSpacing: 0.3,
     },
-    section: {
-        marginBottom: 25,
+    subtitle: {
+        fontSize: 15,
+        color: '#7F8C8D',
+        textAlign: 'center',
+        lineHeight: 22,
+    },
+    
+    // Inputs
+    inputContainer: {
+        marginBottom: 24,
     },
     label: {
-        fontSize: 16,
-        fontWeight: '500',
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#2C3E50',
         marginBottom: 10,
-        color: '#333',
+        letterSpacing: 0.2,
     },
+    input: {
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1.5,
+        borderColor: '#E8EBED',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 15,
+        color: '#2C3E50',
+        minHeight: 52,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.05,
+                shadowRadius: 4,
+            },
+            android: {
+                elevation: 1,
+            },
+        }),
+    },
+    
+    // Selector de especie
     speciesContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        gap: 12,
     },
     speciesButton: {
         flex: 1,
-        padding: 15,
-        marginHorizontal: 5,
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        borderWidth: 2,
-        borderColor: '#ddd',
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        paddingVertical: 16,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#E8EBED',
+        backgroundColor: '#FFFFFF',
+        gap: 10,
     },
     speciesButtonSelected: {
-        borderColor: '#4a90e2',
-        backgroundColor: '#f0f7ff',
+        borderColor: '#4ECDC4',
+        backgroundColor: '#E8F9F7',
     },
     speciesText: {
         fontSize: 16,
-        fontWeight: '500',
-        color: '#666',
+        fontWeight: '600',
+        color: '#95A5A6',
     },
     speciesTextSelected: {
-        color: '#4a90e2',
-        fontWeight: '600',
+        color: '#4ECDC4',
     },
-    input: {
-        backgroundColor: '#fff',
-        padding: 15,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        fontSize: 16,
-        color: '#333',
-    },
+    
+    // Selector de fecha
     dateButton: {
-        backgroundColor: '#fff',
-        padding: 15,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1.5,
+        borderColor: '#E8EBED',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        minHeight: 52,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.05,
+                shadowRadius: 4,
+            },
+            android: {
+                elevation: 1,
+            },
+        }),
     },
     dateText: {
-        fontSize: 16,
-        color: '#333',
+        fontSize: 15,
+        color: '#2C3E50',
+        fontWeight: '500',
     },
-    inputContainer: {
-        marginBottom: 20,
+    
+    // Botones
+    buttonContainer: {
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: 32,
     },
-    labelTitle: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 30,
-        color: '#333',
-    },
-    button: {
-        backgroundColor: '#4a90e2',
-        padding: 18,
-        borderRadius: 10,
+    cancelButton: {
+        flex: 1,
+        backgroundColor: '#F8F9FA',
+        paddingVertical: 16,
+        borderRadius: 12,
         alignItems: 'center',
-        marginTop: 20,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 3.84,
-        elevation: 5,
+        justifyContent: 'center',
+        borderWidth: 1.5,
+        borderColor: '#E8EBED',
+        minHeight: 54,
     },
-    buttonText: {
-        color: '#fff',
-        fontSize: 18,
+    cancelButtonText: {
+        color: '#7F8C8D',
+        fontSize: 16,
         fontWeight: '600',
-    },
-    buttonDisabled: {
-        backgroundColor: '#cccccc',
-        shadowOpacity: 0,
-        elevation: 0,
-    },
-    link: {
-        marginTop: 20,
-        alignItems: 'center',
-    },
-    linkText: {
-        color: '#4a90e2',
-        fontSize: 16,
-        textAlign: 'center',
     },
     registerButton: {
-        backgroundColor: '#4a90e2',
-        padding: 18,
-        borderRadius: 10,
+        flex: 1,
+        flexDirection: 'row',
+        backgroundColor: '#4ECDC4',
+        paddingVertical: 16,
+        borderRadius: 12,
         alignItems: 'center',
-        marginTop: 20,
-        shadowColor: '#000',
-        shadowOffset: {
-        width: 0,
-        height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 3.84,
-        elevation: 5,
+        justifyContent: 'center',
+        gap: 8,
+        minHeight: 54,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#4ECDC4',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+            },
+            android: {
+                elevation: 4,
+            },
+        }),
     },
     registerButtonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: '600',
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '700',
+        letterSpacing: 0.3,
     },
-    });
+    buttonDisabled: {
+        backgroundColor: '#BDC3C7',
+        opacity: 0.6,
+    },
+});
 
-    export default styles;
+export default styles;

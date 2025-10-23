@@ -1,6 +1,4 @@
-import { StyleSheet, Platform, Dimensions } from 'react-native';
-
-const { width } = Dimensions.get('window');
+import { StyleSheet, Platform } from 'react-native';
 
 export default StyleSheet.create({
     container: {
@@ -8,7 +6,6 @@ export default StyleSheet.create({
         backgroundColor: '#F5F7FA',
     },
     
-    // Header elegante
     header: {
         backgroundColor: '#FFFFFF',
         paddingHorizontal: 20,
@@ -16,17 +13,6 @@ export default StyleSheet.create({
         paddingBottom: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#F0F0F0',
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.05,
-                shadowRadius: 8,
-            },
-            android: {
-                elevation: 2,
-            },
-        }),
     },
     headerLeft: {
         flexDirection: 'row',
@@ -41,13 +27,11 @@ export default StyleSheet.create({
         fontSize: 22,
         fontWeight: '700',
         color: '#2C3E50',
-        letterSpacing: 0.3,
     },
     petName: {
         fontSize: 14,
         color: '#7F8C8D',
         marginTop: 4,
-        fontWeight: '500',
     },
     addButton: {
         backgroundColor: '#E8F9F7',
@@ -67,7 +51,6 @@ export default StyleSheet.create({
         paddingVertical: 40,
     },
     
-    // Formulario minimalista
     formCard: {
         backgroundColor: '#FFFFFF',
         borderRadius: 20,
@@ -92,7 +75,6 @@ export default StyleSheet.create({
         fontWeight: '700',
         color: '#2C3E50',
         marginBottom: 24,
-        letterSpacing: 0.3,
     },
     
     inputContainer: {
@@ -104,13 +86,36 @@ export default StyleSheet.create({
         fontWeight: '600',
         color: '#2C3E50',
         marginBottom: 10,
-        letterSpacing: 0.2,
     },
     
-    speciesIndicator: {
-        fontSize: 13,
-        color: '#4ECDC4',
-        fontWeight: '700',
+    // Botones de tipo (Interno/Externo)
+    typeButtonsContainer: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    typeButton: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 14,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#E8EBED',
+        backgroundColor: '#F8F9FA',
+        gap: 8,
+    },
+    typeButtonActive: {
+        backgroundColor: '#4ECDC4',
+        borderColor: '#4ECDC4',
+    },
+    typeButtonText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#7F8C8D',
+    },
+    typeButtonTextActive: {
+        color: '#FFFFFF',
     },
     
     pickerContainer: {
@@ -120,7 +125,6 @@ export default StyleSheet.create({
         backgroundColor: '#F8F9FA',
         overflow: 'hidden',
     },
-    
     picker: {
         height: Platform.OS === 'ios' ? 150 : 50,
         width: '100%',
@@ -138,11 +142,27 @@ export default StyleSheet.create({
         paddingVertical: 14,
         minHeight: 52,
     },
-    
     dateButtonText: {
         fontSize: 15,
         color: '#2C3E50',
-        fontWeight: '500',
+    },
+    
+    rowContainer: {
+        flexDirection: 'row',
+        gap: 12,
+        marginBottom: 20,
+    },
+    
+    input: {
+        backgroundColor: '#F8F9FA',
+        borderWidth: 1.5,
+        borderColor: '#E8EBED',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 15,
+        color: '#2C3E50',
+        minHeight: 52,
     },
     
     textArea: {
@@ -156,14 +176,6 @@ export default StyleSheet.create({
         color: '#2C3E50',
         textAlignVertical: 'top',
         minHeight: 100,
-        lineHeight: 22,
-    },
-    
-    characterCount: {
-        textAlign: 'right',
-        fontSize: 12,
-        color: '#95A5A6',
-        marginTop: 6,
     },
     
     buttonContainer: {
@@ -179,12 +191,9 @@ export default StyleSheet.create({
         paddingVertical: 14,
         borderRadius: 12,
         alignItems: 'center',
-        minHeight: 52,
-        justifyContent: 'center',
         borderWidth: 1.5,
         borderColor: '#E8EBED',
     },
-    
     cancelButtonText: {
         color: '#7F8C8D',
         fontSize: 16,
@@ -197,26 +206,11 @@ export default StyleSheet.create({
         paddingVertical: 14,
         borderRadius: 12,
         alignItems: 'center',
-        minHeight: 52,
-        justifyContent: 'center',
-        ...Platform.select({
-            ios: {
-                shadowColor: '#4ECDC4',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-            },
-            android: {
-                elevation: 4,
-            },
-        }),
     },
-    
     saveButtonText: {
         color: '#FFFFFF',
         fontSize: 16,
         fontWeight: '700',
-        letterSpacing: 0.3,
     },
     
     buttonDisabled: {
@@ -224,14 +218,14 @@ export default StyleSheet.create({
         opacity: 0.6,
     },
 
-    // Tarjetas de vacunación minimalistas
-    vaccinationCard: {
+    // Tarjetas de desparasitación
+    dewormingCard: {
         backgroundColor: '#FFFFFF',
         borderRadius: 16,
         padding: 20,
         marginTop: 16,
         borderLeftWidth: 4,
-        borderLeftColor: '#4ECDC4',
+        borderLeftColor: '#9B59B6',
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
@@ -248,7 +242,6 @@ export default StyleSheet.create({
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        marginBottom: 12,
     },
     
     cardInfo: {
@@ -256,18 +249,44 @@ export default StyleSheet.create({
         flex: 1,
     },
     
-    vaccineName: {
+    typeBadge: {
+        backgroundColor: '#E8F9F7',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 8,
+        alignSelf: 'flex-start',
+        marginBottom: 10,
+    },
+    typeBadgeText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#4ECDC4',
+    },
+    
+    productName: {
         fontSize: 17,
         fontWeight: '700',
         color: '#2C3E50',
         marginBottom: 6,
-        letterSpacing: 0.2,
     },
     
-    vaccineDate: {
+    date: {
         fontSize: 14,
         color: '#7F8C8D',
-        fontWeight: '500',
+        marginTop: 4,
+    },
+    
+    nextDose: {
+        fontSize: 14,
+        color: '#E67E22',
+        marginTop: 4,
+        fontWeight: '600',
+    },
+    
+    details: {
+        fontSize: 14,
+        color: '#7F8C8D',
+        marginTop: 2,
     },
     
     deleteButton: {
@@ -276,7 +295,7 @@ export default StyleSheet.create({
         borderRadius: 10,
     },
     
-    vaccineDescription: {
+    description: {
         fontSize: 14,
         color: '#7F8C8D',
         marginTop: 12,
@@ -286,26 +305,20 @@ export default StyleSheet.create({
         lineHeight: 20,
     },
 
-    // Estado vacío elegante
     emptyState: {
         alignItems: 'center',
         paddingVertical: 60,
-        paddingHorizontal: 40,
     },
-    
     emptyStateTitle: {
         fontSize: 20,
         fontWeight: '700',
         color: '#2C3E50',
         marginTop: 20,
         marginBottom: 8,
-        textAlign: 'center',
     },
-    
     emptyStateText: {
         fontSize: 15,
         color: '#7F8C8D',
         textAlign: 'center',
-        lineHeight: 22,
     },
 });
