@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { dewormingService } from '../services/dewormingService';
-import styles from '../styles/VaccinationScreenStyles';
+import styles from '../styles/DewormingScreenStyles';
 
 const DewormingScreen = ({ route, navigation }) => {
     const { petId, petName, petSpecies } = route.params;
@@ -215,23 +215,18 @@ const DewormingScreen = ({ route, navigation }) => {
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <View style={styles.headerLeft}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Ionicons name="arrow-back" size={24} color="#333" />
-                    </TouchableOpacity>
+                <View style={styles.headerContent}>
                     <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Desparasitaciones</Text>
+                        <Text style={styles.title}>🐛 Desparasitación</Text>
                         <Text style={styles.petName}>{petName}</Text>
                     </View>
-                </View>
-                {!showAddForm && (
                     <TouchableOpacity 
                         style={styles.addButton}
                         onPress={() => setShowAddForm(true)}
                     >
-                        <Ionicons name="add" size={24} color="#4ECDC4" />
+                        <Ionicons name="add" size={28} color="#FFFFFF" />
                     </TouchableOpacity>
-                )}
+                </View>
             </View>
 
             <ScrollView style={styles.content}>

@@ -1,0 +1,69 @@
+    {
+    "settings": {
+        "title": "Settings",
+        "profile": "Profile",
+        "editProfile": "Edit profile",
+        "editProfileDesc": "Change name, photo and email",
+        "notifications": "Notifications",
+        "notificationsDesc": "Manage alerts and reminders",
+        "privacy": "Privacy and Security",
+        "changePassword": "Change password",
+        "changePasswordDesc": "Update access credentials",
+        "language": "Language",
+        "languageDesc": "Español / English",
+        "logout": "Log out"
+    },
+    "editProfile": {
+        "title": "Edit Profile",
+        "name": "Name",
+        "namePlaceholder": "Enter your name",
+        "email": "Email",
+        "emailPlaceholder": "email@example.com",
+        "changePhoto": "Change profile photo",
+        "selectOption": "Select an option",
+        "camera": "Camera",
+        "gallery": "Gallery",
+        "cancel": "Cancel",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "success": "Profile updated successfully",
+        "error": "Error updating profile",
+        "nameError": "Name must be at least 3 characters",
+        "emailError": "Enter a valid email address"
+    },
+    "notifications": {
+        "title": "Notifications",
+        "generalTitle": "General Notifications",
+        "enableAll": "Enable all notifications",
+        "remindersTitle": "Reminders",
+        "vaccines": "Vaccine reminders",
+        "deworming": "Deworming reminders",
+        "annualExam": "Annual exam reminders",
+        "save": "Save Preferences",
+        "saving": "Saving...",
+        "success": "Preferences saved successfully",
+        "error": "Error saving preferences"
+    },
+    "changePassword": {
+        "title": "Change Password",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm New Password",
+        "save": "Change Password",
+        "saving": "Updating...",
+        "success": "Password updated successfully",
+        "error": "Error changing password",
+        "currentPasswordError": "Enter your current password",
+        "newPasswordError": "Password must be at least 6 characters",
+        "confirmPasswordError": "Passwords do not match",
+        "samePasswordError": "New password must be different from current",
+        "wrongPasswordError": "Current password is incorrect"
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "ok": "OK",
+        "cancel": "Cancel"
+    }
+    }

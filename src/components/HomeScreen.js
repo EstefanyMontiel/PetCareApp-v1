@@ -7,7 +7,8 @@ import {
     RefreshControl,
     Alert,
     Image,
-    ActivityIndicator
+    ActivityIndicator, 
+    Platform
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,8 +16,7 @@ import { petImageService, petArchiveService } from '../services/petServices';
 import { useImagePicker } from '../hooks/useImagePicker';
 import styles from '../styles/HomeScreenStyles';
 import SafeContainer from './SafeContainer';
-import Button from './Button';
-    
+
 const HomeScreen = ({ navigation }) => {
     const { user, userProfile, userPets, logout, loadUserPets } = useAuth();
     const [refreshing, setRefreshing] = useState(false);
@@ -51,24 +51,30 @@ const HomeScreen = ({ navigation }) => {
     const navigateToOption = (pet, option) => {
         switch(option) {
             case 'vaccination':
-            navigation.navigate('Vacunación', { 
-                petId: pet.id, 
-                petName: pet.nombre,
-                petSpecies: pet.especie // ✅ Agregar la especie
-            });
-            break;
+                navigation.navigate('Vacunación', { 
+                    petId: pet.id, 
+                    petName: pet.nombre,
+                    petSpecies: pet.especie
+                });
+                break;
             case 'deworming':
                 navigation.navigate('Desparasitación', { 
                     petId: pet.id, 
                     petName: pet.nombre,
-                    petSpecies: pet.especie // ✅ Agregar la especie
+                    petSpecies: pet.especie
                 });
                 break;
             case 'annual':
                 navigation.navigate('Examen anual', { 
                     petId: pet.id, 
                     petName: pet.nombre,
-                    petSpecies: pet.especie // ✅ Agregar la especie
+                    petSpecies: pet.especie
+                });
+                break;
+            case 'edit':
+                navigation.navigate('EditPet', {
+                    petId: pet.id,
+                    petData: pet
                 });
                 break;
         }
@@ -112,16 +118,9 @@ const HomeScreen = ({ navigation }) => {
     const uploadPetImage = async (petId, imageUri) => {
         try {
             setUploadingImage(prev => ({ ...prev, [petId]: true }));
-            
-            // Subir imagen a Storage
             const imageUrl = await petImageService.uploadPetImage(petId, imageUri);
-            
-            // Actualizar URL en Firestore
             await petImageService.updatePetImage(petId, imageUrl);
-            
-            // Recargar las mascotas para mostrar la nueva imagen
             await loadUserPets(user.uid);
-            
             Alert.alert('Éxito', 'Foto actualizada correctamente');
         } catch (error) {
             console.error('Error uploading image:', error);
@@ -131,50 +130,68 @@ const HomeScreen = ({ navigation }) => {
         }
     };
 
-    // Función para archivar mascota
     const handleArchivePet = (pet) => {
         Alert.alert(
             '💔 Archivar Mascota',
-            `¿Deseas mover a ${pet.nombre} a "Huellitas Eternas"?\n\nEsta acción marcará a tu mascota como inactiva y la podrás ver en el apartado de recuerdos.`,
+            `¿Deseas mover a ${pet.nombre} a "Huellitas Eternas"?\n\nEsta acción marcará a tu mascota como inactiva.`,
             [
-                {
-                    text: 'Cancelar',
-                    style: 'cancel',
-                },
+                { text: 'Cancelar', style: 'cancel' },
                 {
                     text: 'Archivar',
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await petArchiveService.archivePet(pet.id);
-                            
-                            // Recargar las mascotas
                             await loadUserPets(user.uid);
-                            
-                            Alert.alert(
-                                '✓ Archivada', 
-                                `${pet.nombre} ha sido movida a Huellitas Eternas`
-                            );
+                            Alert.alert('✓ Archivada', `${pet.nombre} ha sido movida a Huellitas Eternas`);
                         } catch (error) {
                             console.error('Error archivando mascota:', error);
-                            Alert.alert(
-                                'Error', 
-                                'No se pudo archivar la mascota. Intenta de nuevo.'
-                            );
+                            Alert.alert('Error', 'No se pudo archivar la mascota.');
                         }
-                    },
-                },
-            ],
-            { cancelable: true }
+                    }
+                }
+            ]
         );
     };
 
- const PetCard = ({ pet }) => (
+    // Menú de opciones para cada mascota
+    const showPetOptions = (pet) => {
+        Alert.alert(
+            pet.nombre,
+            'Selecciona una opción',
+            [
+                {
+                    text: '✏️ Editar información',
+                    onPress: () => navigateToOption(pet, 'edit')
+                },
+                {
+                    text: '💔 Archivar mascota',
+                    onPress: () => handleArchivePet(pet),
+                    style: 'destructive'
+                },
+                {
+                    text: 'Cancelar',
+                    style: 'cancel'
+                }
+            ]
+        );
+    };
+
+    // 🎨 Tarjeta de mascota minimalista
+    const PetCard = ({ pet }) => (
         <View style={styles.petCard}>
-            {/* Imagen de la mascota */}
+            {/* Botón de opciones en la esquina */}
+            <TouchableOpacity
+                style={styles.optionsButton}
+                onPress={() => showPetOptions(pet)}
+            >
+                <Ionicons name="ellipsis-horizontal" size={20} color="#7F8C8D" />
+            </TouchableOpacity>
+
+            {/* Imagen de la mascota centrada */}
             <View style={styles.petImageContainer}>
                 <TouchableOpacity 
-                    style={styles.petImage}
+                    style={styles.petImageWrapper}
                     onPress={() => handleImageSelection(pet.id)}
                 >
                     {pet.imageUrl ? (
@@ -186,8 +203,8 @@ const HomeScreen = ({ navigation }) => {
                     ) : (
                         <View style={styles.placeholderImage}>
                             <Ionicons 
-                                name={pet.especie === 'Perro' ? 'paw' : 'paw'} 
-                                size={30} 
+                                name="paw" 
+                                size={40} 
                                 color="#fff" 
                             />
                         </View>
@@ -204,27 +221,15 @@ const HomeScreen = ({ navigation }) => {
                     style={styles.editIcon}
                     onPress={() => handleImageSelection(pet.id)}
                 >
-                    <Ionicons name="camera" size={12} color="#666" />
+                    <Ionicons name="pencil" size={14} color="#666" />
                 </TouchableOpacity>
             </View>
 
-            {/* Información de la mascota */}
+            {/* Información centrada */}
             <View style={styles.petInfo}>
-                <View style={styles.petHeader}>
-                    <View style={styles.petBasicInfo}>
-                        <Text style={styles.petName}>{pet.nombre}</Text>
-                        <Text style={styles.petBreed}>{pet.raza}</Text>
-                        <Text style={styles.petAge}>{calculateAge(pet.fechaNacimiento)}</Text>
-                    </View>
-                    
-                    {/* Botón de archivar discreto */}
-                    <TouchableOpacity
-                        style={styles.archiveButton}
-                        onPress={() => handleArchivePet(pet)}
-                    >
-                        <Ionicons name="archive-outline" size={18} color="#999" />
-                    </TouchableOpacity>
-                </View>
+                <Text style={styles.petName}>{pet.nombre}</Text>
+                <Text style={styles.petBreed}>{pet.raza}</Text>
+                <Text style={styles.petAge}>{calculateAge(pet.fechaNacimiento)}</Text>
             </View>
 
             {/* Opciones */}
@@ -234,15 +239,12 @@ const HomeScreen = ({ navigation }) => {
                     onPress={() => navigateToOption(pet, 'vaccination')}
                 >
                     <View style={styles.optionLeft}>
-                        <Ionicons 
-                            name="medical-outline" 
-                            size={20} 
-                            color="#666" 
-                            style={styles.optionIcon}
-                        />
+                        <View style={styles.optionIconContainer}>
+                            <Ionicons name="medical" size={18} color="#4ECDC4" />
+                        </View>
                         <Text style={styles.optionText}>Vacunación</Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color="#666" />
+                    <Ionicons name="chevron-forward" size={18} color="#ccc" />
                 </TouchableOpacity>
 
                 <TouchableOpacity 
@@ -250,15 +252,12 @@ const HomeScreen = ({ navigation }) => {
                     onPress={() => navigateToOption(pet, 'deworming')}
                 >
                     <View style={styles.optionLeft}>
-                        <Ionicons 
-                            name="bug-outline" 
-                            size={20} 
-                            color="#666" 
-                            style={styles.optionIcon}
-                        />
+                        <View style={styles.optionIconContainer}>
+                            <Ionicons name="shield-checkmark" size={18} color="#4ECDC4" />
+                        </View>
                         <Text style={styles.optionText}>Desparasitación</Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color="#666" />
+                    <Ionicons name="chevron-forward" size={18} color="#ccc" />
                 </TouchableOpacity>
 
                 <TouchableOpacity 
@@ -266,15 +265,12 @@ const HomeScreen = ({ navigation }) => {
                     onPress={() => navigateToOption(pet, 'annual')}
                 >
                     <View style={styles.optionLeft}>
-                        <Ionicons 
-                            name="clipboard-outline" 
-                            size={20} 
-                            color="#666" 
-                            style={styles.optionIcon}
-                        />
+                        <View style={styles.optionIconContainer}>
+                            <Ionicons name="clipboard" size={18} color="#4ECDC4" />
+                        </View>
                         <Text style={styles.optionText}>Examen anual</Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color="#666" />
+                    <Ionicons name="chevron-forward" size={18} color="#ccc" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -282,11 +278,11 @@ const HomeScreen = ({ navigation }) => {
 
     return (
         <SafeContainer style={styles.container}>
-            {/* Header con logo */}
+            {/* Header */}
             <View style={styles.header}>
                 <View style={styles.logo}>
                     <View style={styles.logoIcon}>
-                        <Ionicons name="paw" size={24} color="#fff" />
+                        <Ionicons name="paw" size={20} color="#fff" />
                     </View>
                     <Text style={styles.logoText}>PetCare</Text>
                 </View>
@@ -295,27 +291,45 @@ const HomeScreen = ({ navigation }) => {
                     style={styles.addPetButton}
                     onPress={() => navigation.navigate('PetRegister')}
                 >
-                    <Ionicons name="add" size={20} color="#4ECDC4" />
+                    <Ionicons name="add-circle-outline" size={28} color="#4ECDC4" />
                 </TouchableOpacity>
-
             </View>
-
 
             {/* Lista de mascotas */}
             <ScrollView 
                 style={styles.petsContainer}
+                contentContainerStyle={styles.petsContentContainer}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
                 showsVerticalScrollIndicator={false}
             >
                 {userPets.length > 0 ? (
-                    userPets.map((pet) => (
-                        <PetCard key={pet.id} pet={pet} />
-                    ))
+                    <>
+                        {userPets.map((pet) => (
+                            <PetCard key={pet.id} pet={pet} />
+                        ))}
+                        
+                        {/* 💝 Botón de Huellitas Eternas minimalista */}
+                        <TouchableOpacity 
+                            style={styles.huellitasButton}
+                            onPress={() => navigation.navigate('HuellitasEternas')}
+                        >
+                            <View style={styles.huellitasIconContainer}>
+                                <Ionicons name="heart" size={22} color="#E74C3C" />
+                            </View>
+                            <View style={styles.huellitasTextContainer}>
+                                <Text style={styles.huellitasTitle}>Huellitas Eternas</Text>
+                                <Text style={styles.huellitasSubtitle}>
+                                    Honra la memoria de tus compañeros
+                                </Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={20} color="#E74C3C" />
+                        </TouchableOpacity>
+                    </>
                 ) : (
                     <View style={styles.emptyState}>
-                        <Ionicons name="paw-outline" size={50} color="#ccc" />
+                        <Ionicons name="paw-outline" size={64} color="#ccc" />
                         <Text style={styles.emptyStateTitle}>No tienes mascotas registradas</Text>
                         <Text style={styles.emptyStateText}>
                             Agrega tu primera mascota para comenzar
@@ -326,21 +340,9 @@ const HomeScreen = ({ navigation }) => {
                         >
                             <Text style={styles.emptyStateButtonText}>Registrar Mascota</Text>
                         </TouchableOpacity>
-
                     </View>
                 )}
-                
-                {/* Botón para Huellitas Eternas */}
-                <TouchableOpacity 
-                    style={styles.eternasButton}
-                    onPress={() => navigation.navigate('HuellitasEternas')}
-                >
-                    <Ionicons name="heart" size={24} color="#fff" />
-                    <Text style={styles.eternasButtonText}>Huellitas Eternas</Text>
-                    <Ionicons name="chevron-forward" size={24} color="#fff" />
-                </TouchableOpacity>
             </ScrollView>
-
         </SafeContainer>
     );
 };

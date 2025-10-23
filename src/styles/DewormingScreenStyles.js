@@ -104,15 +104,6 @@ export default StyleSheet.create({
         marginBottom: 24,
     },
     
-    sectionTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#4ECDC4',
-        marginTop: 16,
-        marginBottom: 16,
-        letterSpacing: 0.5,
-    },
-    
     inputContainer: {
         marginBottom: 20,
     },
@@ -124,16 +115,46 @@ export default StyleSheet.create({
         marginBottom: 10,
     },
     
-    input: {
+    // Botones de tipo (Interno/Externo)
+    typeButtonsContainer: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    typeButton: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 14,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#E8EBED',
         backgroundColor: '#F8F9FA',
+        gap: 8,
+    },
+    typeButtonActive: {
+        backgroundColor: '#4ECDC4',
+        borderColor: '#4ECDC4',
+    },
+    typeButtonText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#7F8C8D',
+    },
+    typeButtonTextActive: {
+        color: '#FFFFFF',
+    },
+    
+    pickerContainer: {
         borderWidth: 1.5,
         borderColor: '#E8EBED',
         borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        fontSize: 15,
-        color: '#2C3E50',
-        minHeight: 52,
+        backgroundColor: '#F8F9FA',
+        overflow: 'hidden',
+    },
+    picker: {
+        height: Platform.OS === 'ios' ? 150 : 50,
+        width: '100%',
     },
     
     dateButton: {
@@ -159,6 +180,18 @@ export default StyleSheet.create({
         marginBottom: 20,
     },
     
+    input: {
+        backgroundColor: '#F8F9FA',
+        borderWidth: 1.5,
+        borderColor: '#E8EBED',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 15,
+        color: '#2C3E50',
+        minHeight: 52,
+    },
+    
     textArea: {
         backgroundColor: '#F8F9FA',
         borderWidth: 1.5,
@@ -169,29 +202,7 @@ export default StyleSheet.create({
         fontSize: 15,
         color: '#2C3E50',
         textAlignVertical: 'top',
-        minHeight: 80,
-    },
-    
-    // Botones de condición
-    conditionContainer: {
-        gap: 10,
-    },
-    conditionButton: {
-        paddingVertical: 14,
-        paddingHorizontal: 16,
-        borderRadius: 12,
-        borderWidth: 2,
-        borderColor: '#E8EBED',
-        backgroundColor: '#F8F9FA',
-        alignItems: 'center',
-    },
-    conditionButtonText: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#7F8C8D',
-    },
-    conditionButtonTextActive: {
-        color: '#FFFFFF',
+        minHeight: 100,
     },
     
     buttonContainer: {
@@ -231,16 +242,17 @@ export default StyleSheet.create({
     
     buttonDisabled: {
         backgroundColor: '#BDC3C7',
+        opacity: 0.6,
     },
 
-    // Tarjetas de exámenes
-    examCard: {
+    // Tarjetas de desparasitación
+    dewormingCard: {
         backgroundColor: '#FFFFFF',
         borderRadius: 16,
         padding: 20,
         marginTop: 16,
         borderLeftWidth: 4,
-        borderLeftColor: '#3498DB',
+        borderLeftColor: '#9B59B6',
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
@@ -257,7 +269,6 @@ export default StyleSheet.create({
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        marginBottom: 12,
     },
     
     cardInfo: {
@@ -265,36 +276,44 @@ export default StyleSheet.create({
         flex: 1,
     },
     
-    examDate: {
-        fontSize: 16,
+    typeBadge: {
+        backgroundColor: '#E8F9F7',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 8,
+        alignSelf: 'flex-start',
+        marginBottom: 10,
+    },
+    typeBadgeText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#4ECDC4',
+    },
+    
+    productName: {
+        fontSize: 17,
         fontWeight: '700',
         color: '#2C3E50',
         marginBottom: 6,
     },
     
-    clinic: {
+    date: {
         fontSize: 14,
         color: '#7F8C8D',
         marginTop: 4,
     },
     
-    veterinarian: {
+    nextDose: {
+        fontSize: 14,
+        color: '#E67E22',
+        marginTop: 4,
+        fontWeight: '600',
+    },
+    
+    details: {
         fontSize: 14,
         color: '#7F8C8D',
         marginTop: 2,
-    },
-    
-    conditionBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 8,
-        alignSelf: 'flex-start',
-        marginTop: 8,
-    },
-    conditionBadgeText: {
-        fontSize: 12,
-        fontWeight: '700',
-        color: '#FFFFFF',
     },
     
     deleteButton: {
@@ -303,35 +322,14 @@ export default StyleSheet.create({
         borderRadius: 10,
     },
     
-    detail: {
+    description: {
         fontSize: 14,
         color: '#7F8C8D',
-        marginTop: 8,
-    },
-    
-    detailSection: {
         marginTop: 12,
         paddingTop: 12,
         borderTopWidth: 1,
         borderTopColor: '#F0F0F0',
-    },
-    detailTitle: {
-        fontSize: 13,
-        fontWeight: '700',
-        color: '#2C3E50',
-        marginBottom: 6,
-    },
-    detailText: {
-        fontSize: 14,
-        color: '#7F8C8D',
         lineHeight: 20,
-    },
-    
-    nextExam: {
-        fontSize: 14,
-        color: '#E67E22',
-        marginTop: 12,
-        fontWeight: '600',
     },
 
     emptyState: {

@@ -211,23 +211,18 @@ const AnnualExamScreen = ({ route, navigation }) => {
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <View style={styles.headerLeft}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Ionicons name="arrow-back" size={24} color="#333" />
-                    </TouchableOpacity>
+                <View style={styles.headerContent}>
                     <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Examen Anual</Text>
+                        <Text style={styles.title}>📋 Examen Anual</Text>
                         <Text style={styles.petName}>{petName}</Text>
                     </View>
-                </View>
-                {!showAddForm && (
                     <TouchableOpacity 
                         style={styles.addButton}
                         onPress={() => setShowAddForm(true)}
                     >
-                        <Ionicons name="add" size={24} color="#4ECDC4" />
+                        <Ionicons name="add" size={28} color="#FFFFFF" />
                     </TouchableOpacity>
-                )}
+                </View>
             </View>
 
             <ScrollView style={styles.content}>
