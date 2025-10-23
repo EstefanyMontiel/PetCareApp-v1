@@ -93,13 +93,6 @@ const PetRegisterScreen = ({ navigation }) => {
     return (
         <SafeContainer style={styles.container}>
             {/* Header minimalista */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={24} color="#2C3E50" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Registrar Mascota</Text>
-                <View style={{ width: 24 }} />
-            </View>
 
             <ScrollView 
                 style={styles.content}

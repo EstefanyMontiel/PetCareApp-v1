@@ -8,11 +8,11 @@ export default StyleSheet.create({
         backgroundColor: '#F5F7FA',
     },
     
-    // Header elegante
+    // Header elegante y moderno
     header: {
         backgroundColor: '#FFFFFF',
         paddingHorizontal: 20,
-        paddingTop: Platform.OS === 'ios' ? 60 : 40,
+        paddingTop: Platform.OS === 'ios' ? 50 : 40,
         paddingBottom: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#F0F0F0',
@@ -28,31 +28,44 @@ export default StyleSheet.create({
             },
         }),
     },
-    headerLeft: {
+    headerContent: {
         flexDirection: 'row',
-        alignItems: 'center',
         justifyContent: 'space-between',
+        alignItems: 'center',
     },
     headerInfo: {
         flex: 1,
-        marginLeft: 16,
     },
     title: {
-        fontSize: 22,
+        fontSize: 24,
         fontWeight: '700',
         color: '#2C3E50',
         letterSpacing: 0.3,
+        marginBottom: 4,
     },
     petName: {
-        fontSize: 14,
+        fontSize: 15,
         color: '#7F8C8D',
-        marginTop: 4,
         fontWeight: '500',
     },
     addButton: {
-        backgroundColor: '#E8F9F7',
-        borderRadius: 12,
-        padding: 12,
+        backgroundColor: '#4ECDC4',
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        justifyContent: 'center',
+        alignItems: 'center',
+        ...Platform.select({
+            ios: {
+                shadowColor: '#4ECDC4',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+            },
+            android: {
+                elevation: 6,
+            },
+        }),
     },
     
     content: {

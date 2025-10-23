@@ -66,7 +66,7 @@ const VaccinationScreen = ({ route, navigation }) => {
             setVaccinations(data);
         } catch (error) {
             console.error('Error cargando vacunaciones:', error);
-            Alert.alert('Error', 'No se pudieron cargar las vacunaciones');
+            Alert.alert('Error', 'No se pudieron cargar las vacunas');
         } finally {
             setLoadingList(false);
         }
@@ -149,10 +149,10 @@ const VaccinationScreen = ({ route, navigation }) => {
             setDescription('');
             setShowAddForm(false);
 
-            Alert.alert('✅ Éxito', 'Vacunación registrada correctamente');
+            Alert.alert('✅ Éxito', 'Vacuna registrada correctamente');
         } catch (error) {
-            console.error('Error al guardar vacunación:', error);
-            Alert.alert('❌ Error', 'No se pudo guardar la vacunación');
+            console.error('Error al guardar vacuna:', error);
+            Alert.alert('❌ Error', 'No se pudo guardar la vacuna');
         } finally {
             setLoading(false);
         }
@@ -161,8 +161,8 @@ const VaccinationScreen = ({ route, navigation }) => {
     // 🗑️ FUNCIÓN: Eliminar vacunación
     const handleDeleteVaccination = (vaccinationId) => {
         Alert.alert(
-            'Eliminar Vacunación',
-            '¿Estás seguro de que deseas eliminar esta vacunación?',
+            'Eliminar Vacuna',
+            '¿Estás seguro de que deseas eliminar esta vacuna?',
             [
                 { text: 'Cancelar', style: 'cancel' },
                 {
@@ -172,9 +172,9 @@ const VaccinationScreen = ({ route, navigation }) => {
                         try {
                             await vaccinationService.deleteVaccination(petId, vaccinationId);
                             await loadVaccinations();
-                            Alert.alert('✅', 'Vacunación eliminada');
+                            Alert.alert('✅', 'Vacuna eliminada');
                         } catch (error) {
-                            Alert.alert('Error', 'No se pudo eliminar la vacunación');
+                            Alert.alert('Error', 'No se pudo eliminar la vacuna');
                         }
                     }
                 }
@@ -194,23 +194,18 @@ const VaccinationScreen = ({ route, navigation }) => {
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <View style={styles.headerLeft}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Ionicons name="arrow-back" size={24} color="#333" />
-                    </TouchableOpacity>
+                <View style={styles.headerContent}>
                     <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Vacunaciones</Text>
+                        <Text style={styles.title}>💉 Vacunación</Text>
                         <Text style={styles.petName}>{petName}</Text>
                     </View>
-                </View>
-                {!showAddForm && (
                     <TouchableOpacity 
                         style={styles.addButton}
                         onPress={() => setShowAddForm(true)}
                     >
-                        <Ionicons name="add" size={24} color="#4ECDC4" />
+                        <Ionicons name="add" size={28} color="#FFFFFF" />
                     </TouchableOpacity>
-                )}
+                </View>
             </View>
 
             <ScrollView style={styles.content}>
