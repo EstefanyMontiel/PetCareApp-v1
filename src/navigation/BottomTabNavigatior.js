@@ -6,7 +6,7 @@ import { Platform } from 'react-native';
 //importar pantallas 
 import HomeScreen from '../components/HomeScreen';
 import MapScreen from '../components/MapScreen';
-import AgendaScreen from '../components/AgendaScreen';
+import AgendaScreen from '../components/agenda/AgendaScreen';
 import EmergencyScreen from '../components/EmergencyScreen';
 import SettingScreen from '../components/SettingScreen';
 
