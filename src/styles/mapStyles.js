@@ -3,6 +3,7 @@ import { StyleSheet, Dimensions } from 'react-native';
 import { colors, spacing, borderRadius, shadows } from './colors';
 
 const { width } = Dimensions.get('window');
+const height = Dimensions.get('window').height;
 
 export const mapStyles = StyleSheet.create({
   container: {
@@ -130,17 +131,21 @@ export const mapStyles = StyleSheet.create({
   },
   
   // Card de información flotante (Más abajo para que no tape el centro)
-  infoCard: {
-    position: 'absolute',
-    bottom: 20,
-    left: spacing.md,
-    right: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing.lg,
-    ...shadows.large,
-    maxHeight: '40%', // Máximo 40% de la pantalla
-  },
+ infoCard: {
+  position: 'absolute',
+  bottom: 80,  // ⬅️ CAMBIA de 0 a 80 (para dejar espacio a la barra de navegación)
+  left: 16,    // ⬅️ Márgenes laterales
+  right: 16,   // ⬅️ Márgenes laterales
+  backgroundColor: colors.surface,
+  borderRadius: 20,  // ⬅️ Bordes redondeados en todas las esquinas
+  padding: 20,
+  elevation: 20,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: -4 },
+  shadowOpacity: 0.15,
+  shadowRadius: 12,
+  maxHeight: height * 0.35,  // ⬅️ Reduce un poco la altura máxima
+},
   infoHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -224,4 +229,37 @@ export const mapStyles = StyleSheet.create({
     fontSize: 16,
     color: colors.textSecondary,
   },
+  loadingOverlay: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 1000,
+},
+// Agregar al final de mapStyles
+
+phoneContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: colors.background,
+  padding: 10,
+  borderRadius: 8,
+  marginBottom: 12,
+  gap: 8,
+},
+
+phoneText: {
+  fontSize: 14,
+  color: colors.textPrimary,
+  fontWeight: '600',
+},
+
+infoButtonDisabled: {
+  backgroundColor: colors.textTertiary,
+  opacity: 0.6,
+}
 });

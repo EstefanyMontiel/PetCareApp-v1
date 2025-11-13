@@ -1,6 +1,6 @@
 // src/components/VeterinaryCard.js
 import React from 'react';
-import { View, Text, TouchableOpacity, Linking, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, Linking, Platform, Alert, Share} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { emergencyStyles } from '../styles/emergencyStyles';
 import { colors } from '../styles/colors';
@@ -22,9 +22,21 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
     Linking.openURL(url);
   };
 
-  const handleShare = () => {
-    // Implementar compartir
-    Alert.alert('Compartir', 'Funcionalidad próximamente');
+  const handleShare = async () => {
+    try {
+      const message = `🐾 ${veterinary.name}\n\n` +
+        `📍 ${veterinary.formatted_address || veterinary.vicinity}\n` +
+        `📞 ${veterinary.formatted_phone_number || 'Sin teléfono'}\n` +
+        `⭐ ${veterinary.rating ? `Calificación: ${veterinary.rating}` : 'Sin calificación'}\n\n` +
+        `📱 Ver en Maps: https://www.google.com/maps/search/?api=1&query=${veterinary.geometry.location.lat},${veterinary.geometry.location.lng}`;
+
+      await Share.share({
+        message: message,
+        title: `Compartir ${veterinary.name}`,
+      });
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo compartir la información');
+    }
   };
 
   return (
