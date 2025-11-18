@@ -13,7 +13,7 @@ import { LanguageProvider } from './src/context/LanguageContext'; // ✅ NUEVO
 import LoginScreen from './src/components/LoginScreen';
 import RegisterScreen from './src/components/RegisterScreen';
 import PetRegisterScreen from './src/components/PetRegisterScreen';
-import HomeScreen from './src/components/HomeScreen';
+import HomeScreen from './src/components/pets/HomeScreen';
 import VaccinationScreen from './src/components/VaccinationScreen';
 import DewormingScreen from './src/components/DewormingScreen';
 import AnnualExamScreen from './src/components/AnnualExamScreen';
