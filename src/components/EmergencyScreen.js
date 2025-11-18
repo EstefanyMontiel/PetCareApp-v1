@@ -1,3 +1,4 @@
+// src/components/EmergencyScreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -6,7 +7,6 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
-  Platform,
 } from 'react-native';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +18,7 @@ import { colors } from '../styles/colors';
 export default function EmergencyScreen() {
   const [veterinaries, setVeterinaries] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false); // 🆕 Loading para detalles
   const [showList, setShowList] = useState(false);
 
   const handleLocateEmergencyVets = async () => {
@@ -25,6 +26,7 @@ export default function EmergencyScreen() {
       setLoading(true);
       setShowList(true);
 
+      // Solicitar permisos
       let { status } = await Location.requestForegroundPermissionsAsync();
       
       if (status !== 'granted') {
@@ -33,14 +35,30 @@ export default function EmergencyScreen() {
         return;
       }
 
+      // Obtener ubicación
+      console.log('📍 Obteniendo ubicación...');
       let location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.High,
       });
 
       const { latitude, longitude } = location.coords;
+      console.log(`📍 Ubicación: ${latitude}, ${longitude}`);
 
+      // Buscar veterinarias
       const results = await placesService.search24HourVeterinaries(latitude, longitude);
+      console.log(`📋 Resultados obtenidos: ${results.length}`);
 
+      if (results.length === 0) {
+        Alert.alert(
+          'Sin resultados',
+          'No se encontraron veterinarias de emergencia cercanas.'
+        );
+        setVeterinaries([]);
+        setLoading(false);
+        return;
+      }
+
+      // Calcular distancias
       const vetsWithDistance = results.map((vet) => ({
         ...vet,
         distance: placesService.calculateDistance(
@@ -51,12 +69,41 @@ export default function EmergencyScreen() {
         ),
       }));
 
+      // Ordenar por distancia
       vetsWithDistance.sort((a, b) => a.distance - b.distance);
+      
+      // 🆕 Mostrar resultados inmediatamente (sin teléfonos aún)
       setVeterinaries(vetsWithDistance);
+      setLoading(false);
+
+      // 🆕 Cargar detalles (teléfonos) en segundo plano
+      setLoadingDetails(true);
+      try {
+        const vetsWithDetails = await placesService.loadDetailsForVeterinaries(
+          vetsWithDistance.slice(0, 10) // Solo los primeros 10
+        );
+        
+        // Combinar veterinarias con detalles y sin detalles
+        const allVets = [
+          ...vetsWithDetails,
+          ...vetsWithDistance.slice(10) // El resto sin detalles
+        ];
+        
+        setVeterinaries(allVets);
+
+        placesService.saveEmergencyVetsWithDetails(allVets); // Guardar en caché CON detalles
+
+        console.log('✅ Detalles cargados correctamente');
+      } catch (detailError) {
+        console.log('⚠️ No se pudieron cargar algunos detalles');
+      } finally {
+        setLoadingDetails(false);
+      }
+      
     } catch (error) {
-      console.error('Error:', error);
-      Alert.alert('Error', 'No se pudieron cargar las veterinarias');
-    } finally {
+      console.error('❌ Error completo:', error);
+      Alert.alert('Error', `No se pudieron cargar las veterinarias: ${error.message}`);
+      setVeterinaries([]);
       setLoading(false);
     }
   };
@@ -85,11 +132,18 @@ export default function EmergencyScreen() {
           <TouchableOpacity
             style={emergencyStyles.locateButton}
             onPress={handleLocateEmergencyVets}
+            disabled={loading}
           >
-            <Ionicons name="location" size={24} color={colors.surface} />
-            <Text style={emergencyStyles.locateButtonText}>
-              Localizar clínica
-            </Text>
+            {loading ? (
+              <ActivityIndicator color={colors.surface} />
+            ) : (
+              <>
+                <Ionicons name="location" size={24} color={colors.surface} />
+                <Text style={emergencyStyles.locateButtonText}>
+                  Localizar clínica
+                </Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
       ) : (
@@ -99,15 +153,23 @@ export default function EmergencyScreen() {
               <Text style={emergencyStyles.listTitle}>
                 Veterinarias Cercanas
               </Text>
+              {/* 🆕 Indicador de carga de detalles */}
+              {loadingDetails && (
+                <ActivityIndicator size="small" color={colors.primary} />
+              )}
               <TouchableOpacity
                 style={emergencyStyles.backButton}
-                onPress={() => setShowList(false)}
+                onPress={() => {
+                  setShowList(false);
+                  setVeterinaries([]);
+                }}
               >
                 <Ionicons name="close" size={24} color={colors.textPrimary} />
               </TouchableOpacity>
             </View>
             <Text style={emergencyStyles.resultCount}>
               {veterinaries.length} {veterinaries.length === 1 ? 'resultado' : 'resultados'}
+              {loadingDetails && ' • Cargando teléfonos...'}
             </Text>
           </View>
 
@@ -135,8 +197,7 @@ export default function EmergencyScreen() {
                 No hay veterinarias cercanas
               </Text>
               <Text style={emergencyStyles.emptyText}>
-                No encontramos clínicas veterinarias en tu área. 
-                Intenta ampliar la búsqueda.
+                No encontramos clínicas veterinarias en tu área.
               </Text>
               <TouchableOpacity
                 style={emergencyStyles.retryButton}

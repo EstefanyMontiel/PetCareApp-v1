@@ -17,6 +17,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { placesService } from '../services/placesService';
 import { mapStyles } from '../styles/mapStyles';
 import { colors } from '../styles/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function MapScreen() {
   const [region, setRegion] = useState(null);
@@ -73,29 +75,40 @@ export default function MapScreen() {
   };
 
   const searchVeterinaries = async (latitude, longitude) => {
-    try {
-      setLoading(true);
-      const results = await placesService.searchNearbyVeterinaries(latitude, longitude);
+  try {
+    setLoading(true);
+    const results = await placesService.searchNearbyVeterinaries(latitude, longitude);
 
-      const veterinariesWithDistance = results.map((vet) => ({
-        ...vet,
-        distance: placesService.calculateDistance(
-          latitude,
-          longitude,
-          vet.geometry.location.lat,
-          vet.geometry.location.lng
-        ),
-      }));
+    const veterinariesWithDistance = results.map((vet) => ({
+      ...vet,
+      distance: placesService.calculateDistance(
+        latitude,
+        longitude,
+        vet.geometry.location.lat,
+        vet.geometry.location.lng
+      ),
+    }));
 
-      veterinariesWithDistance.sort((a, b) => a.distance - b.distance);
-      setVeterinaries(veterinariesWithDistance);
-      setFilteredVets(veterinariesWithDistance);
-    } catch (error) {
-      Alert.alert('Error', 'No se pudieron cargar las veterinarias');
-    } finally {
-      setLoading(false);
-    }
-  };
+    veterinariesWithDistance.sort((a, b) => a.distance - b.distance);
+    setVeterinaries(veterinariesWithDistance);
+    setFilteredVets(veterinariesWithDistance);
+    
+    // 🆕 Guardar también en AsyncStorage para acceso global
+    await AsyncStorage.setItem(
+      'lastVeterinaries',
+      JSON.stringify({
+        data: veterinariesWithDistance,
+        location: { latitude, longitude },
+        timestamp: Date.now(),
+      })
+    );
+    
+  } catch (error) {
+    Alert.alert('Error', 'No se pudieron cargar las veterinarias');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const filterVeterinaries = () => {
     let filtered = [...veterinaries];
@@ -129,28 +142,35 @@ export default function MapScreen() {
 }
 
   // ✅ MODIFICADO: Ya NO mueve el mapa
-  const handleMarkerPress = (vet) => {
-    setSelectedVet(vet);
-    
-    // Animar aparición de la card
-    Animated.spring(cardAnimation, {
-      toValue: 0,
-      useNativeDriver: true,
-      tension: 50,
-      friction: 7,
-    }).start();
+  const handleMarkerPress = async (vet) => {
+  // Mostrar la tarjeta inmediatamente con la info básica
+  setSelectedVet(vet);
+  
+  // Animar aparición de la card
+  Animated.spring(cardAnimation, {
+    toValue: 0,
+    useNativeDriver: true,
+    tension: 50,
+    friction: 7,
+  }).start();
 
-    // ❌ ELIMINADO: Ya no centra el mapa en el marcador
-    // if (mapRef.current) {
-    //   mapRef.current.animateToRegion({
-    //     latitude: vet.geometry.location.lat,
-    //     longitude: vet.geometry.location.lng,
-    //     latitudeDelta: 0.05,
-    //     longitudeDelta: 0.05,
-    //   });
-    // }
-  };
-
+  // 🆕 Cargar detalles (teléfono, etc.) en segundo plano
+  try {
+    const details = await placesService.getPlaceDetails(vet.place_id);
+    if (details) {
+      // Actualizar con los detalles completos
+      setSelectedVet({
+        ...vet,
+        formatted_phone_number: details.formatted_phone_number,
+        international_phone_number: details.international_phone_number,
+        website: details.website,
+        opening_hours: details.opening_hours || vet.opening_hours,
+      });
+    }
+  } catch (error) {
+    console.log('⚠️ No se pudieron cargar detalles adicionales');
+  }
+};
   const handleCloseCard = () => {
     Animated.timing(cardAnimation, {
       toValue: 300,
@@ -207,8 +227,20 @@ export default function MapScreen() {
         toolbarEnabled={false}
         loadingEnabled
         loadingIndicatorColor={colors.primary}
+
+        // 🆕 OPTIMIZACIONES DE RENDIMIENTO
+  cacheEnabled={true}              // ⬅️ Habilita caché del mapa
+  loadingBackgroundColor="#F5F5F5" // ⬅️ Color de fondo mientras carga
+  maxZoomLevel={18}                //  Limita zoom para mejor rendimiento
+  minZoomLevel={10}                // ⬅ Limita zoom mínimo
+  moveOnMarkerPress={false}        //  No mueve el mapa al tocar marcador
+  pitchEnabled={false}             //  Deshabilita inclinación 3D
+  rotateEnabled={false}            // Deshabilita rotación
+  scrollEnabled={true}
+  zoomEnabled={true}
+
       >
-       {filteredVets.map((vet) => {
+    {filteredVets.map((vet) => {
   // Determinar si es veterinaria de emergencia
   const isEmergency = 
     vet.opening_hours?.open_now === true ||
@@ -331,70 +363,88 @@ export default function MapScreen() {
         </ScrollView>
       </View>
 
-      {/* Card de información */}
-      {selectedVet && (
-        <Animated.View 
-          style={[
-            mapStyles.infoCard,
-            { transform: [{ translateY: cardAnimation }] }
-          ]}
-        >
-          <View style={mapStyles.infoHeader}>
-            <Text style={mapStyles.infoTitle} numberOfLines={2}>
-              {selectedVet.name}
-            </Text>
-            {selectedVet.opening_hours?.open_now && (
-              <View style={mapStyles.infoBadge}>
-                <Text style={mapStyles.infoBadgeText}>ABIERTO</Text>
-              </View>
-            )}
-            <TouchableOpacity onPress={handleCloseCard}>
-              <Ionicons name="close" size={24} color={colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
+   {/* Card de información */}
+{selectedVet && (
+  <Animated.View 
+    style={[
+      mapStyles.infoCard,
+      { transform: [{ translateY: cardAnimation }] }
+    ]}
+  >
+    <View style={mapStyles.infoHeader}>
+      <Text style={mapStyles.infoTitle} numberOfLines={2}>
+        {selectedVet.name}
+      </Text>
+      {selectedVet.opening_hours?.open_now && (
+        <View style={mapStyles.infoBadge}>
+          <Text style={mapStyles.infoBadgeText}>ABIERTO</Text>
+        </View>
+      )}
+      <TouchableOpacity onPress={handleCloseCard}>
+        <Ionicons name="close" size={24} color={colors.textSecondary} />
+      </TouchableOpacity>
+    </View>
 
-          <Text style={mapStyles.infoAddress} numberOfLines={2}>
-            {selectedVet.vicinity}
+    <Text style={mapStyles.infoAddress} numberOfLines={2}>
+      {selectedVet.vicinity}
+    </Text>
+
+    {/* 🆕 AGREGAR: Mostrar teléfono si está disponible */}
+    {selectedVet.formatted_phone_number && (
+      <View style={mapStyles.phoneContainer}>
+        <Ionicons name="call-outline" size={16} color={colors.primary} />
+        <Text style={mapStyles.phoneText}>
+          {selectedVet.formatted_phone_number}
+        </Text>
+      </View>
+    )}
+
+    <View style={mapStyles.infoDetails}>
+      <View style={mapStyles.infoDetail}>
+        <Ionicons name="location" size={16} color={colors.primary} />
+        <Text style={mapStyles.infoDetailText}>
+          {selectedVet.distance.toFixed(2)} km
+        </Text>
+      </View>
+      {selectedVet.rating && (
+        <View style={mapStyles.infoDetail}>
+          <Ionicons name="star" size={16} color={colors.warning} />
+          <Text style={mapStyles.infoDetailText}>
+            {selectedVet.rating}
           </Text>
+        </View>
+      )}
+    </View>
 
-          <View style={mapStyles.infoDetails}>
-            <View style={mapStyles.infoDetail}>
-              <Ionicons name="location" size={16} color={colors.primary} />
-              <Text style={mapStyles.infoDetailText}>
-                {selectedVet.distance.toFixed(2)} km
-              </Text>
-            </View>
-            {selectedVet.rating && (
-              <View style={mapStyles.infoDetail}>
-                <Ionicons name="star" size={16} color={colors.warning} />
-                <Text style={mapStyles.infoDetailText}>
-                  {selectedVet.rating}
-                </Text>
-              </View>
-            )}
-          </View>
-
-          <View style={mapStyles.infoActions}>
-            <TouchableOpacity
-              style={[mapStyles.infoButton, mapStyles.infoButtonPrimary]}
-              onPress={() => handleCall(selectedVet.formatted_phone_number)}
-            >
-              <Ionicons name="call" size={18} color={colors.surface} />
-              <Text style={mapStyles.infoButtonText}>Llamar</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[mapStyles.infoButton, mapStyles.infoButtonSecondary]}
-              onPress={() => handleNavigate(
-                selectedVet.geometry.location.lat,
-                selectedVet.geometry.location.lng
-              )}
-            >
-              <Ionicons name="navigate" size={18} color={colors.surface} />
-              <Text style={mapStyles.infoButtonText}>Ir</Text>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
+    <View style={mapStyles.infoActions}>
+      {/* 🆕 MODIFICAR: Botón de llamar con estado */}
+      <TouchableOpacity
+        style={[
+          mapStyles.infoButton, 
+          mapStyles.infoButtonPrimary,
+          !selectedVet.formatted_phone_number && mapStyles.infoButtonDisabled
+        ]}
+        onPress={() => handleCall(selectedVet.formatted_phone_number)}
+        disabled={!selectedVet.formatted_phone_number}
+      >
+        <Ionicons name="call" size={18} color={colors.surface} />
+        <Text style={mapStyles.infoButtonText}>
+          {selectedVet.formatted_phone_number ? 'Llamar' : 'Cargando...'}
+        </Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity
+        style={[mapStyles.infoButton, mapStyles.infoButtonSecondary]}
+        onPress={() => handleNavigate(
+          selectedVet.geometry.location.lat,
+          selectedVet.geometry.location.lng
+        )}
+      >
+        <Ionicons name="navigate" size={18} color={colors.surface} />
+        <Text style={mapStyles.infoButtonText}>Ir</Text>
+      </TouchableOpacity>
+    </View>
+  </Animated.View>
       )}
     </View>
   );

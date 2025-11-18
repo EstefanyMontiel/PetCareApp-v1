@@ -1,161 +1,188 @@
 // src/services/placesService.js
-import axios from 'axios';
-import { GOOGLE_PLACES_API_KEY } from '@env';
 
-const BASE_URL = 'https://maps.googleapis.com/maps/api/place';
+// Caché simple en memoria
+const cache = {
+  veterinaries: null,
+  veterinariesWithDetails: null, // 🆕 Caché para veterinarias con detalles
+  emergency: null,
+  emergencyWithDetails: null,    // 🆕 Caché para emergencia con detalles
+  timestamp: null,
+  CACHE_DURATION: 10 * 60 * 1000, // 10 minutos
+};
 
-export const placesService = {
-  // Buscar veterinarias cercanas
+const GOOGLE_PLACES_API_KEY = 'AIzaSyBVV7GZ1kS03wnHN5Thev1iWDgQ8YhSdB4'; // ⬅️ Tu API key
+
+class PlacesService {
+  // Verificar si el caché es válido
+  isCacheValid(type) {
+    if (!cache[type] || !cache.timestamp) {
+      return false;
+    }
+    return (Date.now() - cache.timestamp) < cache.CACHE_DURATION;
+  }
+
   async searchNearbyVeterinaries(latitude, longitude, radius = 5000) {
+    // Verificar caché CON detalles primero
+    if (this.isCacheValid('veterinariesWithDetails') && cache.veterinariesWithDetails) {
+      console.log('✅ Usando veterinarias CON DETALLES desde caché');
+      return cache.veterinariesWithDetails;
+    }
+    
+    // Si no, verificar caché básico
+    if (this.isCacheValid('veterinaries')) {
+      console.log('✅ Usando veterinarias desde caché');
+      return cache.veterinaries;
+    }
+
     try {
-      const response = await axios.get(`${BASE_URL}/nearbysearch/json`, {
-        params: {
-          location: `${latitude},${longitude}`,
-          radius: radius,
-          type: 'veterinary_care',
-          key: GOOGLE_PLACES_API_KEY,
-        },
-      });
+      console.log('🔍 Buscando veterinarias en la API...');
+      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius}&type=veterinary_care&key=${GOOGLE_PLACES_API_KEY}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
 
-      if (response.data.status !== 'OK' && response.data.status !== 'ZERO_RESULTS') {
-        console.error('API Error:', response.data.status);
-        throw new Error(`API Error: ${response.data.status}`);
+      if (data.status === 'OK' && data.results) {
+        cache.veterinaries = data.results;
+        cache.timestamp = Date.now();
+        console.log(`💾 ${data.results.length} veterinarias guardadas en caché`);
+        return data.results;
+      } else {
+        console.error('Error en API:', data.status, data.error_message);
+        return [];
       }
-
-      return response.data.results || [];
     } catch (error) {
       console.error('Error buscando veterinarias:', error);
-      throw error;
-    }
-  },
-
-  // ✅ MEJORADO: Buscar veterinarias 24/7 (emergencia)
-  async search24HourVeterinaries(latitude, longitude, radius = 10000) {
-    try {
-      // Primera búsqueda: veterinarias con keywords de emergencia
-      const response1 = await axios.get(`${BASE_URL}/nearbysearch/json`, {
-        params: {
-          location: `${latitude},${longitude}`,
-          radius: radius,
-          type: 'veterinary_care',
-          keyword: '24 hours emergency veterinaria urgencias',
-          key: GOOGLE_PLACES_API_KEY,
-        },
-      });
-
-      // Segunda búsqueda: todas las veterinarias cercanas
-      const response2 = await axios.get(`${BASE_URL}/nearbysearch/json`, {
-        params: {
-          location: `${latitude},${longitude}`,
-          radius: radius,
-          type: 'veterinary_care',
-          key: GOOGLE_PLACES_API_KEY,
-        },
-      });
-
-      // Combinar resultados y eliminar duplicados
-      const allResults = [
-        ...(response1.data.results || []),
-        ...(response2.data.results || [])
-      ];
-
-      // Eliminar duplicados por place_id
-      const uniqueResults = Array.from(
-        new Map(allResults.map(item => [item.place_id, item])).values()
-      );
-
-      // Obtener detalles de cada lugar
-      const placesWithDetails = await Promise.all(
-        uniqueResults.slice(0, 20).map(async (place) => {
-          try {
-            const details = await this.getPlaceDetails(place.place_id);
-            return {
-              ...place,
-              ...details,
-            };
-          } catch (error) {
-            console.error('Error obteniendo detalles:', error);
-            return place;
-          }
-        })
-      );
-
-      // Filtrar y priorizar veterinarias de emergencia
-      const emergencyVets = placesWithDetails.filter((place) => {
-        // Verificar si está abierta ahora
-        const isOpenNow = place.opening_hours?.open_now === true;
-        
-        // Verificar si es 24/7
-        const is24Hours = place.opening_hours?.periods?.length === 1;
-        
-        // Verificar nombre
-        const hasEmergencyInName = 
-          place.name.toLowerCase().includes('24') ||
-          place.name.toLowerCase().includes('emergency') ||
-          place.name.toLowerCase().includes('emergencia') ||
-          place.name.toLowerCase().includes('urgencias');
-        
-        return isOpenNow || is24Hours || hasEmergencyInName;
-      });
-
-      // Si hay veterinarias de emergencia, devolverlas
-      // Si no, devolver todas ordenadas por si están abiertas
-      if (emergencyVets.length > 0) {
-        return emergencyVets;
+      if (cache.veterinaries) {
+        console.log('⚠️ Usando caché antiguo por error de red');
+        return cache.veterinaries;
       }
-
-      // Ordenar por estado operacional
-      return placesWithDetails.sort((a, b) => {
-        if (a.opening_hours?.open_now && !b.opening_hours?.open_now) return -1;
-        if (!a.opening_hours?.open_now && b.opening_hours?.open_now) return 1;
-        return 0;
-      });
-
-    } catch (error) {
-      console.error('Error buscando veterinarias 24/7:', error);
-      throw error;
+      return [];
     }
-  },
+  }
 
-  // Obtener detalles de un lugar específico
+  async search24HourVeterinaries(latitude, longitude, radius = 10000) {
+    // Verificar caché CON detalles primero
+    if (this.isCacheValid('emergencyWithDetails') && cache.emergencyWithDetails) {
+      console.log('✅ Usando veterinarias de emergencia CON DETALLES desde caché');
+      return cache.emergencyWithDetails;
+    }
+    
+    // Si no, verificar caché básico
+    if (this.isCacheValid('emergency')) {
+      console.log('✅ Usando veterinarias de emergencia desde caché');
+      return cache.emergency;
+    }
+
+    try {
+      console.log('🔍 Buscando veterinarias 24h en la API...');
+      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius}&keyword=veterinaria+24+horas+emergencia&type=veterinary_care&key=${GOOGLE_PLACES_API_KEY}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status === 'OK' && data.results) {
+        cache.emergency = data.results;
+        cache.timestamp = Date.now();
+        console.log(`💾 ${data.results.length} veterinarias de emergencia guardadas en caché`);
+        return data.results;
+      } else {
+        console.error('Error en API:', data.status, data.error_message);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error buscando veterinarias 24h:', error);
+      if (cache.emergency) {
+        console.log('⚠️ Usando caché antiguo por error de red');
+        return cache.emergency;
+      }
+      return [];
+    }
+  }
+
   async getPlaceDetails(placeId) {
     try {
-      const response = await axios.get(`${BASE_URL}/details/json`, {
-        params: {
-          place_id: placeId,
-          fields: 'name,formatted_address,formatted_phone_number,opening_hours,rating,geometry,business_status',
-          key: GOOGLE_PLACES_API_KEY,
-        },
-      });
+      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=formatted_phone_number,international_phone_number,website,opening_hours&key=${GOOGLE_PLACES_API_KEY}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
 
-      if (response.data.status !== 'OK') {
-        console.error('Details API Error:', response.data.status);
-        return {};
+      if (data.status === 'OK') {
+        return data.result;
       }
 
-      return response.data.result;
+      return null;
     } catch (error) {
       console.error('Error obteniendo detalles:', error);
-      return {};
+      return null;
     }
-  },
+  }
 
-  // Calcular distancia entre dos puntos (Fórmula de Haversine)
+  async loadDetailsForVeterinaries(veterinaries) {
+    console.log(`📞 Cargando detalles para ${veterinaries.length} veterinarias...`);
+    
+    const promises = veterinaries.map(async (vet) => {
+      try {
+        const details = await this.getPlaceDetails(vet.place_id);
+        return {
+          ...vet,
+          formatted_phone_number: details?.formatted_phone_number || null,
+          international_phone_number: details?.international_phone_number || null,
+          website: details?.website || null,
+          opening_hours: details?.opening_hours || vet.opening_hours,
+        };
+      } catch (error) {
+        return vet;
+      }
+    });
+
+    const results = await Promise.all(promises);
+    
+    console.log(`✅ Detalles cargados para ${results.length} veterinarias`);
+    return results;
+  }
+
+  // 🆕🆕🆕 AQUÍ VA EL NUEVO MÉTODO 🆕🆕🆕
+  // Guardar veterinarias con detalles en caché
+  saveVeterinariesWithDetails(vets) {
+    cache.veterinariesWithDetails = vets;
+    cache.timestamp = Date.now();
+    console.log('💾 Veterinarias con detalles guardadas en caché');
+  }
+
+  // 🆕 Guardar veterinarias de emergencia con detalles en caché
+  saveEmergencyVetsWithDetails(vets) {
+    cache.emergencyWithDetails = vets;
+    cache.timestamp = Date.now();
+    console.log('💾 Veterinarias de emergencia con detalles guardadas en caché');
+  }
+  // 🆕🆕🆕 FIN DEL NUEVO MÉTODO 🆕🆕🆕
+
   calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Radio de la Tierra en km
-    const dLat = this.toRad(lat2 - lat1);
-    const dLon = this.toRad(lon2 - lon1);
+    const dLat = this.deg2rad(lat2 - lat1);
+    const dLon = this.deg2rad(lon2 - lon1);
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.toRad(lat1)) *
-        Math.cos(this.toRad(lat2)) *
+      Math.cos(this.deg2rad(lat1)) *
+        Math.cos(this.deg2rad(lat2)) *
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
-  },
+  }
 
-  toRad(value) {
-    return (value * Math.PI) / 180;
-  },
-};
+  deg2rad(deg) {
+    return deg * (Math.PI / 180);
+  }
+
+  clearCache() {
+    cache.veterinaries = null;
+    cache.veterinariesWithDetails = null;
+    cache.emergency = null;
+    cache.emergencyWithDetails = null;
+    cache.timestamp = null;
+    console.log('🗑️ Caché limpiado');
+  }
+}
+
+export const placesService = new PlacesService();

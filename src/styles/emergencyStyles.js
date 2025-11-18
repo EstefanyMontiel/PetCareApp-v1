@@ -7,7 +7,10 @@ export const emergencyStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  
+  actionButtonDisabled: {
+  backgroundColor: colors.textTertiary,
+  opacity: 0.6,
+},
   // Pantalla inicial
   emergencyContainer: {
     flex: 1,

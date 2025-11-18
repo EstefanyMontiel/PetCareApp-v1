@@ -1,8 +1,14 @@
+// ============================================
+// 💉 VACCINATION SCREEN - VERSIÓN CORREGIDA
+// ============================================
+// ✅ Mantiene el modal original
+// ✅ Solo cambia ScrollView por KeyboardAwareForm
+// ✅ Problema del teclado resuelto
+
 import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
-    ScrollView,
     TouchableOpacity,
     TextInput,
     Alert,
@@ -12,8 +18,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import DatePickerModal from './DatePickerModal';
 import { vaccinationService } from '../services/vaccionationService';
-import styles from '../styles/VaccinationScreenStyles'
+import styles from '../styles/VaccinationScreenStyles';
 import ModernPicker from './ModernPicker';
+import KeyboardAwareForm from './common/KeyboardAwareForm'; // ⬅️ AGREGADO
 
 
 const VaccinationScreen = ({ route, navigation }) => {
@@ -76,16 +83,7 @@ const VaccinationScreen = ({ route, navigation }) => {
 
     // ✅ VALIDACIÓN: Obtener vacunas disponibles según la especie
     const getAvailableVaccines = () => {
-        // Si la especie no existe en el catálogo, usar Perro por defecto
         return vaccinesBySpecies[petSpecies] || vaccinesBySpecies['Perro'];
-    };
-
-    // 📅 FUNCIÓN: Manejar cambio de fecha
-    const handleDateChange = (event, selectedDate) => {
-        setShowDatePicker(Platform.OS === 'ios');
-        if (selectedDate) {
-            setApplicationDate(selectedDate);
-        }
     };
 
     // 📅 FUNCIÓN: Formatear fecha
@@ -111,7 +109,6 @@ const VaccinationScreen = ({ route, navigation }) => {
             Alert.alert('Error', 'Por favor selecciona la fecha de aplicación');
             return false;
         }
-        // Validar que la fecha no sea futura
         if (applicationDate > new Date()) {
             Alert.alert('Error', 'La fecha de aplicación no puede ser futura');
             return false;
@@ -125,24 +122,19 @@ const VaccinationScreen = ({ route, navigation }) => {
 
         setLoading(true);
         try {
-            // Obtener el nombre de la vacuna seleccionada
             const vaccineName = getAvailableVaccines().find(
                 v => v.value === selectedVaccine
             )?.label;
 
-            // Datos de la vacunación
             const vaccinationData = {
                 vaccine: selectedVaccine,
                 vaccineName: vaccineName,
                 applicationDate: applicationDate,
                 description: description.trim(),
-                petSpecies: petSpecies // Guardar la especie para referencia
+                petSpecies: petSpecies
             };
 
-            // Guardar en Firebase
             await vaccinationService.saveVaccination(petId, vaccinationData);
-
-            // Recargar la lista
             await loadVaccinations();
             
             // Limpiar formulario
@@ -193,74 +185,72 @@ const VaccinationScreen = ({ route, navigation }) => {
     };
 
     return (
-
         <View style={styles.container}>
+            {/* Header */}
+            <View style={styles.header}>
+                <TouchableOpacity 
+                    style={styles.backButton}
+                    onPress={() => navigation.goBack()}
+                >
+                    <Ionicons name="arrow-back" size={24} color="#FFF" />
+                </TouchableOpacity>
+                
+                <View style={styles.headerInfo}>
+                    <Text style={styles.title}>💉 Vacunación</Text>
+                    <Text style={styles.petName}>{petName}</Text>
+                </View>
+                
+                <TouchableOpacity 
+                    style={styles.addButton}
+                    onPress={() => setShowAddForm(true)}
+                >
+                    <Ionicons name="add" size={28} color="#FFFFFF" />
+                </TouchableOpacity>
+            </View>
 
-{/* Header Mejorado con Gradiente */}
-<View style={styles.header}>
-    <TouchableOpacity 
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-    >
-        <Ionicons name="arrow-back" size={24} color="#FFF" />
-    </TouchableOpacity>
-    
-    <View style={styles.headerInfo}>
-        <Text style={styles.title}>💉 Vacunación</Text>
-        <Text style={styles.petName}>{petName}</Text>
-    </View>
-    
-    <TouchableOpacity 
-        style={styles.addButton}
-        onPress={() => setShowAddForm(true)}
-    >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
-    </TouchableOpacity>
-</View>
-
-
-            <ScrollView style={styles.content}>
+            {/* ✅ CAMBIADO: ScrollView -> KeyboardAwareForm */}
+            <KeyboardAwareForm style={styles.content}>
                 {/* FORMULARIO DE NUEVA VACUNACIÓN */}
                 {showAddForm && (
                     <View style={styles.formCard}>
                         <Text style={styles.formTitle}>Nueva Vacunación</Text>
 
-{/* Selector de Vacuna Mejorado */}
-<View style={styles.inputContainer}>
-    <Text style={styles.label}>
-        Tipo de Vacuna *
-        <Text style={styles.speciesIndicator}>
-            {' '}(Vacunas para {petSpecies})
-        </Text>
-    </Text>
-    <TouchableOpacity
-        style={styles.modernPickerButton}
-        onPress={() => setShowVaccinePicker(true)}
-    >
-        <Text style={[
-            styles.modernPickerText,
-            !selectedVaccine && styles.modernPickerPlaceholder
-        ]}>
-            {selectedVaccine 
-                ? getAvailableVaccines().find(v => v.value === selectedVaccine)?.label 
-                : 'Seleccionar vacuna...'}
-        </Text>
-        <Ionicons name="chevron-down" size={20} color="#666" />
-    </TouchableOpacity>
-</View>
+                        {/* Selector de Vacuna */}
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>
+                                Tipo de Vacuna *
+                                <Text style={styles.speciesIndicator}>
+                                    {' '}(Vacunas para {petSpecies})
+                                </Text>
+                            </Text>
+                            <TouchableOpacity
+                                style={styles.modernPickerButton}
+                                onPress={() => setShowVaccinePicker(true)}
+                            >
+                                <Text style={[
+                                    styles.modernPickerText,
+                                    !selectedVaccine && styles.modernPickerPlaceholder
+                                ]}>
+                                    {selectedVaccine 
+                                        ? getAvailableVaccines().find(v => v.value === selectedVaccine)?.label 
+                                        : 'Seleccionar vacuna...'}
+                                </Text>
+                                <Ionicons name="chevron-down" size={20} color="#666" />
+                            </TouchableOpacity>
+                        </View>
 
-{/* Modal del Picker */}
-<ModernPicker
-    visible={showVaccinePicker}
-    onClose={() => setShowVaccinePicker(false)}
-    items={getAvailableVaccines().filter(v => v.value !== '')}
-    onSelect={setSelectedVaccine}
-    selectedValue={selectedVaccine}
-    title={`Vacunas para ${petSpecies}`}
-    searchPlaceholder="Buscar vacuna..."
-/>
+                        {/* Modal del Picker */}
+                        <ModernPicker
+                            visible={showVaccinePicker}
+                            onClose={() => setShowVaccinePicker(false)}
+                            items={getAvailableVaccines().filter(v => v.value !== '')}
+                            onSelect={setSelectedVaccine}
+                            selectedValue={selectedVaccine}
+                            title={`Vacunas para ${petSpecies}`}
+                            searchPlaceholder="Buscar vacuna..."
+                        />
 
-                        {/* 2️⃣ SELECTOR DE FECHA DE APLICACIÓN */}
+                        {/* Fecha de Aplicación */}
                         <View style={styles.inputContainer}>
                             <Text style={styles.label}>Fecha de Aplicación *</Text>
                             <TouchableOpacity
@@ -275,16 +265,16 @@ const VaccinationScreen = ({ route, navigation }) => {
                         </View>
 
                         {showDatePicker && (
-                        <DatePickerModal
-                                    visible={showDatePicker}
-                                    onClose={() => setShowDatePicker(false)}
-                                    onSelect={(date) => setApplicationDate(date)}
-                                    selectedDate={applicationDate}
-                                    maximumDate={new Date()} // No permitir fechas futuras
-                                />
+                            <DatePickerModal
+                                visible={showDatePicker}
+                                onClose={() => setShowDatePicker(false)}
+                                onSelect={(date) => setApplicationDate(date)}
+                                selectedDate={applicationDate}
+                                maximumDate={new Date()}
+                            />
                         )}
 
-                        {/* 3️⃣ CAMPO DE DESCRIPCIÓN */}
+                        {/* ✅ Descripción - AHORA FUNCIONA CON TECLADO */}
                         <View style={styles.inputContainer}>
                             <Text style={styles.label}>Descripción (Opcional)</Text>
                             <TextInput
@@ -295,6 +285,7 @@ const VaccinationScreen = ({ route, navigation }) => {
                                 multiline
                                 numberOfLines={4}
                                 placeholderTextColor="#999"
+                                textAlignVertical="top"
                             />
                             <Text style={styles.characterCount}>
                                 {description.length}/500
@@ -370,7 +361,7 @@ const VaccinationScreen = ({ route, navigation }) => {
                         </View>
                     )
                 )}
-            </ScrollView>
+            </KeyboardAwareForm>
         </View>
     );
 };

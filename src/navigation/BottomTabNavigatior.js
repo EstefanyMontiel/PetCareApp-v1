@@ -4,9 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 
 //importar pantallas 
-import HomeScreen from '../components/HomeScreen';
+import HomeScreen from '../components/pets/HomeScreen';
 import MapScreen from '../components/MapScreen';
-import AgendaScreen from '../components/AgendaScreen';
+import AgendaScreen from '../components/agenda/AgendaScreen';
 import EmergencyScreen from '../components/EmergencyScreen';
 import SettingScreen from '../components/SettingScreen';
 

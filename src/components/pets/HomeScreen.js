@@ -10,12 +10,12 @@ import {
     ActivityIndicator, 
     Platform
 } from 'react-native';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
-import { petImageService, petArchiveService } from '../services/petServices';
-import { useImagePicker } from '../hooks/useImagePicker';
-import styles from '../styles/HomeScreenStyles';
-import SafeContainer from './SafeContainer';
+import { petImageService, petArchiveService } from '../../services/petServices';
+import { useImagePicker } from '../../hooks/useImagePicker';
+import styles from '../../styles/HomeScreenStyles';
+import SafeContainer from '../SafeContainer';
 
 const HomeScreen = ({ navigation }) => {
     const { user, userProfile, userPets, logout, loadUserPets } = useAuth();
@@ -199,7 +199,7 @@ const handleDeletePet = (pet) => {
                 style: 'destructive',
                 onPress: async () => {
                     try {
-                        const { petManagementService } = require('../services/petServices');
+                        const { petManagementService } = require('../../services/petServices');
                         await petManagementService.deletePet(pet.id);
                         await loadUserPets(user.uid);
                         Alert.alert('✓ Eliminada', `${pet.nombre} ha sido eliminada permanentemente`);
@@ -335,8 +335,6 @@ const handleDeletePet = (pet) => {
         </TouchableOpacity>
     </View>
 </View>
-
-
             {/* Lista de mascotas */}
             <ScrollView 
                 style={styles.petsContainer}
