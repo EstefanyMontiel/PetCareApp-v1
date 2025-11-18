@@ -18,7 +18,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import DatePickerModal from './DatePickerModal';
 import { vaccinationService } from '../services/vaccionationService';
-import styles from '../styles/VaccinationScreenStyles';
+import styles from '../styles/HealthScreenStyles';
 import ModernPicker from './ModernPicker';
 import KeyboardAwareForm from './common/KeyboardAwareForm'; // ⬅️ AGREGADO
 
