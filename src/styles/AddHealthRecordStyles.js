@@ -1,0 +1,147 @@
+import { StyleSheet } from 'react-native';
+
+export default StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#F8F9FA',
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        paddingTop: 50,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#ECEFF1',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 3,
+    },
+    closeButton: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    headerCenter: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#2C3E50',
+    },
+    headerSubtitle: {
+        fontSize: 13,
+        color: '#7F8C8D',
+        marginTop: 2,
+    },
+    saveButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 8,
+        backgroundColor: '#E8F8F7',
+    },
+    saveButtonDisabled: {
+        opacity: 0.6,
+    },
+    saveButtonText: {
+        color: '#4ECDC4',
+        fontWeight: '600',
+        fontSize: 15,
+    },
+    content: {
+        flex: 1,
+    },
+    iconContainer: {
+        alignItems: 'center',
+        paddingVertical: 30,
+    },
+    iconCircle: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: '#E8F8F7',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    form: {
+        padding: 20,
+    },
+    inputGroup: {
+        marginBottom: 24,
+    },
+    label: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#2C3E50',
+        marginBottom: 8,
+    },
+    pickerButton: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        padding: 16,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+    },
+    pickerText: {
+        fontSize: 15,
+        color: '#2C3E50',
+    },
+    pickerPlaceholder: {
+        color: '#BDC3C7',
+    },
+    dateButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        padding: 16,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+    },
+    dateText: {
+        fontSize: 15,
+        color: '#2C3E50',
+        marginLeft: 12,
+        flex: 1,
+    },
+    textArea: {
+        backgroundColor: '#fff',
+        padding: 16,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        fontSize: 15,
+        color: '#2C3E50',
+        minHeight: 120,
+    },
+    characterCount: {
+        textAlign: 'right',
+        fontSize: 12,
+        color: '#95A5A6',
+        marginTop: 4,
+    },
+    infoBox: {
+        flexDirection: 'row',
+        backgroundColor: '#E8F8F7',
+        padding: 16,
+        borderRadius: 12,
+        marginTop: 8,
+    },
+    infoText: {
+        flex: 1,
+        fontSize: 13,
+        color: '#34495E',
+        marginLeft: 12,
+        lineHeight: 18,
+    },
+});
