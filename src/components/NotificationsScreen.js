@@ -12,59 +12,68 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 import SafeContainer from './SafeContainer';
-import styles from '../styles/SettingsStyles';
+import styles from '../styles/NotificationsStyles';
 
 const NotificationsScreen = ({ navigation }) => {
     const { user, userProfile, updateNotificationPreferences, loadUserProfile } = useAuth();
     const { t } = useLanguage();
+    const { colors } = useTheme();
 
     const [loading, setLoading] = useState(false);
     const [preferences, setPreferences] = useState({
         enabled: true,
         vaccines: true,
         deworming: true,
-        annualExam: true
+        annualExam: true,
+        reminders: true,
+        updates: false,
     });
 
-    // Cargar preferencias actuales
     useEffect(() => {
         if (userProfile?.notifications) {
             setPreferences(userProfile.notifications);
         }
     }, [userProfile]);
 
-    // Manejar cambio de switch principal
-    const handleToggleAll = (value) => {
-        setPreferences({
-            enabled: value,
-            vaccines: value,
-            deworming: value,
-            annualExam: value
-        });
-    };
-
-    // Manejar cambio de switches individuales
     const handleToggle = (key, value) => {
         const newPreferences = {
             ...preferences,
             [key]: value
         };
 
-        // Si se activa alguno, activar el principal
-        if (value && !preferences.enabled) {
-            newPreferences.enabled = true;
-        }
+        if (key === 'enabled') {
+            // Si se desactiva el principal, desactivar todos
+            if (!value) {
+                Object.keys(newPreferences).forEach(k => {
+                    if (k !== 'enabled') newPreferences[k] = false;
+                });
+            } else {
+                // Si se activa el principal, activar algunos básicos
+                newPreferences.vaccines = true;
+                newPreferences.deworming = true;
+                newPreferences.annualExam = true;
+            }
+        } else {
+            // Si se activa alguno, activar el principal
+            if (value && !preferences.enabled) {
+                newPreferences.enabled = true;
+            }
 
-        // Si se desactivan todos, desactivar el principal
-        if (!value && !newPreferences.vaccines && !newPreferences.deworming && !newPreferences.annualExam) {
-            newPreferences.enabled = false;
+            // Si se desactivan todos, desactivar el principal
+            const hasAnyActive = Object.keys(newPreferences)
+                .filter(k => k !== 'enabled')
+                .some(k => newPreferences[k]);
+            
+            if (!hasAnyActive) {
+                newPreferences.enabled = false;
+            }
         }
 
         setPreferences(newPreferences);
     };
 
-    // Guardar preferencias
     const handleSave = async () => {
         try {
             setLoading(true);
@@ -73,135 +82,136 @@ const NotificationsScreen = ({ navigation }) => {
             await loadUserProfile(user.uid);
 
             Alert.alert(
-                t('common.success'),
-                t('notifications.success'),
-                [
-                    {
-                        text: t('common.ok'),
-                        onPress: () => navigation.goBack()
-                    }
-                ]
+                '✅ Éxito',
+                'Preferencias guardadas correctamente',
+                [{ text: 'OK', onPress: () => navigation.goBack() }]
             );
         } catch (error) {
             console.error('Error guardando preferencias:', error);
-            Alert.alert(
-                t('common.error'),
-                t('notifications.error')
-            );
+            Alert.alert('Error', 'No se pudieron guardar las preferencias');
         } finally {
             setLoading(false);
         }
     };
 
+    // Componente de switch personalizado
+    const NotificationSwitch = ({ icon, title, description, value, onToggle, iconColor }) => (
+        <View style={[styles.notificationItem, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.notificationIcon, { backgroundColor: iconColor + '20' }]}>
+                <Ionicons name={icon} size={24} color={iconColor} />
+            </View>
+            <View style={styles.notificationContent}>
+                <Text style={[styles.notificationTitle, { color: colors.text }]}>
+                    {title}
+                </Text>
+                <Text style={[styles.notificationDescription, { color: colors.textSecondary }]}>
+                    {description}
+                </Text>
+            </View>
+            <Switch
+                value={value}
+                onValueChange={onToggle}
+                trackColor={{ false: '#E0E0E0', true: '#4ECDC4' }}
+                thumbColor={value ? '#fff' : '#f4f3f4'}
+                ios_backgroundColor="#E0E0E0"
+            />
+        </View>
+    );
+
     return (
         <SafeContainer>
-            <ScrollView 
-                style={styles.container}
-                showsVerticalScrollIndicator={false}
-            >
+            <View style={[styles.container, { backgroundColor: colors.background }]}>
                 {/* Header */}
-                <View style={{ flexDirection: 'row', alignItems: 'center', padding: 20 }}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Ionicons name="arrow-back" size={24} color="#333" />
+                <View style={styles.header}>
+                    <TouchableOpacity 
+                        style={styles.backButton}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Ionicons name="arrow-back" size={24} color="#4ECDC4" />
                     </TouchableOpacity>
-                    <Text style={{ fontSize: 20, fontWeight: 'bold', marginLeft: 15, color: '#333' }}>
-                        {t('notifications.title')}
-                    </Text>
+                    <Text style={styles.headerTitle}>Notificaciones</Text>
+                    <View style={{ width: 40 }} />
                 </View>
 
-                <View style={styles.formContainer}>
-                    {/* Notificaciones Generales */}
-                    <Text style={styles.sectionTitle}>
-                        {t('notifications.generalTitle')}
-                    </Text>
+                <ScrollView 
+                    style={styles.content}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {/* Banner informativo */}
+                    <View style={styles.infoBanner}>
+                        <Ionicons name="information-circle" size={24} color="#4ECDC4" />
+                        <Text style={styles.infoBannerText}>
+                            Configura qué notificaciones deseas recibir sobre tus mascotas
+                        </Text>
+                    </View>
 
-                    <View style={styles.notificationItem}>
-                        <View style={styles.notificationContent}>
-                            <Text style={styles.notificationTitle}>
-                                {t('notifications.enableAll')}
-                            </Text>
+                    {/* Switch principal */}
+                    <View style={[styles.mainToggleCard, { backgroundColor: colors.cardBackground }]}>
+                        <View style={styles.mainToggleContent}>
+                            <View style={styles.mainToggleIcon}>
+                                <Ionicons 
+                                    name={preferences.enabled ? "notifications" : "notifications-off"} 
+                                    size={28} 
+                                    color="#4ECDC4" 
+                                />
+                            </View>
+                            <View style={styles.mainToggleText}>
+                                <Text style={[styles.mainToggleTitle, { color: colors.text }]}>
+                                    Notificaciones Push
+                                </Text>
+                                <Text style={[styles.mainToggleDescription, { color: colors.textSecondary }]}>
+                                    {preferences.enabled ? 'Activadas' : 'Desactivadas'}
+                                </Text>
+                            </View>
                         </View>
                         <Switch
                             value={preferences.enabled}
-                            onValueChange={handleToggleAll}
-                            trackColor={{ false: '#D1D1D6', true: '#3db2d2ff' }}
-                            thumbColor={Platform.OS === 'ios' ? '#fff' : preferences.enabled ? '#fff' : '#f4f3f4'}
+                            onValueChange={(value) => handleToggle('enabled', value)}
+                            trackColor={{ false: '#E0E0E0', true: '#4ECDC4' }}
+                            thumbColor={preferences.enabled ? '#fff' : '#f4f3f4'}
+                            ios_backgroundColor="#E0E0E0"
+                            style={styles.mainSwitch}
                         />
                     </View>
 
-                    {/* Recordatorios */}
-                    <Text style={styles.sectionTitle}>
-                        {t('notifications.remindersTitle')}
+                    {/* Sección de Salud */}
+                    <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                        🏥 Recordatorios de Salud
                     </Text>
 
-                    {/* Recordatorio de Vacunas */}
-                    <View style={styles.notificationItem}>
-                        <View style={styles.notificationContent}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Ionicons name="medical" size={20} color="#3db2d2ff" style={{ marginRight: 10 }} />
-                                <Text style={styles.notificationTitle}>
-                                    {t('notifications.vaccines')}
-                                </Text>
-                            </View>
-                            <Text style={styles.notificationSubtitle}>
-                                Te avisaremos cuando sea tiempo de vacunar
-                            </Text>
-                        </View>
-                        <Switch
+                    <View style={styles.notificationsGroup}>
+                        <NotificationSwitch
+                            icon="medical"
+                            title="Vacunas"
+                            description="Recordatorios de vacunación pendiente"
                             value={preferences.vaccines}
-                            onValueChange={(value) => handleToggle('vaccines', value)}
-                            trackColor={{ false: '#D1D1D6', true: '#3db2d2ff' }}
-                            thumbColor={Platform.OS === 'ios' ? '#fff' : preferences.vaccines ? '#fff' : '#f4f3f4'}
-                            disabled={!preferences.enabled}
+                            onToggle={(value) => handleToggle('vaccines', value)}
+                            iconColor="#4ECDC4"
                         />
-                    </View>
 
-                    {/* Recordatorio de Desparasitación */}
-                    <View style={styles.notificationItem}>
-                        <View style={styles.notificationContent}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Ionicons name="fitness" size={20} color="#3db2d2ff" style={{ marginRight: 10 }} />
-                                <Text style={styles.notificationTitle}>
-                                    {t('notifications.deworming')}
-                                </Text>
-                            </View>
-                            <Text style={styles.notificationSubtitle}>
-                                Te avisaremos cuando sea tiempo de desparasitar
-                            </Text>
-                        </View>
-                        <Switch
+                        <NotificationSwitch
+                            icon="shield-checkmark"
+                            title="Desparasitación"
+                            description="Alertas de próximas desparasitaciones"
                             value={preferences.deworming}
-                            onValueChange={(value) => handleToggle('deworming', value)}
-                            trackColor={{ false: '#D1D1D6', true: '#3db2d2ff' }}
-                            thumbColor={Platform.OS === 'ios' ? '#fff' : preferences.deworming ? '#fff' : '#f4f3f4'}
-                            disabled={!preferences.enabled}
+                            onToggle={(value) => handleToggle('deworming', value)}
+                            iconColor="#3498DB"
+                        />
+
+                        <NotificationSwitch
+                            icon="clipboard"
+                            title="Examen Anual"
+                            description="Recordatorio de chequeo anual"
+                            value={preferences.annualExam}
+                            onToggle={(value) => handleToggle('annualExam', value)}
+                            iconColor="#9B59B6"
                         />
                     </View>
 
-                    {/* Recordatorio de Exámenes Anuales */}
-                    <View style={styles.notificationItem}>
-                        <View style={styles.notificationContent}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Ionicons name="clipboard" size={20} color="#3db2d2ff" style={{ marginRight: 10 }} />
-                                <Text style={styles.notificationTitle}>
-                                    {t('notifications.annualExam')}
-                                </Text>
-                            </View>
-                            <Text style={styles.notificationSubtitle}>
-                                Te avisaremos cuando sea tiempo del examen anual
-                            </Text>
-                        </View>
-                        <Switch
-                            value={preferences.annualExam}
-                            onValueChange={(value) => handleToggle('annualExam', value)}
-                            trackColor={{ false: '#D1D1D6', true: '#3db2d2ff' }}
-                            thumbColor={Platform.OS === 'ios' ? '#fff' : preferences.annualExam ? '#fff' : '#f4f3f4'}
-                            disabled={!preferences.enabled}
-                        />
-                    </View>
+
 
                     {/* Botón Guardar */}
-                    <TouchableOpacity
+                    <TouchableOpacity 
                         style={[styles.saveButton, loading && styles.saveButtonDisabled]}
                         onPress={handleSave}
                         disabled={loading}
@@ -209,13 +219,16 @@ const NotificationsScreen = ({ navigation }) => {
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.saveButtonText}>
-                                {t('notifications.save')}
-                            </Text>
+                            <>
+                                <Ionicons name="checkmark-circle" size={20} color="#fff" style={{ marginRight: 8 }} />
+                                <Text style={styles.saveButtonText}>
+                                    Guardar Preferencias
+                                </Text>
+                            </>
                         )}
                     </TouchableOpacity>
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </View>
         </SafeContainer>
     );
 };

@@ -44,21 +44,6 @@
         "success": "Preferences saved successfully",
         "error": "Error saving preferences"
     },
-    "changePassword": {
-        "title": "Change Password",
-        "currentPassword": "Current Password",
-        "newPassword": "New Password",
-        "confirmPassword": "Confirm New Password",
-        "save": "Change Password",
-        "saving": "Updating...",
-        "success": "Password updated successfully",
-        "error": "Error changing password",
-        "currentPasswordError": "Enter your current password",
-        "newPasswordError": "Password must be at least 6 characters",
-        "confirmPasswordError": "Passwords do not match",
-        "samePasswordError": "New password must be different from current",
-        "wrongPasswordError": "Current password is incorrect"
-    },
     "common": {
         "loading": "Loading...",
         "error": "Error",

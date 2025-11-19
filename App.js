@@ -7,7 +7,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Importar contextos
 import { AuthProvider, useAuth } from './src/context/AuthContext';
-import { LanguageProvider } from './src/context/LanguageContext'; // ✅ NUEVO
+import { LanguageProvider } from './src/context/LanguageContext'; 
+import { ThemeProvider } from './src/context/ThemeContext';
 
 // Importar pantallas de autenticación
 import LoginScreen from './src/components/LoginScreen';
@@ -29,7 +30,6 @@ import UserNotificationsScreen from './src/components/UserNotificationsScreen';
 // Importar pantallas de configuración
 import EditProfileScreen from './src/components/EditProfileScreen';
 import NotificationsScreen from './src/components/NotificationsScreen';
-import ChangePasswordScreen from './src/components/ChangePasswordScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -84,7 +84,6 @@ function AppStack() {
       <Stack.Screen name="EditPet" component={EditPetScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
-      <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
       <Stack.Screen name="UserNotifications" component={UserNotificationsScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
@@ -111,14 +110,15 @@ function RootNavigator() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      {/* ✅ NUEVO: Envolver con LanguageProvider */}
+    <ThemeProvider>
       <LanguageProvider>
         <AuthProvider>
-          <NavigationContainer>
-            <RootNavigator />
-          </NavigationContainer>
+            <NavigationContainer>
+              <RootNavigator />
+            </NavigationContainer>
         </AuthProvider>
       </LanguageProvider>
+    </ThemeProvider>
     </SafeAreaProvider>
   );
 }
