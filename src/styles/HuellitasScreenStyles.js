@@ -498,9 +498,12 @@ export default StyleSheet.create({
 
     // ✅ MEJORADO: Input de comentarios con barra de respuesta
     commentInputArea: {
-        borderTopWidth: 0.5,
-        borderTopColor: '#dbdbdb',
         backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#efefef',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        paddingBottom: Platform.OS === 'ios' ? 24 : 8, // Más espacio en iOS
     },
     replyingToBar: {
         flexDirection: 'row',
@@ -519,16 +522,16 @@ export default StyleSheet.create({
     commentInputRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 12,
-        minHeight: 56, // ← Altura mínima para el input
+        gap: 8,
     },
     commentInputField: {
         flex: 1,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        fontSize: 15,
-        color: '#262626',
-        maxHeight: 100, // ← Altura máxima para multiline
+        backgroundColor: '#f0f0f0',
+        borderRadius: 20,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        fontSize: 14,
+        maxHeight: 100,
     },
     sendCommentButton: {
         fontSize: 15,
