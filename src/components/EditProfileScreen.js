@@ -18,7 +18,7 @@ import KeyboardAvoidingContainer from './KeyboardAvoidingView';
 import styles from '../styles/SettingsStyles';
 
 const EditProfileScreen = ({ navigation }) => {
-    const { user, userProfile, updateUserProfile, uploadProfilePhoto, loadUserProfile } = useAuth();
+    const { user, userProfile, updateUserProfile, uploadProfilePhoto, loadUserProfile, deleteProfilePhoto } = useAuth();
     const { t } = useLanguage();
     const { pickImage, takePhoto } = useImagePicker();
 
@@ -27,142 +27,147 @@ const EditProfileScreen = ({ navigation }) => {
     const [photoURL, setPhotoURL] = useState('');
     const [loading, setLoading] = useState(false);
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
-    
-    // Errores de validación
-    const [errors, setErrors] = useState({
-        nombre: '',
-        email: ''
-    });
 
-    // Cargar datos iniciales
     useEffect(() => {
         if (userProfile) {
-            setNombre(userProfile.nombre || user?.displayName || '');
+            setNombre(userProfile.nombre || '');
             setEmail(userProfile.correo || user?.email || '');
             setPhotoURL(userProfile.photoURL || '');
         }
     }, [userProfile, user]);
 
-    // Validar email
-    const isValidEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
+    // ✅ OPCIÓN PARA ELIMINAR O CAMBIAR FOTO
+    const handlePhotoOptions = () => {
+        const options = [
+            {
+                text: '📷 Tomar foto',
+                onPress: () => selectFromCamera()
+            },
+            {
+                text: '🖼️ Elegir de galería',
+                onPress: () => selectFromGallery()
+            }
+        ];
 
-    // Validar formulario
-    const validateForm = () => {
-        let valid = true;
-        let newErrors = { nombre: '', email: '' };
-
-        if (!nombre.trim() || nombre.trim().length < 3) {
-            newErrors.nombre = t('editProfile.nameError');
-            valid = false;
+        // ✅ AGREGAR OPCIÓN DE ELIMINAR si hay foto
+        if (photoURL) {
+            options.push({
+                text: '🗑️ Eliminar foto actual',
+                onPress: () => handleDeletePhoto(),
+                style: 'destructive'
+            });
         }
 
-        if (!email.trim() || !isValidEmail(email)) {
-            newErrors.email = t('editProfile.emailError');
-            valid = false;
-        }
+        options.push({
+            text: 'Cancelar',
+            style: 'cancel'
+        });
 
-        setErrors(newErrors);
-        return valid;
+        Alert.alert('Foto de perfil', 'Selecciona una opción', options);
     };
 
-    // Manejar selección de foto
-    const handlePhotoSelection = () => {
+    // ✅ NUEVA FUNCIÓN: Eliminar foto de perfil
+    const handleDeletePhoto = () => {
         Alert.alert(
-            t('editProfile.changePhoto'),
-            t('editProfile.selectOption'),
+            'Eliminar foto',
+            '¿Estás seguro de que deseas eliminar tu foto de perfil?',
             [
+                { text: 'Cancelar', style: 'cancel' },
                 {
-                    text: t('editProfile.camera'),
-                    onPress: handleTakePhoto
-                },
-                {
-                    text: t('editProfile.gallery'),
-                    onPress: handlePickImage
-                },
-                {
-                    text: t('editProfile.cancel'),
-                    style: 'cancel'
+                    text: 'Eliminar',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            setUploadingPhoto(true);
+                            
+                            // Si existe una función deleteProfilePhoto en el contexto
+                            if (deleteProfilePhoto) {
+                                await deleteProfilePhoto();
+                            } else {
+                                // Alternativa: actualizar a null
+                                await updateUserProfile({ photoURL: null });
+                            }
+                            
+                            await loadUserProfile(user.uid);
+                            setPhotoURL('');
+                            Alert.alert('✅ Éxito', 'Foto eliminada correctamente');
+                        } catch (error) {
+                            console.error('Error eliminando foto:', error);
+                            Alert.alert('Error', 'No se pudo eliminar la foto');
+                        } finally {
+                            setUploadingPhoto(false);
+                        }
+                    }
                 }
             ]
         );
     };
 
-    // Tomar foto con cámara
-    const handleTakePhoto = async () => {
+    const selectFromCamera = async () => {
         try {
-            setUploadingPhoto(true);
             const imageUri = await takePhoto();
-            
             if (imageUri) {
-                const result = await uploadProfilePhoto(imageUri);
-                if (result.success) {
-                    setPhotoURL(result.photoURL);
-                    Alert.alert(
-                        t('common.success'),
-                        'Foto actualizada exitosamente'
-                    );
-                }
+                await uploadPhoto(imageUri);
             }
         } catch (error) {
-            console.error('Error tomando foto:', error);
-            Alert.alert(
-                t('common.error'),
-                'No se pudo actualizar la foto'
-            );
-        } finally {
-            setUploadingPhoto(false);
+            console.error('Error con cámara:', error);
+            Alert.alert('Error', 'No se pudo tomar la foto');
         }
     };
 
-    // Seleccionar foto de galería
-    const handlePickImage = async () => {
+    const selectFromGallery = async () => {
+        try {
+            const imageUri = await pickImage();
+            if (imageUri) {
+                await uploadPhoto(imageUri);
+            }
+        } catch (error) {
+            console.error('Error con galería:', error);
+            Alert.alert('Error', 'No se pudo seleccionar la foto');
+        }
+    };
+
+    const uploadPhoto = async (imageUri) => {
         try {
             setUploadingPhoto(true);
-            const imageUri = await pickImage();
+            const result = await uploadProfilePhoto(imageUri);
             
-            if (imageUri) {
-                const result = await uploadProfilePhoto(imageUri);
-                if (result.success) {
-                    setPhotoURL(result.photoURL);
-                    Alert.alert(
-                        t('common.success'),
-                        'Foto actualizada exitosamente'
-                    );
-                }
+            if (result.success) {
+                setPhotoURL(result.photoURL);
+                Alert.alert('✅ Éxito', 'Foto actualizada correctamente');
             }
         } catch (error) {
-            console.error('Error seleccionando foto:', error);
-            Alert.alert(
-                t('common.error'),
-                'No se pudo actualizar la foto'
-            );
+            console.error('Error subiendo foto:', error);
+            Alert.alert('Error', 'No se pudo actualizar la foto');
         } finally {
             setUploadingPhoto(false);
         }
     };
 
-    // Guardar cambios
     const handleSave = async () => {
+        if (!nombre.trim()) {
+            Alert.alert('Error', 'El nombre no puede estar vacío');
+            return;
+        }
+
         try {
             setLoading(true);
 
-            // Preparar datos a actualizar
             const updates = {
                 nombre: nombre.trim()
             };
 
             await updateUserProfile(updates);
-
-            // Recargar perfil actualizado
             await loadUserProfile(user.uid);
         
-            Alert.alert('Éxito', 'Perfil actualizado');
+            Alert.alert('✅ Éxito', 'Perfil actualizado', [
+                { text: 'OK', onPress: () => navigation.goBack() }
+            ]);
         } catch (error) {
             console.error('Error:', error);
             Alert.alert('Error', 'No se pudo actualizar el perfil');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -177,70 +182,90 @@ const EditProfileScreen = ({ navigation }) => {
                     style={styles.container}
                     showsVerticalScrollIndicator={false}
                 >
-                    {/* Header con botón atrás */}
-                    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 20 }}>
-                        <TouchableOpacity onPress={() => navigation.goBack()}>
-                            <Ionicons name="arrow-back" size={24} color="#333" />
+                    {/* Header mejorado */}
+                    <View style={styles.editProfileHeader}>
+                        <TouchableOpacity 
+                            style={styles.backButton}
+                            onPress={() => navigation.goBack()}
+                        >
+                            <Ionicons name="arrow-back" size={24} color="#4ECDC4" />
                         </TouchableOpacity>
-                        <Text style={{ fontSize: 20, fontWeight: 'bold', marginLeft: 15, color: '#333' }}>
+                        <Text style={styles.editProfileTitle}>
                             {t('editProfile.title')}
                         </Text>
+                        <View style={{ width: 40 }} />
                     </View>
 
                     <View style={styles.formContainer}>
-                        {/* Foto de perfil */}
+                        {/* ✅ FOTO DE PERFIL MEJORADA */}
                         <View style={styles.photoSection}>
-                            {uploadingPhoto ? (
-                                <View style={styles.profileImagePlaceholder}>
-                                    <ActivityIndicator size="large" color="#fff" />
-                                </View>
-                            ) : photoURL ? (
-                                <Image 
-                                    source={{ uri: photoURL }}
-                                    style={styles.profileImage}
-                                />
-                            ) : (
-                                <View style={styles.profileImagePlaceholder}>
-                                    <Text style={styles.profileInitial}>
-                                        {getInitial()}
-                                    </Text>
-                                </View>
-                            )}
+                            <View style={styles.photoWrapper}>
+                                {uploadingPhoto ? (
+                                    <View style={styles.profileImagePlaceholder}>
+                                        <ActivityIndicator size="large" color="#4ECDC4" />
+                                    </View>
+                                ) : photoURL ? (
+                                    <Image 
+                                        source={{ uri: photoURL }}
+                                        style={styles.profileImage}
+                                    />
+                                ) : (
+                                    <View style={styles.profileImagePlaceholder}>
+                                        <Text style={styles.profileInitial}>
+                                            {getInitial()}
+                                        </Text>
+                                    </View>
+                                )}
+                                
+                                {/* Botón flotante sobre la imagen */}
+                                <TouchableOpacity 
+                                    style={styles.editPhotoButtonFloat}
+                                    onPress={handlePhotoOptions}
+                                    disabled={uploadingPhoto}
+                                >
+                                    <Ionicons name="camera" size={20} color="#fff" />
+                                </TouchableOpacity>
+                            </View>
                             
                             <TouchableOpacity 
-                                style={styles.editPhotoButton}
-                                onPress={handlePhotoSelection}
+                                style={styles.editPhotoButtonText}
+                                onPress={handlePhotoOptions}
                                 disabled={uploadingPhoto}
                             >
-                                <Text style={styles.editPhotoText}>
-                                    {t('editProfile.changePhoto')}
+                                <Text style={styles.editPhotoTextLabel}>
+                                    {photoURL ? 'Cambiar o eliminar foto' : 'Agregar foto de perfil'}
                                 </Text>
                             </TouchableOpacity>
                         </View>
 
                         {/* Campo Nombre */}
                         <View style={styles.inputGroup}>
-                            <Text style={styles.label}>{t('editProfile.name')}</Text>
+                            <Text style={styles.inputLabel}>Nombre completo</Text>
                             <TextInput
-                                style={[styles.input, errors.nombre ? styles.inputError : null]}
+                                style={styles.input}
                                 value={nombre}
-                                onChangeText={(text) => {
-                                    setNombre(text);
-                                    if (errors.nombre) {
-                                        setErrors({ ...errors, nombre: '' });
-                                    }
-                                }}
-                                placeholder={t('editProfile.namePlaceholder')}
-                                autoCapitalize="words"
+                                onChangeText={setNombre}
+                                placeholder="Tu nombre"
+                                placeholderTextColor="#999"
                             />
-                            {errors.nombre ? (
-                                <Text style={styles.errorText}>{errors.nombre}</Text>
-                            ) : null}
                         </View>
 
+                        {/* Campo Email (solo lectura) */}
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.inputLabel}>Correo electrónico</Text>
+                            <TextInput
+                                style={[styles.input, styles.inputDisabled]}
+                                value={email}
+                                editable={false}
+                                placeholderTextColor="#999"
+                            />
+                            <Text style={styles.inputHint}>
+                                El correo no se puede modificar
+                            </Text>
+                        </View>
 
                         {/* Botón Guardar */}
-                        <TouchableOpacity
+                        <TouchableOpacity 
                             style={[styles.saveButton, loading && styles.saveButtonDisabled]}
                             onPress={handleSave}
                             disabled={loading}
@@ -248,9 +273,12 @@ const EditProfileScreen = ({ navigation }) => {
                             {loading ? (
                                 <ActivityIndicator color="#fff" />
                             ) : (
-                                <Text style={styles.saveButtonText}>
-                                    {t('editProfile.save')}
-                                </Text>
+                                <>
+                                    <Ionicons name="checkmark-circle" size={20} color="#fff" style={{ marginRight: 8 }} />
+                                    <Text style={styles.saveButtonText}>
+                                        Guardar cambios
+                                    </Text>
+                                </>
                             )}
                         </TouchableOpacity>
                     </View>

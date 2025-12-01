@@ -236,37 +236,6 @@ export const AuthProvider = ({ children }) => {
             throw error;
         }
     };
-
-    // Cambiar contraseña
-    const changePassword = async (currentPassword, newPassword) => {
-        try {
-            console.log('🔐 Cambiando contraseña...');
-            
-            if (!user) {
-                throw new Error('No hay usuario autenticado');
-            }
-
-            const currentUser = auth.currentUser;
-            
-            // Re-autenticar con la contraseña actual
-            const credential = auth.EmailAuthProvider.credential(
-                currentUser.email,
-                currentPassword
-            );
-            
-            await currentUser.reauthenticateWithCredential(credential);
-            
-            // Actualizar contraseña
-            await currentUser.updatePassword(newPassword);
-            
-            console.log('✅ Contraseña actualizada exitosamente');
-            return { success: true };
-        } catch (error) {
-            console.error('❌ Error cambiando contraseña:', error);
-            throw error;
-        }
-    };
-
     // Actualizar preferencias de notificaciones
     const updateNotificationPreferences = async (preferences) => {
         try {
@@ -345,6 +314,35 @@ const uploadProfilePhoto = async (imageUri) => {
     }
 };
 
+// ✅ AGREGAR ESTA FUNCIÓN DENTRO DEL AuthProvider, después de uploadProfilePhoto
+
+const deleteProfilePhoto = async () => {
+    try {
+        if (!user) {
+            throw new Error('No hay usuario autenticado');
+        }
+
+        console.log('🗑️ Eliminando foto de perfil...');
+
+        // Actualizar en Firestore
+        await db.collection('users').doc(user.uid).update({
+            photoURL: null,
+            imagePublicId: null,
+            updatedAt: new Date()
+        });
+
+        // Recargar perfil
+        await loadUserProfile(user.uid);
+
+        console.log('✅ Foto de perfil eliminada exitosamente');
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Error eliminando foto:', error);
+        throw error;
+    }
+};
+
+
     // ✅ OBJETO VALUE - EXPORTA TODAS LAS FUNCIONES
     const value = {
         user,
@@ -357,10 +355,10 @@ const uploadProfilePhoto = async (imageUri) => {
         loadUserPets,
         updateUserProfile,
         updateUserEmail,
-        changePassword,
         updateNotificationPreferences,
         uploadProfilePhoto,
         loadUserProfile,
+        deleteProfilePhoto,
         isLoading
     };
 

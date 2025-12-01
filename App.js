@@ -7,16 +7,22 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Importar contextos
 import { AuthProvider, useAuth } from './src/context/AuthContext';
-import { LanguageProvider } from './src/context/LanguageContext'; // ✅ NUEVO
+import { LanguageProvider } from './src/context/LanguageContext'; 
+import { ThemeProvider } from './src/context/ThemeContext';
 
 // Importar pantallas de autenticación
 import LoginScreen from './src/components/LoginScreen';
 import RegisterScreen from './src/components/RegisterScreen';
 import PetRegisterScreen from './src/components/PetRegisterScreen';
+
+// Importar pantallas de mascotas
 import HomeScreen from './src/components/pets/HomeScreen';
-import VaccinationScreen from './src/components/VaccinationScreen';
-import DewormingScreen from './src/components/DewormingScreen';
-import AnnualExamScreen from './src/components/AnnualExamScreen';
+import VaccinationScreen from './src/components/pets/VaccinationScreen';
+import DewormingScreen from './src/components/pets/DewormingScreen';
+import AnnualExamScreen from './src/components/pets/AnnualExamScreen';
+import AddVaccinationScreen from './src/components/pets/AddVaccinationScreen';
+import AddDewormingScreen from './src/components/pets/AddDewormingScreen';
+import AddAnnualExamScreen from './src/components/pets/AddAnnualExamScreen';
 import HuellitasEternasScreen from './src/components/HuellitasEternasScreen';
 import EditPetScreen from './src/components/EditPetScreen'; 
 import UserNotificationsScreen from './src/components/UserNotificationsScreen';
@@ -24,7 +30,6 @@ import UserNotificationsScreen from './src/components/UserNotificationsScreen';
 // Importar pantallas de configuración
 import EditProfileScreen from './src/components/EditProfileScreen';
 import NotificationsScreen from './src/components/NotificationsScreen';
-import ChangePasswordScreen from './src/components/ChangePasswordScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,14 +49,41 @@ function AppStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
       <Stack.Screen name="PetRegister" component={PetRegisterScreen} />
+
       <Stack.Screen name="Vacunación" component={VaccinationScreen} />
+        <Stack.Screen name="AddVaccination" component={AddVaccinationScreen}
+            options={{
+            headerShown: false,
+            presentation: 'modal', // ✅ Se abre como modal
+            animation: 'slide_from_bottom' // ✅ Animación profesional
+        }} />
+
       <Stack.Screen name="Desparasitación" component={DewormingScreen} />
+        <Stack.Screen 
+            name="AddDeworming" 
+            component={AddDewormingScreen}
+            options={{
+                headerShown: false,
+                presentation: 'modal',
+                animation: 'slide_from_bottom'
+            }}
+        />
+
       <Stack.Screen name="Examen anual" component={AnnualExamScreen} />
+          <Stack.Screen 
+              name="AddAnnualExam" 
+              component={AddAnnualExamScreen}
+              options={{
+                  headerShown: false,
+                  presentation: 'modal',
+                  animation: 'slide_from_bottom'
+              }}
+          />
+
       <Stack.Screen name="HuellitasEternas" component={HuellitasEternasScreen} />
       <Stack.Screen name="EditPet" component={EditPetScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
-      <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
       <Stack.Screen name="UserNotifications" component={UserNotificationsScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
@@ -78,14 +110,15 @@ function RootNavigator() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      {/* ✅ NUEVO: Envolver con LanguageProvider */}
+    <ThemeProvider>
       <LanguageProvider>
         <AuthProvider>
-          <NavigationContainer>
-            <RootNavigator />
-          </NavigationContainer>
+            <NavigationContainer>
+              <RootNavigator />
+            </NavigationContainer>
         </AuthProvider>
       </LanguageProvider>
+    </ThemeProvider>
     </SafeAreaProvider>
   );
 }

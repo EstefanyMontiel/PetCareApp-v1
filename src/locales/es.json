@@ -7,8 +7,6 @@
         "notifications": "Notificaciones",
         "notificationsDesc": "Gestionar alertas y recordatorios",
         "privacy": "Privacidad y Seguridad",
-        "changePassword": "Cambiar contraseña",
-        "changePasswordDesc": "Actualizar credenciales de acceso",
         "language": "Idioma",
         "languageDesc": "Español / English",
         "logout": "Cerrar sesión"
