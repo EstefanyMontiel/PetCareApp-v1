@@ -10,6 +10,9 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { LanguageProvider } from './src/context/LanguageContext'; 
 import { ThemeProvider } from './src/context/ThemeContext';
 
+// Error Boundary para capturar errores
+import ErrorBoundary from './src/components/ErrorBoundary';
+
 // Importar pantallas de autenticación
 import LoginScreen from './src/components/LoginScreen';
 import RegisterScreen from './src/components/RegisterScreen';
@@ -109,16 +112,18 @@ function RootNavigator() {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-    <ThemeProvider>
-      <LanguageProvider>
-        <AuthProvider>
-            <NavigationContainer>
-              <RootNavigator />
-            </NavigationContainer>
-        </AuthProvider>
-      </LanguageProvider>
-    </ThemeProvider>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+      <ThemeProvider>
+        <LanguageProvider>
+          <AuthProvider>
+              <NavigationContainer>
+                <RootNavigator />
+              </NavigationContainer>
+          </AuthProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }

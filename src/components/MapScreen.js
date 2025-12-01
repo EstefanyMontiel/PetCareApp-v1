@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -33,15 +33,68 @@ export default function MapScreen() {
   const mapRef = useRef(null);
   const cardAnimation = useRef(new Animated.Value(300)).current;
 
-  useEffect(() => {
-    getCurrentLocation();
+  // ✅ Memoized filter function
+  const filterVeterinaries = useCallback(() => {
+    let filtered = [...veterinaries];
+
+    // Filtrar por tipo
+    if (activeFilter === 'emergency') {
+      filtered = filtered.filter((vet) => {
+        const isOpenNow = vet.opening_hours?.open_now === true;
+        const is24Hours = vet.opening_hours?.periods?.length === 1;
+        const hasEmergencyInName = 
+          vet.name.toLowerCase().includes('24') ||
+          vet.name.toLowerCase().includes('emergency') ||
+          vet.name.toLowerCase().includes('emergencia') ||
+          vet.name.toLowerCase().includes('urgencias');
+        
+        return isOpenNow || is24Hours || hasEmergencyInName;
+      });
+    } else if (activeFilter === 'near') {
+      filtered = filtered.filter((vet) => vet.distance <= 2);
+    }
+
+    setFilteredVets(filtered);
+  }, [veterinaries, activeFilter]);
+
+  // ✅ Memoized search function
+  const searchVeterinaries = useCallback(async (latitude, longitude) => {
+    try {
+      setLoading(true);
+      const results = await placesService.searchNearbyVeterinaries(latitude, longitude);
+
+      const veterinariesWithDistance = results.map((vet) => ({
+        ...vet,
+        distance: placesService.calculateDistance(
+          latitude,
+          longitude,
+          vet.geometry.location.lat,
+          vet.geometry.location.lng
+        ),
+      }));
+
+      veterinariesWithDistance.sort((a, b) => a.distance - b.distance);
+      setVeterinaries(veterinariesWithDistance);
+      setFilteredVets(veterinariesWithDistance);
+      
+      await AsyncStorage.setItem(
+        'lastVeterinaries',
+        JSON.stringify({
+          data: veterinariesWithDistance,
+          location: { latitude, longitude },
+          timestamp: Date.now(),
+        })
+      );
+      
+    } catch (error) {
+      Alert.alert('Error', 'No se pudieron cargar las veterinarias');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  useEffect(() => {
-    filterVeterinaries();
-  }, [searchQuery, activeFilter, veterinaries]);
-
-  const getCurrentLocation = async () => {
+  // ✅ Memoized location function
+  const getCurrentLocation = useCallback(async () => {
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       
@@ -72,74 +125,29 @@ export default function MapScreen() {
       Alert.alert('Error', 'No se pudo obtener tu ubicación');
       setLoading(false);
     }
-  };
+  }, [searchVeterinaries]);
 
-  const searchVeterinaries = async (latitude, longitude) => {
-  try {
-    setLoading(true);
-    const results = await placesService.searchNearbyVeterinaries(latitude, longitude);
+  // ✅ Initial location load with cleanup
+  useEffect(() => {
+    let isMounted = true;
 
-    const veterinariesWithDistance = results.map((vet) => ({
-      ...vet,
-      distance: placesService.calculateDistance(
-        latitude,
-        longitude,
-        vet.geometry.location.lat,
-        vet.geometry.location.lng
-      ),
-    }));
+    const init = async () => {
+      if (isMounted) {
+        await getCurrentLocation();
+      }
+    };
 
-    veterinariesWithDistance.sort((a, b) => a.distance - b.distance);
-    setVeterinaries(veterinariesWithDistance);
-    setFilteredVets(veterinariesWithDistance);
-    
-    // 🆕 Guardar también en AsyncStorage para acceso global
-    await AsyncStorage.setItem(
-      'lastVeterinaries',
-      JSON.stringify({
-        data: veterinariesWithDistance,
-        location: { latitude, longitude },
-        timestamp: Date.now(),
-      })
-    );
-    
-  } catch (error) {
-    Alert.alert('Error', 'No se pudieron cargar las veterinarias');
-  } finally {
-    setLoading(false);
-  }
-};
+    init();
 
-  const filterVeterinaries = () => {
-    let filtered = [...veterinaries];
+    return () => {
+      isMounted = false;
+    };
+  }, [getCurrentLocation]);
 
-
-    // Filtrar por tipo
-  if (activeFilter === 'emergency') {
-    // ✅ MEJORADO: Filtra veterinarias de emergencia
-    filtered = filtered.filter((vet) => {
-      // Verificar si está abierta ahora
-      const isOpenNow = vet.opening_hours?.open_now === true;
-      
-      // Verificar si es 24/7 (tiene solo 1 período que significa 24 horas)
-      const is24Hours = vet.opening_hours?.periods?.length === 1;
-      
-      // Verificar si tiene "24" o "emergency" en el nombre
-      const hasEmergencyInName = 
-        vet.name.toLowerCase().includes('24') ||
-        vet.name.toLowerCase().includes('emergency') ||
-        vet.name.toLowerCase().includes('emergencia') ||
-        vet.name.toLowerCase().includes('urgencias');
-      
-      // Incluir si cumple cualquiera de estas condiciones
-      return isOpenNow || is24Hours || hasEmergencyInName;
-    });
-  } else if (activeFilter === 'near') {
-    filtered = filtered.filter((vet) => vet.distance <= 2);
-  }
-
-  setFilteredVets(filtered);
-}
+  // ✅ Filter effect with proper dependencies
+  useEffect(() => {
+    filterVeterinaries();
+  }, [filterVeterinaries]);
 
   // ✅ MODIFICADO: Ya NO mueve el mapa
   const handleMarkerPress = async (vet) => {

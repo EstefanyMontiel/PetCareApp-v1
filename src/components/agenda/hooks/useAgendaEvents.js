@@ -21,17 +21,6 @@ export const useAgendaEvents = () => {
     // ✅ Usa el hook de fechas marcadas
     const markedDates = useMarkedDates(events);
 
-    // ✅ Carga inicial de eventos
-    useEffect(() => {
-        loadEvents();
-        requestNotificationPermissions();
-    }, []);
-
-    // ✅ Solicitar permisos de notificaciones
-    const requestNotificationPermissions = async () => {
-        await notificationService.requestPermissions();
-    };
-
     // ✅ Cargar eventos del usuario (memoizado con useCallback)
     const loadEvents = useCallback(async () => {
         try {
@@ -45,6 +34,29 @@ export const useAgendaEvents = () => {
             setLoading(false);
         }
     }, [user.uid]);
+
+    // ✅ Solicitar permisos de notificaciones
+    const requestNotificationPermissions = useCallback(async () => {
+        await notificationService.requestPermissions();
+    }, []);
+
+    // ✅ Carga inicial de eventos con cleanup
+    useEffect(() => {
+        let isMounted = true;
+
+        const init = async () => {
+            if (isMounted) {
+                await loadEvents();
+                await requestNotificationPermissions();
+            }
+        };
+
+        init();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [loadEvents, requestNotificationPermissions]);
 
     // ✅ Filtrar eventos por fecha seleccionada (memoizado)
     const selectedDateEvents = useMemo(() => {

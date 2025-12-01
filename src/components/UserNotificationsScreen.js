@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     View,
     Text,
@@ -19,11 +19,8 @@ const UserNotificationsScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
-        loadNotifications();
-    }, []);
-
-    const loadNotifications = async () => {
+    // ✅ Memoized load function
+    const loadNotifications = useCallback(async () => {
         try {
             setLoading(true);
             const userNotifications = await notificationService.getUserNotifications(user.uid);
@@ -33,7 +30,24 @@ const UserNotificationsScreen = ({ navigation }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user.uid]);
+
+    // ✅ Initial load with cleanup
+    useEffect(() => {
+        let isMounted = true;
+
+        const init = async () => {
+            if (isMounted) {
+                await loadNotifications();
+            }
+        };
+
+        init();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [loadNotifications]);
 
     const handleRefresh = async () => {
         setRefreshing(true);
