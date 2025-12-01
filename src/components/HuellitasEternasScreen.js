@@ -344,30 +344,9 @@ export default function HuellitasEternasScreen({ navigation }) {
     const handleCreateMemory = useCallback(() => {
         dispatch({ type: 'OPEN_CREATE_MODAL' });
     }, []);
-// ✅ FUNCIÓN CORREGIDA: Abrir selector de imagen
-const handleSelectImageForNewMemory = useCallback(() => {
-    Alert.alert(
-        'Agregar Foto',
-        'Selecciona una opción',
-        [
-            { 
-                text: 'Cámara', 
-                onPress: () => takePhotoForNewMemory()
-            },
-            { 
-                text: 'Galería', 
-                onPress: () => pickImageForNewMemory()
-            },
-            { 
-                text: 'Cancelar', 
-                style: 'cancel'
-            }
-        ]
-    );
-}, []);
 
 // ✅ FUNCIÓN CORREGIDA: Tomar foto
-const takePhotoForNewMemory = async () => {
+const takePhotoForNewMemory = useCallback(async () => {
     try {
         const result = await ImagePicker.launchCameraAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -391,10 +370,10 @@ const takePhotoForNewMemory = async () => {
         Alert.alert('Error', 'No se pudo tomar la foto: ' + error.message);
         return null;
     }
-};
+}, []);
 
 // ✅ FUNCIÓN CORREGIDA: Seleccionar de galería
-const pickImageForNewMemory = async () => {
+const pickImageForNewMemory = useCallback(async () => {
     try {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -418,7 +397,29 @@ const pickImageForNewMemory = async () => {
         Alert.alert('Error', 'No se pudo seleccionar la imagen: ' + error.message);
         return null;
     }
-};
+}, []);
+
+// ✅ FUNCIÓN CORREGIDA: Abrir selector de imagen
+const handleSelectImageForNewMemory = useCallback(() => {
+    Alert.alert(
+        'Agregar Foto',
+        'Selecciona una opción',
+        [
+            { 
+                text: 'Cámara', 
+                onPress: () => takePhotoForNewMemory()
+            },
+            { 
+                text: 'Galería', 
+                onPress: () => pickImageForNewMemory()
+            },
+            { 
+                text: 'Cancelar', 
+                style: 'cancel'
+            }
+        ]
+    );
+}, [takePhotoForNewMemory, pickImageForNewMemory]);
 
 // ✅ FUNCIÓN CORREGIDA: Publicar recuerdo
 const handlePublishNewMemory = useCallback(async () => {
@@ -464,20 +465,21 @@ const handlePublishNewMemory = useCallback(async () => {
     }
 }, [state.newMemoryImage, state.newMemoryPetName, state.newMemorySpecies, state.newMemoryMessage, loadCommunityPosts]);
 
+    const uploadPetImage = useCallback(async (petId, imageUri) => {
+        try {
+            dispatch({ type: 'SET_UPLOADING_IMAGE', petId, value: true });
+            await petArchiveService.uploadArchivedPetImage(petId, imageUri);
+            Alert.alert('Éxito', 'Foto actualizada correctamente');
+            await loadArchivedPets();
+        } catch (error) {
+            console.error('Error subiendo imagen:', error);
+            Alert.alert('Error', 'No se pudo actualizar la foto');
+        } finally {
+            dispatch({ type: 'SET_UPLOADING_IMAGE', petId, value: false });
+        }
+    }, [loadArchivedPets]);
 
-    const handleAddPhoto = useCallback((pet) => {
-        Alert.alert(
-            'Agregar Foto',
-            'Elige una opción',
-            [
-                { text: 'Cancelar', style: 'cancel' },
-                { text: 'Tomar Foto', onPress: () => takePhoto(pet) },
-                { text: 'Elegir de Galería', onPress: () => pickImageFromGallery(pet) },
-            ]
-        );
-    }, []);
-
-    const takePhoto = async (pet) => {
+    const takePhoto = useCallback(async (pet) => {
         try {
             const result = await ImagePicker.launchCameraAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -493,9 +495,9 @@ const handlePublishNewMemory = useCallback(async () => {
             console.error('Error tomando foto:', error);
             Alert.alert('Error', 'No se pudo tomar la foto');
         }
-    };
+    }, [uploadPetImage]);
 
-    const pickImageFromGallery = async (pet) => {
+    const pickImageFromGallery = useCallback(async (pet) => {
         try {
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -511,21 +513,19 @@ const handlePublishNewMemory = useCallback(async () => {
             console.error('Error eligiendo imagen:', error);
             Alert.alert('Error', 'No se pudo seleccionar la imagen');
         }
-    };
+    }, [uploadPetImage]);
 
-    const uploadPetImage = async (petId, imageUri) => {
-        try {
-            dispatch({ type: 'SET_UPLOADING_IMAGE', petId, value: true });
-            await petArchiveService.uploadArchivedPetImage(petId, imageUri);
-            Alert.alert('Éxito', 'Foto actualizada correctamente');
-            await loadArchivedPets();
-        } catch (error) {
-            console.error('Error subiendo imagen:', error);
-            Alert.alert('Error', 'No se pudo actualizar la foto');
-        } finally {
-            dispatch({ type: 'SET_UPLOADING_IMAGE', petId, value: false });
-        }
-    };
+    const handleAddPhoto = useCallback((pet) => {
+        Alert.alert(
+            'Agregar Foto',
+            'Elige una opción',
+            [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Tomar Foto', onPress: () => takePhoto(pet) },
+                { text: 'Elegir de Galería', onPress: () => pickImageFromGallery(pet) },
+            ]
+        );
+    }, [takePhoto, pickImageFromGallery]);
 
     const onRefresh = useCallback(async () => {
         dispatch({ type: 'SET_REFRESHING', payload: true });
