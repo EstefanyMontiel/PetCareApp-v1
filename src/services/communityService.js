@@ -28,14 +28,20 @@ export const communityService = {
             };
 
             const docRef = await db.collection('memorialPosts').add(memorialPost);
-            // Notificar a seguidores (si tienes sistema de seguidores)
-            // Por ahora, solo crear el registro en Firestore
+            
+            // ✅ CORREGIDO: Notificación de compartir con variables correctas
             await notificationService.createNotificationRecord(
                 currentUser.uid,
-                'new_post',
-                '¡Post compartido!',
-                `Tu recuerdo de ${pet.name} ha sido compartido en Huellitas Eternas`,
-                { postId: docRef.id, petName: pet.name }
+                'share',
+                '🌈 Recuerdo compartido',
+                `Tu recuerdo de ${petData.nombre} ha sido compartido en Huellitas Eternas`,
+                { postId: docRef.id, petName: petData.nombre }
+            );
+
+            await notificationService.sendLocalNotification(
+                '🌈 Recuerdo compartido',
+                `Tu recuerdo de ${petData.nombre} está ahora en la comunidad`,
+                { postId: docRef.id, type: 'share' }
             );
 
             console.log('✅ Memorial compartido exitosamente con ID:', docRef.id);
@@ -91,27 +97,43 @@ export const communityService = {
                     updatedAt: new Date()
                 });
 
-                 // ✅ NUEVO: Enviar notificación al dueño del post
+                // ✅ MEJORADO: Enviar notificación al dueño del post con deduplicación
                 if (postData.userId !== userId) { // No notificar si das like a tu propio post
-                    const userDoc = await db.collection('users').doc(userId).get();
-                    const userName = userDoc.data()?.nombre || 'Alguien';
+                    // Verificar si ya existe notificación reciente (últimas 24 horas)
+                    const oneDayAgo = new Date();
+                    oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+                    
+                    const existingNotification = await db.collection('notifications')
+                        .where('recipientId', '==', postData.userId)
+                        .where('type', '==', 'like')
+                        .where('data.postId', '==', postId)
+                        .where('data.likedBy', '==', userId)
+                        .where('createdAt', '>', oneDayAgo)
+                        .limit(1)
+                        .get();
+                    
+                    // Solo crear notificación si no existe una reciente
+                    if (existingNotification.empty) {
+                        const userDoc = await db.collection('users').doc(userId).get();
+                        const userName = userDoc.data()?.nombre || 'Alguien';
 
-                    // Crear registro de notificación
-                    await notificationService.createNotificationRecord(
-                        postData.userId,
-                        'like',
-                        '❤️ Nuevo like',
-                        `A ${userName} le gustó tu publicación de ${postData.petName}`,
-                        { postId: postId, likedBy: userId, petName: postData.petName }
-                    );
+                        // Crear registro de notificación
+                        await notificationService.createNotificationRecord(
+                            postData.userId,
+                            'like',
+                            '❤️ Nuevo like',
+                            `A ${userName} le gustó tu publicación de ${postData.petName}`,
+                            { postId: postId, likedBy: userId, petName: postData.petName }
+                        );
 
-                    // Enviar push notification
-                    await notificationService.sendPushNotificationToUser(
-                        postData.userId,
-                        '❤️ Nuevo like',
-                        `A ${userName} le gustó tu publicación de ${postData.petName}`,
-                        { postId: postId, type: 'like' }
-                    );
+                        // Enviar push notification
+                        await notificationService.sendPushNotificationToUser(
+                            postData.userId,
+                            '❤️ Nuevo like',
+                            `A ${userName} le gustó tu publicación de ${postData.petName}`,
+                            { postId: postId, type: 'like' }
+                        );
+                    }
                 }
             }
 
@@ -143,24 +165,40 @@ export const communityService = {
                 comments: updatedComments,
                 updatedAt: new Date()
             });
-// ✅ NUEVO: Enviar notificación al dueño del post
+// ✅ MEJORADO: Enviar notificación al dueño del post con deduplicación
             if (postData.userId !== userId) { // No notificar si comentas tu propio post
-                // Crear registro de notificación
-                await notificationService.createNotificationRecord(
-                    postData.userId,
-                    'comment',
-                    '💬 Nuevo comentario',
-                    `${userName} comentó en tu publicación de ${postData.petName}`,
-                    { postId: postId, commentId: newComment.id, petName: postData.petName }
-                );
+                // Verificar si ya existe notificación reciente (últimos 5 minutos)
+                const fiveMinutesAgo = new Date();
+                fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
+                
+                const existingNotification = await db.collection('notifications')
+                    .where('recipientId', '==', postData.userId)
+                    .where('type', '==', 'comment')
+                    .where('data.postId', '==', postId)
+                    .where('data.commenterId', '==', userId)
+                    .where('createdAt', '>', fiveMinutesAgo)
+                    .limit(1)
+                    .get();
+                
+                // Solo crear notificación si no existe una reciente
+                if (existingNotification.empty) {
+                    // Crear registro de notificación
+                    await notificationService.createNotificationRecord(
+                        postData.userId,
+                        'comment',
+                        '💬 Nuevo comentario',
+                        `${userName} comentó en tu publicación de ${postData.petName}`,
+                        { postId: postId, commentId: newComment.id, commenterId: userId, petName: postData.petName }
+                    );
 
-                // Enviar push notification
-                await notificationService.sendPushNotificationToUser(
-                    postData.userId,
-                    '💬 Nuevo comentario',
-                    `${userName}: ${commentText.substring(0, 50)}${commentText.length > 50 ? '...' : ''}`,
-                    { postId: postId, type: 'comment' }
-                );
+                    // Enviar push notification
+                    await notificationService.sendPushNotificationToUser(
+                        postData.userId,
+                        '💬 Nuevo comentario',
+                        `${userName}: ${commentText.substring(0, 50)}${commentText.length > 50 ? '...' : ''}`,
+                        { postId: postId, type: 'comment' }
+                    );
+                }
             }
 
             return { success: true, comment: newComment };
