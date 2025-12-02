@@ -4,16 +4,19 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    ScrollView,
     Alert,
+    ActivityIndicator,
     Platform,
-    ActivityIndicator
+    KeyboardAvoidingView,
+    ScrollView,
+    TouchableWithoutFeedback,
+    Keyboard
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import SafeContainer from './SafeContainer';
+import DatePickerModal from './DatePickerModal';
 import styles from '../styles/PetRegisterStyles';
 
 const PetRegisterScreen = ({ navigation }) => {
@@ -25,8 +28,6 @@ const PetRegisterScreen = ({ navigation }) => {
     const [petName, setPetName] = useState('');
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [loading, setLoading] = useState(false);
-    
-    // ✅ NUEVO: Estado para el género
     const [gender, setGender] = useState('');
 
     const speciesOptions = [
@@ -34,17 +35,15 @@ const PetRegisterScreen = ({ navigation }) => {
         { key: 'Gato', label: t('petRegister.cat') }
     ];
 
-    const handleDateChange = (event, selectedDate) => {
-        setShowDatePicker(Platform.OS === 'ios');
-        if (selectedDate) {
-            setBirthDate(selectedDate);
-        }
+    const handleDateSelect = (selectedDate) => {
+        setBirthDate(selectedDate);
+        setShowDatePicker(false);
     };
 
     const formatDate = (date) => {
         return date.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
             day: '2-digit',
-            month: '2-digit',
+            month: 'long',
             year: 'numeric'
         });
     };
@@ -61,7 +60,6 @@ const PetRegisterScreen = ({ navigation }) => {
             return;
         }
 
-        // ✅ NUEVO: Validar género
         if (!gender) {
             Alert.alert(t('common.error'), t('petRegister.sexRequired'));
             return;
@@ -75,11 +73,11 @@ const PetRegisterScreen = ({ navigation }) => {
         setLoading(true);
         try {
             const petData = {
-                nombre: petName.trim(),
+                nombre: petName. trim(),
                 especie: selectedSpecies,
-                raza: breed.trim(),
+                raza: breed. trim(),
                 fechaNacimiento: birthDate,
-                genero: gender, // ✅ NUEVO: Agregar género
+                genero: gender,
             };
 
             console.log('📝 Datos a registrar:', petData);
@@ -92,12 +90,11 @@ const PetRegisterScreen = ({ navigation }) => {
                 [{ 
                     text: t('petRegister.viewPets'), 
                     onPress: () => {
-                        // Limpiar formulario
                         setPetName('');
                         setBreed('');
                         setBirthDate(new Date());
                         setSelectedSpecies('Perro');
-                        setGender(''); // ✅ NUEVO: Limpiar género
+                        setGender('');
                         navigation.navigate('MainTabs', { screen: 'Home' });
                     }
                 }]
@@ -112,10 +109,10 @@ const PetRegisterScreen = ({ navigation }) => {
 
     return (
         <SafeContainer style={styles.container}>
-            <ScrollView 
-                style={styles.content}
-                contentContainerStyle={styles.contentContainer}
-                showsVerticalScrollIndicator={false}
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
             >
                 {/* Icono de mascota */}
                 <View style={styles.iconContainer}>
@@ -249,15 +246,14 @@ const PetRegisterScreen = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
 
-                {showDatePicker && (
-                    <DateTimePicker
-                        value={birthDate}
-                        mode="date"
-                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                        onChange={handleDateChange}
-                        maximumDate={new Date()}
-                    />
-                )}
+                        {/* DatePickerModal */}
+                        <DatePickerModal
+                            visible={showDatePicker}
+                            onClose={() => setShowDatePicker(false)}
+                            onSelect={handleDateSelect}
+                            selectedDate={birthDate}
+                            maximumDate={new Date()}
+                        />
 
                 {/* Botón de Registro */}
                 <TouchableOpacity
