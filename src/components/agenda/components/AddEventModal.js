@@ -36,13 +36,13 @@ const AddEventModal = ({
             onSwipeComplete={onClose}
             swipeDirection="down"
             style={styles.modal}
-            backdropOpacity={0.7} // ✅ Mayor opacidad para bloquear fondo
-            coverScreen={true} // ✅ Bloquea interacción con el fondo
+            backdropOpacity={0.7} 
+            coverScreen={true} 
             useNativeDriver={true}
             animationIn="slideInUp"
             animationOut="slideOutDown"
-            propagateSwipe={true} // ✅ Evita que el swipe afecte el fondo
-            avoidKeyboard={true} // ✅ Modal respeta el teclado
+            propagateSwipe={true} 
+            avoidKeyboard={true} 
 
         >
             <View style={styles.modalContent}>

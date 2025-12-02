@@ -1,7 +1,4 @@
-// ============================================
-// 📜 EVENT LIST COMPONENT
-// ============================================
-// ✅ Lista optimizada con FlatList y memoización
+
 
 import React, { useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
@@ -27,7 +24,6 @@ const EmptyState = React.memo(({ onAddPress }) => (
 ));
 
 const EventList = ({ events, selectedDate, onDelete, onToggleComplete, onAddPress }) => {
-    // ✅ renderItem memoizado
     const renderEventItem = useCallback(({ item }) => (
         <EventCard
             event={item}
@@ -36,7 +32,6 @@ const EventList = ({ events, selectedDate, onDelete, onToggleComplete, onAddPres
         />
     ), [onToggleComplete, onDelete]);
 
-    // ✅ keyExtractor memoizado
     const keyExtractor = useCallback((item) => item.id, []);
 
     if (!selectedDate) return null;

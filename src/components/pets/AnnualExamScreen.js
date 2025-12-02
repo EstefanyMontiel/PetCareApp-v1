@@ -14,7 +14,6 @@ import KeyboardAwareForm from '../common/KeyboardAwareForm';
 const AnnualExamScreen = ({ route, navigation }) => {
     const { petId, petName, petSpecies } = route.params;
     
-    // ✅ SOLO ESTADOS DE LA LISTA
     const [exams, setExams] = useState([]);
     const [loadingList, setLoadingList] = useState(true);
 
@@ -36,7 +35,6 @@ const AnnualExamScreen = ({ route, navigation }) => {
         }
     };
 
-    // ✅ NAVEGAR A LA PANTALLA DE FORMULARIO
     const handleAddExam = () => {
         navigation.navigate('AddAnnualExam', {
             petId,

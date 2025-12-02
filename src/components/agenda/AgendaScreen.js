@@ -1,9 +1,4 @@
-// ============================================
-// 🎯 AGENDA SCREEN - COMPONENTE PRINCIPAL REFACTORIZADO
-// ============================================
-// ✅ Solo orquesta componentes y hooks
-// ✅ ~200 líneas vs ~790 líneas del original
-// ✅ Performance optimizado con memoización
+
 
 import React from 'react';
 import { ScrollView } from 'react-native';
@@ -21,12 +16,8 @@ import EventList from './components/EventList';
 import UpcomingEvents from './components/UpcomingEvents';
 import AddEventModal from './components/AddEventModal';
 
-/**
- * Pantalla principal de la Agenda
- * Gestiona eventos, calendario y notificaciones de mascotas
- */
+
 const AgendaScreen = () => {
-    // ✅ Hook de eventos - maneja carga, filtrado y acciones
     const {
         events,
         markedDates,
@@ -39,7 +30,6 @@ const AgendaScreen = () => {
         handleDeleteEvent,
     } = useAgendaEvents();
 
-    // ✅ Hook del formulario - maneja estado y guardado
     const {
         formData,
         updateFormField,
@@ -53,14 +43,12 @@ const AgendaScreen = () => {
 
     return (
         <SafeContainer style={styles.container}>
-            {/* Header con botón de agregar */}
             <AgendaHeader onAddPress={openAddModal} />
 
-            {/* ScrollView con scroll bloqueado cuando modal abierto */}
             <ScrollView 
                 style={styles.content} 
                 showsVerticalScrollIndicator={false}
-                scrollEnabled={!showAddModal} // ✅ FIX: Bloquea scroll cuando modal abierto
+                scrollEnabled={!showAddModal} 
             >
                 {/* Calendario con fechas marcadas */}
                 <AgendaCalendar

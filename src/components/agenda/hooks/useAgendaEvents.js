@@ -18,21 +18,21 @@ export const useAgendaEvents = () => {
     const [selectedDate, setSelectedDate] = useState('');
     const [loading, setLoading] = useState(true);
 
-    // ✅ Usa el hook de fechas marcadas
+    // Usa el hook de fechas marcadas
     const markedDates = useMarkedDates(events);
 
-    // ✅ Carga inicial de eventos
+    // Carga inicial de eventos
     useEffect(() => {
         loadEvents();
         requestNotificationPermissions();
     }, []);
 
-    // ✅ Solicitar permisos de notificaciones
+    // Solicitar permisos de notificaciones
     const requestNotificationPermissions = async () => {
         await notificationService.requestPermissions();
     };
 
-    // ✅ Cargar eventos del usuario (memoizado con useCallback)
+    // Cargar eventos del usuario (memoizado con useCallback)
     const loadEvents = useCallback(async () => {
         try {
             setLoading(true);
@@ -46,7 +46,7 @@ export const useAgendaEvents = () => {
         }
     }, [user.uid]);
 
-    // ✅ Filtrar eventos por fecha seleccionada (memoizado)
+    // Filtrar eventos por fecha seleccionada (memoizado)
     const selectedDateEvents = useMemo(() => {
         if (!selectedDate) return [];
         
@@ -59,7 +59,6 @@ export const useAgendaEvents = () => {
         });
     }, [events, selectedDate]);
 
-    // ✅ Marcar evento como completado
     const handleToggleComplete = useCallback(async (eventId, currentStatus) => {
         try {
             await agendaService.markEventAsCompleted(eventId, !currentStatus);
@@ -69,7 +68,7 @@ export const useAgendaEvents = () => {
         }
     }, [loadEvents]);
 
-    // ✅ Eliminar evento
+    // Eliminar evento
     const handleDeleteEvent = useCallback((eventId, notificationId) => {
         Alert.alert(
             'Eliminar evento',

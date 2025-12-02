@@ -1,7 +1,3 @@
-// ============================================
-// 📆 UPCOMING EVENTS COMPONENT
-// ============================================
-// ✅ Sección de próximos eventos optimizada
 
 import React, { useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
@@ -48,10 +44,8 @@ const UpcomingEventCard = React.memo(({ event, onPress }) => {
 });
 
 const UpcomingEvents = ({ events, onEventPress }) => {
-    // ✅ Memoiza el cálculo de próximos eventos
     const upcomingEvents = useMemo(() => getUpcomingEvents(events), [events]);
 
-    // ✅ Handler memoizado
     const handleEventPress = useCallback((event) => {
         const eventDate = event.date.toDate ? event.date.toDate() : new Date(event.date);
         const dateStr = formatDateToString(eventDate);

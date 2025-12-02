@@ -67,143 +67,104 @@ export const communityService = {
 
     // Dar like a un post
     likePost: async (postId, userId) => {
-        try {
-            const postRef = db.collection('memorialPosts').doc(postId);
-            const postDoc = await postRef.get();
-            const postData = postDoc.data();
+    try {
+        const postRef = db. collection('memorialPosts'). doc(postId);
+        const postDoc = await postRef.get();
+        const postData = postDoc.data();
 
-            const likedBy = postData.likedBy || [];
-            const hasLiked = likedBy.includes(userId);
+        const likedBy = postData.likedBy || [];
+        const hasLiked = likedBy.includes(userId);
 
-            if (hasLiked) {
-                // Quitar like
-                await postRef.update({
-                    likes: postData.likes - 1,
-                    likedBy: likedBy.filter(id => id !== userId),
-                    updatedAt: new Date()
-                });
-            } else {
-                // Agregar like
-                await postRef.update({
-                    likes: postData.likes + 1,
-                    likedBy: [...likedBy, userId],
-                    updatedAt: new Date()
-                });
+        if (hasLiked) {
+            // Quitar like
+            await postRef.update({
+                likes: postData.likes - 1,
+                likedBy: likedBy.filter(id => id !== userId),
+                updatedAt: new Date()
+            });
+        } else {
+            // Agregar like
+            await postRef.update({
+                likes: postData.likes + 1,
+                likedBy: [...likedBy, userId],
+                updatedAt: new Date()
+            });
 
-                // ✅ MEJORADO: Enviar notificación al dueño del post con deduplicación
-                if (postData.userId !== userId) { // No notificar si das like a tu propio post
-                    // Verificar si ya existe notificación reciente (últimas 24 horas)
-                    const oneDayAgo = new Date();
-                    oneDayAgo.setHours(oneDayAgo.getHours() - 24);
-                    
-                    const existingNotification = await db.collection('notifications')
-                        .where('recipientId', '==', postData.userId)
-                        .where('type', '==', 'like')
-                        .where('data.postId', '==', postId)
-                        .where('data.likedBy', '==', userId)
-                        .where('createdAt', '>', oneDayAgo)
-                        .limit(1)
-                        .get();
-                    
-                    // Solo crear notificación si no existe una reciente
-                    if (existingNotification.empty) {
-                        const userDoc = await db.collection('users').doc(userId).get();
-                        const userName = userDoc.data()?.nombre || 'Alguien';
+            // ✅ Enviar notificación sin verificar duplicados
+            if (postData.userId !== userId) {
+                const userDoc = await db.collection('users').doc(userId).get();
+                const userName = userDoc. data()?.nombre || 'Alguien';
 
-                        // Crear registro de notificación
-                        await notificationService.createNotificationRecord(
-                            postData.userId,
-                            'like',
-                            '❤️ Nuevo like',
-                            `A ${userName} le gustó tu publicación de ${postData.petName}`,
-                            { postId: postId, likedBy: userId, petName: postData.petName }
-                        );
+                // Crear registro de notificación
+                await notificationService.createNotificationRecord(
+                    postData.userId,
+                    'like',
+                    '❤️ Nuevo like',
+                    `A ${userName} le gustó tu publicación de ${postData.petName}`,
+                    { postId: postId, likedBy: userId, petName: postData.petName }
+                );
 
-                        // Enviar push notification
-                        await notificationService.sendPushNotificationToUser(
-                            postData.userId,
-                            '❤️ Nuevo like',
-                            `A ${userName} le gustó tu publicación de ${postData.petName}`,
-                            { postId: postId, type: 'like' }
-                        );
-                    }
-                }
             }
-
-            return { success: true };
-        } catch (error) {
-            console.error('Error dando like:', error);
-            throw error;
         }
-    },
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error dando like:', error);
+        throw error;
+    }
+},
 
     // Agregar comentario
     addComment: async (postId, userId, userName, commentText) => {
-        try {
-            const postRef = db.collection('memorialPosts').doc(postId);
-            const postDoc = await postRef.get();
-            const postData = postDoc.data();
+    try {
+        const postRef = db.collection('memorialPosts').doc(postId);
+        const postDoc = await postRef.get();
+        const postData = postDoc.data();
 
-            const newComment = {
-                id: Date.now().toString(),
-                userId: userId,
-                userName: userName,
-                text: commentText,
-                likes: 0,           // ✅ Asegurar que existe
-                likedBy: [],        // ✅ Asegurar que existe
-                replies: [],        // ✅ Asegurar que existe
-                createdAt: new Date()
-            };
+        const newComment = {
+            id: Date.now(). toString(),
+            userId: userId,
+            userName: userName,
+            text: commentText,
+            likes: 0,
+            likedBy: [],
+            replies: [],
+            createdAt: new Date()
+        };
 
-            const updatedComments = [...(postData.comments || []), newComment];
+        const updatedComments = [...(postData.comments || []), newComment];
 
-            await postRef.update({
-                comments: updatedComments,
-                updatedAt: new Date()
-            });
-// ✅ MEJORADO: Enviar notificación al dueño del post con deduplicación
-            if (postData.userId !== userId) { // No notificar si comentas tu propio post
-                // Verificar si ya existe notificación reciente (últimos 5 minutos)
-                const fiveMinutesAgo = new Date();
-                fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
-                
-                const existingNotification = await db.collection('notifications')
-                    .where('recipientId', '==', postData.userId)
-                    .where('type', '==', 'comment')
-                    .where('data.postId', '==', postId)
-                    .where('userId', '==', userId) // ✅ Mismo usuario
-                    .where('data.commenterId', '==', userId)
-                    .where('createdAt', '>', fiveMinutesAgo)
-                    .limit(1)
-                    .get();
-                
-                // Solo crear notificación si no existe una reciente
-                if (existingNotification.empty) {
-                    // Crear registro de notificación
-                    await notificationService.createNotificationRecord(
-                        postData.userId,
-                        'comment',
-                        '💬 Nuevo comentario',
-                        `${userName} comentó en tu publicación de ${postData.petName}`,
-                        { postId: postId, commentId: newComment.id, commenterId: userId, petName: postData.petName }
-                    );
+        await postRef.update({
+            comments: updatedComments,
+            updatedAt: new Date()
+        });
 
-                    // Enviar push notification
-                    await notificationService.sendPushNotificationToUser(
-                        postData.userId,
-                        '💬 Nuevo comentario',
-                        `${userName}: ${commentText.substring(0, 50)}${commentText.length > 50 ? '...' : ''}`,
-                        { postId: postId, type: 'comment' }
-                    );
-                }
-            }
+        // ✅ Enviar notificación sin verificar duplicados
+        if (postData.userId !== userId) {
+            // Crear registro de notificación
+            await notificationService.createNotificationRecord(
+                postData. userId,
+                'comment',
+                '💬 Nuevo comentario',
+                `${userName} comentó en tu publicación de ${postData.petName}`,
+                { postId: postId, commentId: newComment.id, commenterId: userId, petName: postData.petName }
+            );
 
-            return { success: true, comment: newComment };
-        } catch (error) {
-            console.error('Error agregando comentario:', error);
-            throw error;
+            // Enviar push notification
+            await notificationService.sendPushNotificationToUser(
+                postData. userId,
+                '💬 Nuevo comentario',
+                `${userName}: ${commentText.substring(0, 50)}${commentText.length > 50 ?  '...' : ''}`,
+                { postId: postId, type: 'comment' }
+            );
         }
-    },
+
+        return { success: true, comment: newComment };
+    } catch (error) {
+        console.error('Error agregando comentario:', error);
+        throw error;
+    }
+},
 
 
     // Obtener posts de un usuario específico
@@ -376,96 +337,70 @@ shareMemorialDirect: async (petData, message, imageUri) => {
     },
 
     // ✅ NUEVO: Responder a un comentario
-    replyToComment: async (postId, parentCommentId, userId, userName, replyText) => {
-        try {
-            const postRef = db.collection('memorialPosts').doc(postId);
-            const postDoc = await postRef.get();
-            const postData = postDoc.data();
+   // ✅ CORREGIDO: Responder a un comentario
+replyToComment: async (postId, parentCommentId, userId, userName, replyText) => {
+    try {
+        console.log('📝 Respondiendo comentario:', { postId, parentCommentId, userId, userName });
+        
+        const postRef = db.collection('memorialPosts').doc(postId);
+        const postDoc = await postRef. get();
+        
+        if (!postDoc.exists) {
+            throw new Error('El post no existe');
+        }
+        
+        const postData = postDoc.data();
 
-            const newReply = {
-                id: Date.now().toString(),
-                parentCommentId: parentCommentId,
-                userId: userId,
-                userName: userName,
-                text: replyText,
-                likes: 0,
-                likedBy: [],
-                createdAt: new Date()
-            };
+        const newReply = {
+            id: Date.now().toString(),
+            parentCommentId: parentCommentId,
+            userId: userId,
+            userName: userName,
+            text: replyText,
+            likes: 0,
+            likedBy: [],
+            createdAt: new Date()
+        };
 
-            const comments = postData.comments || [];
-             const updatedComments = postData.comments.map(comment => {
-                if (comment.id === parentCommentId) {
-                    // ✅ NUEVO: Notificar al dueño del comentario
-                    if (comment.userId !== userId) {
-                        notificationService.createNotificationRecord(
-                            comment.userId,
-                            'reply',
-                            '↩️ Nueva respuesta',
-                            `${userName} respondió a tu comentario`,
-                            { postId: postId, commentId: commentId, replyId: newReply.id }
-                        );
-
-                        notificationService.sendPushNotificationToUser(
-                            comment.userId,
-                            '↩️ Nueva respuesta',
-                            `${userName}: ${replyText.substring(0, 50)}${replyText.length > 50 ? '...' : ''}`,
-                            { postId: postId, type: 'reply' }
-                        );
-                    }
-
-                    return {
-                        ...comment,
-                        replies: [...(comment.replies || []), newReply]
-                    };
+        const comments = postData.comments || [];
+        
+        // ✅ CRÍTICO: Usar parentCommentId (no commentId)
+        const updatedComments = comments.map(comment => {
+            if (comment.id === parentCommentId) {  // ✅ CORREGIDO AQUÍ
+                console.log('✅ Comentario padre encontrado, agregando respuesta');
+                
+                // Notificar al dueño del comentario (opcional, no debe romper la funcionalidad)
+                if (comment.userId !== userId) {
+                    // Crear notificación en Firestore
+                    notificationService. createNotificationRecord(
+                        comment.userId,
+                        'reply',
+                        '↩️ Nueva respuesta',
+                        `${userName} respondió a tu comentario`,
+                        { postId: postId, commentId: parentCommentId, replyId: newReply.id }
+                    ).catch(err => console.log('⚠️ Error en notificación (no crítico):', err. message));
                 }
-                return comment;
-            });
 
-            await postRef.update({
-                comments: updatedComments,
-                updatedAt: new Date()
-            });
+                return {
+                    ...comment,
+                    replies: [...(comment.replies || []), newReply]
+                };
+            }
+            return comment;
+        });
 
-            return { success: true, reply: newReply };
-        } catch (error) {
-            console.error('Error respondiendo comentario:', error);
-            throw error;
-        }
-    },
+        await postRef.update({
+            comments: updatedComments,
+            updatedAt: new Date()
+        });
 
-
-    /*✅ ACTUALIZADO: Agregar comentario con soporte para likes y respuestas
-    addComment: async (postId, userId, userName, commentText) => {
-        try {
-            const postRef = db.collection('memorialPosts').doc(postId);
-            const postDoc = await postRef.get();
-            const postData = postDoc.data();
-
-            const newComment = {
-                id: Date.now().toString(),
-                userId: userId,
-                userName: userName,
-                text: commentText,
-                likes: 0,           // ← Nuevo
-                likedBy: [],        // ← Nuevo
-                replies: [],        // ← Nuevo
-                createdAt: new Date()
-            };
-
-            const updatedComments = [...(postData.comments || []), newComment];
-
-            await postRef.update({
-                comments: updatedComments,
-                updatedAt: new Date()
-            });
-
-            return { success: true, comment: newComment };
-        } catch (error) {
-            console.error('Error agregando comentario:', error);
-            throw error;
-        }
-    }, */
+        console.log('✅ Respuesta agregada exitosamente');
+        return { success: true, reply: newReply };
+    } catch (error) {
+        console.error('❌ Error respondiendo comentario:', error);
+        throw error;
+    }
+},
 
     
     // Eliminar post

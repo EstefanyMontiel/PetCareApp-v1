@@ -138,7 +138,6 @@ const AddDewormingScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            {/* ✅ HEADER IGUAL AL ORIGINAL */}
             <View style={styles.header}>
                 <TouchableOpacity 
                     style={styles.backButton}
@@ -165,7 +164,6 @@ const AddDewormingScreen = ({ route, navigation }) => {
                 </TouchableOpacity>
             </View>
 
-            {/* ✅ FORMULARIO CON EL MISMO ESTILO */}
             <KeyboardAwareForm style={styles.content}>
                 <View style={styles.formCard}>
                     <Text style={styles.formTitle}>Nueva Desparasitación</Text>

@@ -1,8 +1,3 @@
-// ============================================
-// 📝 USE EVENT FORM HOOK
-// ============================================
-// ✅ Maneja el estado y lógica del formulario de eventos
-// ✅ Centraliza validación y guardado
 
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
@@ -17,7 +12,6 @@ export const useEventForm = (selectedDate, onEventSaved) => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [saving, setSaving] = useState(false);
 
-    // ✅ Estado del formulario unificado
     const [formData, setFormData] = useState({
         eventType: 'cita',
         eventTitle: '',
@@ -30,12 +24,10 @@ export const useEventForm = (selectedDate, onEventSaved) => {
         showTimePicker: false,
     });
 
-    // ✅ Actualizar un campo del formulario
     const updateFormField = useCallback((field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     }, []);
 
-    // ✅ Abrir modal y configurar fecha inicial
     const openAddModal = useCallback(() => {
         const initialDate = selectedDate 
             ? (() => {
@@ -58,12 +50,10 @@ export const useEventForm = (selectedDate, onEventSaved) => {
         setShowAddModal(true);
     }, [selectedDate]);
 
-    // ✅ Cerrar modal
     const closeAddModal = useCallback(() => {
         setShowAddModal(false);
     }, []);
 
-    // ✅ Guardar evento
     const handleSaveEvent = useCallback(async () => {
         // Validación
         if (!formData.eventTitle.trim()) {
@@ -108,10 +98,9 @@ export const useEventForm = (selectedDate, onEventSaved) => {
                 }
             }
 
-            Alert.alert('✅ Éxito', 'Evento creado correctamente');
+            Alert.alert('Exito', 'Evento creado correctamente');
             closeAddModal();
             
-            // Recargar eventos y seleccionar la fecha del nuevo evento
             await onEventSaved();
             
         } catch (error) {

@@ -197,7 +197,6 @@ const EditProfileScreen = ({ navigation }) => {
                     </View>
 
                     <View style={styles.formContainer}>
-                        {/* ✅ FOTO DE PERFIL MEJORADA */}
                         <View style={styles.photoSection}>
                             <View style={styles.photoWrapper}>
                                 {uploadingPhoto ? (

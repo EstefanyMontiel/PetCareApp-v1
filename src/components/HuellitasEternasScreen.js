@@ -24,7 +24,7 @@ import CreateMemoryModal from './CreateMemoryModal';
 import { notificationService } from '../services/notificationService';
 
 
-export default function HuellitasEternasScreen({ navigation }) {
+export default function HuellitasEternasScreen({ navigation, route }) {
     const { user, userProfile } = useAuth();
     const [archivedPets, setArchivedPets] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -59,30 +59,72 @@ export default function HuellitasEternasScreen({ navigation }) {
     const scrollViewRef = useRef(null);
     const commentInputRef = useRef(null);
 
-    useEffect(() => {
-        requestPermissions();
-        loadData();
-        initializeNotifications();
-        loadUnreadCount();
-    }, []);
+ useEffect(() => {
+    requestPermissions();
+    loadData();
+    initializeNotifications();
+    loadUnreadCount();
+}, []);
 
-    // ✅ NUEVO: Listener para el teclado
-    useEffect(() => {
-        const keyboardDidShowListener = Keyboard.addListener(
-            'keyboardDidShow',
-            () => {
-                // Scroll al final cuando aparece el teclado
-                setTimeout(() => {
-                    scrollViewRef.current?.scrollToEnd({ animated: true });
-                }, 100);
+// ✅ NUEVO: Listener para el teclado
+useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+        'keyboardDidShow',
+        () => {
+            setTimeout(() => {
+                scrollViewRef.current?.scrollToEnd({ animated: true });
+            }, 100);
+        }
+    );
+
+    return () => {
+        keyboardDidShowListener.remove();
+    };
+}, []);
+
+// ✅ NUEVO: Manejar navegación desde notificaciones
+useEffect(() => {
+    if (route.params?.openPost) {
+        const postId = route.params.openPost;
+        console.log('📬 Abriendo post desde notificación:', postId);
+        
+        // Cambiar a la pestaña de comunidad
+        setActiveTab('community');
+        
+        // Esperar un momento para que se carguen los posts si es necesario
+        const openSpecificPost = async () => {
+            try {
+                // Recargar posts para asegurar que estén actualizados
+                const posts = await communityService.getCommunityPosts(50);
+                setCommunityPosts(posts);
+                
+                // Buscar el post específico
+                const post = posts.find(p => p. id === postId);
+                
+                if (post) {
+                    console.log('✅ Post encontrado, abriendo modal');
+                    // Abrir el modal de comentarios con ese post
+                    setTimeout(() => {
+                        setSelectedPost(post);
+                        setShowCommentsModal(true);
+                    }, 300); // Pequeño delay para que la UI se actualice
+                } else {
+                    console.warn('⚠️ Post no encontrado:', postId);
+                    Alert. alert('Post no encontrado', 'El post que buscas ya no está disponible');
+                }
+                
+                // Limpiar el parámetro para evitar que se abra de nuevo
+                navigation.setParams({ openPost: null });
+            } catch (error) {
+                console.error('❌ Error abriendo post desde notificación:', error);
+                Alert.alert('Error', 'No se pudo abrir el post');
             }
-        );
-
-        return () => {
-            keyboardDidShowListener.remove();
         };
-    }, []);
-
+        
+        // Ejecutar después de un breve delay para asegurar que el componente esté montado
+        setTimeout(openSpecificPost, 500);
+    }
+}, [route.params?.openPost]);
     const requestPermissions = async () => {
         try {
             await ImagePicker.requestCameraPermissionsAsync();
@@ -92,6 +134,8 @@ export default function HuellitasEternasScreen({ navigation }) {
         }
     };
 
+
+    
 
      // ✅ NUEVO: Inicializar notificaciones
     const initializeNotifications = async () => {

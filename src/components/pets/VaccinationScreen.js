@@ -22,7 +22,6 @@ const VaccinationScreen = ({ route, navigation }) => {
         loadVaccinations();
     }, []);
 
-    // 📋 Cargar vacunaciones
     const loadVaccinations = async () => {
         try {
             setLoadingList(true);
@@ -63,7 +62,7 @@ const VaccinationScreen = ({ route, navigation }) => {
                         try {
                             await vaccinationService.deleteVaccination(petId, vaccinationId);
                             await loadVaccinations();
-                            Alert.alert('✅', 'Vacuna eliminada');
+                            Alert.alert('Vacuna eliminada');
                         } catch (error) {
                             Alert.alert('Error', 'No se pudo eliminar la vacuna');
                         }
@@ -73,7 +72,6 @@ const VaccinationScreen = ({ route, navigation }) => {
         );
     };
 
-    // ✅ NAVEGAR A LA PANTALLA DE FORMULARIO
     const handleAddVaccination = () => {
         navigation.navigate('AddVaccination', {
             petId,
@@ -99,7 +97,6 @@ const VaccinationScreen = ({ route, navigation }) => {
                     <Text style={styles.petName}>{petName}</Text>
                 </View>
                 
-                {/* ✅ BOTÓN QUE NAVEGA A LA NUEVA PANTALLA */}
                 <TouchableOpacity 
                     style={styles.addButton}
                     onPress={handleAddVaccination}
@@ -108,7 +105,6 @@ const VaccinationScreen = ({ route, navigation }) => {
                 </TouchableOpacity>
             </View>
 
-            {/* ✅ SOLO LA LISTA (sin formulario) */}
             <KeyboardAwareForm style={styles.content}>
                 {loadingList ? (
                     <View style={styles.centerContainer}>

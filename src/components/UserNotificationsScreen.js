@@ -57,7 +57,6 @@ const UserNotificationsScreen = ({ navigation }) => {
         }
     };
 
-    // ✅ NUEVO: Eliminar notificación individual
     const handleDeleteNotification = async (notificationId) => {
         try {
             await notificationService. deleteNotification(notificationId);
@@ -67,7 +66,6 @@ const UserNotificationsScreen = ({ navigation }) => {
         }
     };
 
-    // ✅ NUEVO: Marcar todas como leídas
     const handleMarkAllAsRead = async () => {
         try {
             await notificationService.markAllAsRead(user.uid);
@@ -136,7 +134,6 @@ const UserNotificationsScreen = ({ navigation }) => {
                     {! item.read && <View style={styles.unreadDot} />}
                 </TouchableOpacity>
 
-                {/* ✅ NUEVO: Botón de eliminar */}
                 <TouchableOpacity 
                     style={styles. deleteButton}
                     onPress={() => handleDeleteNotification(item.id)}
@@ -173,7 +170,6 @@ const UserNotificationsScreen = ({ navigation }) => {
                     <Ionicons name="arrow-back" size={28} color="#262626" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Notificaciones</Text>
-                {/* ✅ NUEVO: Botón marcar todas como leídas */}
                 {unreadCount > 0 && (
                     <TouchableOpacity onPress={handleMarkAllAsRead}>
                         <Text style={styles.markAllButton}>Marcar todas</Text>

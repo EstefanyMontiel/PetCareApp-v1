@@ -1,8 +1,3 @@
-// ============================================
-// 📅 AGENDA CALENDAR COMPONENT
-// ============================================
-// ✅ Calendario memoizado para evitar re-renders
-
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
@@ -22,7 +17,7 @@ LocaleConfig.locales['es'] = {
 LocaleConfig.defaultLocale = 'es';
 
 const AgendaCalendar = ({ markedDates, selectedDate, onDayPress }) => {
-    // ✅ Memoiza la configuración de fechas marcadas
+    // Memoiza la configuración de fechas marcadas
     const finalMarkedDates = useMemo(() => ({
         ...markedDates,
         [selectedDate]: {
@@ -32,7 +27,7 @@ const AgendaCalendar = ({ markedDates, selectedDate, onDayPress }) => {
         },
     }), [markedDates, selectedDate]);
 
-    // ✅ Tema del calendario memoizado
+    // Tema del calendario memoizado
     const calendarTheme = useMemo(() => ({
         backgroundColor: '#ffffff',
         calendarBackground: '#ffffff',

@@ -1,8 +1,4 @@
-// ============================================
-// 📍 USE MARKED DATES HOOK
-// ============================================
-// ✅ Procesa eventos para marcar fechas en el calendario
-// ✅ Memoizado para evitar re-cálculos innecesarios
+
 
 import { useMemo } from 'react';
 import { formatDateToString } from '../../../utils/agenda/dateFormatters';
@@ -14,7 +10,6 @@ import { getEventColor } from '../../../utils/agenda/eventHelpers';
  * @returns {Object} Objeto con fechas marcadas para react-native-calendars
  */
 export const useMarkedDates = (events) => {
-    // ✅ Memoiza el procesamiento - solo recalcula si cambia events
     const markedDates = useMemo(() => {
         const marked = {};
         
