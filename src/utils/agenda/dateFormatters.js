@@ -17,16 +17,19 @@ export const formatDateToString = (date) => {
 };
 
 /**
- * Formatea una fecha a formato legible en español
+ * Formatea una fecha a formato legible según el idioma
  * @param {Date|string} date - Fecha a formatear
- * @returns {string} Ej: "15 de enero de 2025"
+ * @param {string} locale - Idioma ('es' o 'en')
+ * @returns {string} Ej: "15 de enero de 2025" (es) o "January 15, 2025" (en)
  */
-export const formatDate = (date) => {
+export const formatDate = (date, locale = 'es') => {
+    const localeCode = locale === 'en' ? 'en-US' : 'es-ES';
+    
     // Si es un string en formato YYYY-MM-DD, parsearlo manualmente
     if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
         const [year, month, day] = date.split('-');
         const d = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-        return d.toLocaleDateString('es-ES', {
+        return d.toLocaleDateString(localeCode, {
             day: '2-digit',
             month: 'long',
             year: 'numeric',
@@ -35,7 +38,7 @@ export const formatDate = (date) => {
     
     // Si es un objeto Date, usarlo directamente
     const d = new Date(date);
-    return d.toLocaleDateString('es-ES', {
+    return d.toLocaleDateString(localeCode, {
         day: '2-digit',
         month: 'long',
         year: 'numeric',
@@ -43,13 +46,15 @@ export const formatDate = (date) => {
 };
 
 /**
- * Formatea una hora a formato de 12 horas
+ * Formatea una hora a formato de 12 horas según el idioma
  * @param {Date} date - Fecha con hora
+ * @param {string} locale - Idioma ('es' o 'en')
  * @returns {string} Ej: "02:30 PM"
  */
-export const formatTime = (date) => {
+export const formatTime = (date, locale = 'es') => {
+    const localeCode = locale === 'en' ? 'en-US' : 'es-ES';
     const d = new Date(date);
-    return d.toLocaleTimeString('es-ES', {
+    return d.toLocaleTimeString(localeCode, {
         hour: '2-digit',
         minute: '2-digit',
     });

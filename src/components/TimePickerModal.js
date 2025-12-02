@@ -10,6 +10,7 @@ import {
     TouchableWithoutFeedback,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../context/LanguageContext';
 
 const TimePickerModal = ({ 
     visible, 
@@ -18,9 +19,13 @@ const TimePickerModal = ({
     selectedTime = new Date(),
     is24Hour = false 
 }) => {
+    const { t, language } = useLanguage();
     const [hour, setHour] = useState(selectedTime.getHours());
     const [minute, setMinute] = useState(selectedTime.getMinutes());
     const [period, setPeriod] = useState(selectedTime.getHours() >= 12 ? 'PM' : 'AM');
+
+    // Verificación de seguridad
+    if (!t || !language) return null;
 
     useEffect(() => {
         if (visible) {
@@ -70,7 +75,7 @@ const TimePickerModal = ({
                             <View style={styles.header}>
                                 <View style={styles.headerLeft}>
                                     <Ionicons name="time" size={24} color="#4ECDC4" />
-                                    <Text style={styles.headerTitle}>Selecciona una hora</Text>
+                                    <Text style={styles.headerTitle}>{t('timePicker.selectTime')}</Text>
                                 </View>
                                 <TouchableOpacity onPress={onClose}>
                                     <Ionicons name="close" size={24} color="#7F8C8D" />
@@ -89,7 +94,7 @@ const TimePickerModal = ({
                             <View style={styles.pickerContainer}>
                                 {/* Selector de horas */}
                                 <View style={styles.pickerColumn}>
-                                    <Text style={styles.pickerLabel}>Hora</Text>
+                                    <Text style={styles.pickerLabel}>{t('timePicker.hour')}</Text>
                                     <ScrollView 
                                         style={styles.scrollPicker}
                                         showsVerticalScrollIndicator={false}
@@ -122,7 +127,7 @@ const TimePickerModal = ({
 
                                 {/* Selector de minutos */}
                                 <View style={styles.pickerColumn}>
-                                    <Text style={styles.pickerLabel}>Minuto</Text>
+                                    <Text style={styles.pickerLabel}>{t('timePicker.minute')}</Text>
                                     <ScrollView 
                                         style={styles.scrollPicker}
                                         showsVerticalScrollIndicator={false}
@@ -198,14 +203,14 @@ const TimePickerModal = ({
                                     style={styles.cancelButton}
                                     onPress={onClose}
                                 >
-                                    <Text style={styles.cancelButtonText}>Cancelar</Text>
+                                    <Text style={styles.cancelButtonText}>{t('timePicker.cancel')}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.confirmButton}
                                     onPress={handleConfirm}
                                 >
                                     <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                                    <Text style={styles.confirmButtonText}>Confirmar</Text>
+                                    <Text style={styles.confirmButtonText}>{t('timePicker.confirm')}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>

@@ -5,8 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import styles from '../../../styles/AgendaScreenStyles';
 import { getEventColor, getEventTypeIcon } from '../../../utils/agenda/eventHelpers';
 import { formatTime } from '../../../utils/agenda/dateFormatters';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const EventCard = ({ event, onToggleComplete, onDelete }) => {
+    const { language } = useLanguage();
+    
+    if (!language) return null;
+    
     const eventColor = getEventColor(event.type);
     const eventIcon = getEventTypeIcon(event.type);
     const eventDate = event.date.toDate ? event.date.toDate() : new Date(event.date);
@@ -38,7 +43,7 @@ const EventCard = ({ event, onToggleComplete, onDelete }) => {
                         {event.title}
                     </Text>
                     <Text style={styles.eventTime}>
-                        🕐 {formatTime(eventDate)}
+                        🕐 {formatTime(eventDate, language)}
                     </Text>
                     {event.petName && (
                         <Text style={styles.eventPet}>🐾 {event.petName}</Text>

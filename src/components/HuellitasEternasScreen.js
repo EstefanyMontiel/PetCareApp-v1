@@ -82,11 +82,9 @@ useEffect(() => {
     };
 }, []);
 
-// ✅ NUEVO: Manejar navegación desde notificaciones
 useEffect(() => {
     if (route.params?.openPost) {
         const postId = route.params.openPost;
-        console.log('📬 Abriendo post desde notificación:', postId);
         
         // Cambiar a la pestaña de comunidad
         setActiveTab('community');
@@ -109,7 +107,6 @@ useEffect(() => {
                         setShowCommentsModal(true);
                     }, 300); // Pequeño delay para que la UI se actualice
                 } else {
-                    console.warn('⚠️ Post no encontrado:', postId);
                     Alert. alert('Post no encontrado', 'El post que buscas ya no está disponible');
                 }
                 

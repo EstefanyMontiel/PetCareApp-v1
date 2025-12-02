@@ -11,6 +11,7 @@ import {
     Platform
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
 import { petImageService, petArchiveService } from '../../services/petServices';
 import { useImagePicker } from '../../hooks/useImagePicker';
@@ -19,9 +20,21 @@ import SafeContainer from '../SafeContainer';
 
 const HomeScreen = ({ navigation }) => {
     const { user, userProfile, userPets, logout, loadUserPets } = useAuth();
+    const { t } = useLanguage();
     const [refreshing, setRefreshing] = useState(false);
     const [uploadingImage, setUploadingImage] = useState({});
     const { pickImage, takePhoto } = useImagePicker();
+
+    // Verificación de seguridad para evitar errores durante la inicialización
+    if (!t) {
+        return (
+            <SafeContainer>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="large" color="#4ECDC4" />
+                </View>
+            </SafeContainer>
+        );
+    }
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -38,13 +51,13 @@ const HomeScreen = ({ navigation }) => {
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
         if (diffDays < 30) {
-            return `${diffDays} días`;
+            return `${diffDays} ${t('common.days')}`;
         } else if (diffDays < 365) {
             const months = Math.floor(diffDays / 30);
-            return `${months} ${months === 1 ? 'mes' : 'meses'}`;
+            return `${months} ${months === 1 ? t('common.month') : t('common.months')}`;
         } else {
             const years = Math.floor(diffDays / 365);
-            return `${years} ${years === 1 ? 'año' : 'años'}`;
+            return `${years} ${years === 1 ? t('common.year') : t('common.years')}`;
         }
     };
 
@@ -82,19 +95,19 @@ const HomeScreen = ({ navigation }) => {
 
     const handleImageSelection = (petId) => {
         Alert.alert(
-            'Cambiar foto de perfil',
-            'Selecciona una opción',
+            t('home.changeProfilePhoto'),
+            t('common.selectOption'),
             [
                 {
-                    text: 'Cámara',
+                    text: t('common.camera'),
                     onPress: () => selectImageFromCamera(petId)
                 },
                 {
-                    text: 'Galería',
+                    text: t('common.gallery'),
                     onPress: () => selectImageFromGallery(petId)
                 },
                 {
-                    text: 'Cancelar',
+                    text: t('common.cancel'),
                     style: 'cancel'
                 }
             ]
@@ -121,10 +134,10 @@ const HomeScreen = ({ navigation }) => {
             const imageUrl = await petImageService.uploadPetImage(petId, imageUri);
             await petImageService.updatePetImage(petId, imageUrl);
             await loadUserPets(user.uid);
-            Alert.alert('Éxito', 'Foto actualizada correctamente');
+            Alert.alert(t('common.success'), t('home.photoUpdateSuccess'));
         } catch (error) {
             console.error('Error uploading image:', error);
-            Alert.alert('Error', 'No se pudo actualizar la foto');
+            Alert.alert(t('common.error'), t('home.photoUpdateError'));
         } finally {
             setUploadingImage(prev => ({ ...prev, [petId]: false }));
         }
@@ -132,21 +145,21 @@ const HomeScreen = ({ navigation }) => {
 
     const handleArchivePet = (pet) => {
         Alert.alert(
-            '💔 Archivar Mascota',
-            `¿Deseas mover a ${pet.nombre} a "Huellitas Eternas"?\n\nEsta acción marcará a tu mascota como inactiva.`,
+            t('home.archiveTitle'),
+            t('home.archiveMessage', { petName: pet.nombre }),
             [
-                { text: 'Cancelar', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Archivar',
+                    text: t('home.archiveButton'),
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await petArchiveService.archivePet(pet.id);
                             await loadUserPets(user.uid);
-                            Alert.alert('✓ Archivada', `${pet.nombre} ha sido movida a Huellitas Eternas`);
+                            Alert.alert(t('home.archiveSuccess'), t('home.archiveSuccessMessage', { petName: pet.nombre }));
                         } catch (error) {
                             console.error('Error archivando mascota:', error);
-                            Alert.alert('Error', 'No se pudo archivar la mascota.');
+                            Alert.alert(t('common.error'), t('home.archiveError'));
                         }
                     }
                 }
@@ -158,28 +171,28 @@ const HomeScreen = ({ navigation }) => {
 const showPetOptions = (pet) => {
     Alert.alert(
         pet.nombre,
-        'Selecciona una opción',
+        t('common.selectOption'),
         [
             {
-                text: 'Editar información',
+                text: t('home.editInfo'),
                 onPress: () => navigateToOption(pet, 'edit')
             },
             {
-                text: 'Cambiar foto',
+                text: t('home.changePhoto'),
                 onPress: () => handleImageSelection(pet.id)
             },
             {
-                text: 'Archivar mascota',
+                text: t('home.archivePet'),
                 onPress: () => handleArchivePet(pet),
                 style: 'default'
             },
             {
-                text: 'Eliminar permanentemente',
+                text: t('home.deletePermanently'),
                 onPress: () => handleDeletePet(pet),
                 style: 'destructive'
             },
             {
-                text: 'Cancelar',
+                text: t('common.cancel'),
                 style: 'cancel'
             }
         ]
@@ -188,22 +201,22 @@ const showPetOptions = (pet) => {
 
 const handleDeletePet = (pet) => {
     Alert.alert(
-        '⚠️ Eliminar Permanentemente',
-        `¿Estás seguro de que deseas eliminar a ${pet.nombre}?\n\nESTA ACCIÓN NO SE PUEDE DESHACER.\n\nSi prefieres conservar los recuerdos, usa "Archivar mascota" en su lugar.`,
+        t('home.deleteTitle'),
+        t('home.deleteMessage', { petName: pet.nombre }),
         [
-            { text: 'Cancelar', style: 'cancel' },
+            { text: t('common.cancel'), style: 'cancel' },
             {
-                text: 'Eliminar',
+                text: t('home.deleteButton'),
                 style: 'destructive',
                 onPress: async () => {
                     try {
                         const { petManagementService } = require('../../services/petServices');
                         await petManagementService.deletePet(pet.id);
                         await loadUserPets(user.uid);
-                        Alert.alert('✓ Eliminada', `${pet.nombre} ha sido eliminada permanentemente`);
+                        Alert.alert(t('home.deleteSuccess'), t('home.deleteSuccessMessage', { petName: pet.nombre }));
                     } catch (error) {
                         console.error('Error eliminando mascota:', error);
-                        Alert.alert('Error', 'No se pudo eliminar la mascota: ' + error.message);
+                        Alert.alert(t('common.error'), t('home.deleteError', { error: error.message }));
                     }
                 }
             }
@@ -269,7 +282,7 @@ const handleDeletePet = (pet) => {
                         <View style={styles.optionIconContainer}>
                             <Ionicons name="medical" size={18} color="#4ECDC4" />
                         </View>
-                        <Text style={styles.optionText}>Vacunación</Text>
+                        <Text style={styles.optionText}>{t('home.vaccination')}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={18} color="#ccc" />
                 </TouchableOpacity>
@@ -282,7 +295,7 @@ const handleDeletePet = (pet) => {
                         <View style={styles.optionIconContainer}>
                             <Ionicons name="shield-checkmark" size={18} color="#4ECDC4" />
                         </View>
-                        <Text style={styles.optionText}>Desparasitación</Text>
+                        <Text style={styles.optionText}>{t('home.deworming')}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={18} color="#ccc" />
                 </TouchableOpacity>
@@ -295,7 +308,7 @@ const handleDeletePet = (pet) => {
                         <View style={styles.optionIconContainer}>
                             <Ionicons name="clipboard" size={18} color="#4ECDC4" />
                         </View>
-                        <Text style={styles.optionText}>Examen anual</Text>
+                        <Text style={styles.optionText}>{t('home.annualExam')}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={18} color="#ccc" />
                 </TouchableOpacity>
@@ -309,17 +322,15 @@ const handleDeletePet = (pet) => {
 <View style={styles.headerContainer}>
     <View style={styles.header}>
         {/* Logo con ícono */}
-        <View style={styles.logoContainer}>
+            <View style={styles.logoContainer}>
             <View style={styles.logoIconWrapper}>
                 <Ionicons name="paw" size={18} color="#fff" />
             </View>
             <View style={styles.logoTextContainer}>
-                <Text style={styles.logoText}>PetCare</Text>
-                <Text style={styles.logoSubtext}>Tu compañero de confianza</Text>
+                <Text style={styles.logoText}>{t('home.title')}</Text>
+                <Text style={styles.logoSubtext}>{t('home.subtitle')}</Text>
             </View>
-        </View>
-        
-        <TouchableOpacity 
+        </View>        <TouchableOpacity 
             style={styles.addPetButton}
             onPress={() => navigation.navigate('PetRegister')}
             activeOpacity={0.7}
@@ -352,9 +363,9 @@ const handleDeletePet = (pet) => {
                                 <Ionicons name="heart" size={22} color="#E74C3C" />
                             </View>
                             <View style={styles.huellitasTextContainer}>
-                                <Text style={styles.huellitasTitle}>Huellitas Eternas</Text>
+                                <Text style={styles.huellitasTitle}>{t('home.huellitasEternas')}</Text>
                                 <Text style={styles.huellitasSubtitle}>
-                                    Honra la memoria de tus compañeros
+                                    {t('home.huellitasSubtitle')}
                                 </Text>
                             </View>
                             <Ionicons name="chevron-forward" size={20} color="#E74C3C" />
@@ -363,15 +374,15 @@ const handleDeletePet = (pet) => {
                 ) : (
                     <View style={styles.emptyState}>
                         <Ionicons name="paw-outline" size={64} color="#ccc" />
-                        <Text style={styles.emptyStateTitle}>No tienes mascotas registradas</Text>
+                        <Text style={styles.emptyStateTitle}>{t('home.emptyStateTitle')}</Text>
                         <Text style={styles.emptyStateText}>
-                            Agrega tu primera mascota para comenzar
+                            {t('home.emptyStateText')}
                         </Text>
                         <TouchableOpacity 
                             style={styles.emptyStateButton}
                             onPress={() => navigation.navigate('PetRegister')}
                         >
-                            <Text style={styles.emptyStateButtonText}>Registrar Mascota</Text>
+                            <Text style={styles.emptyStateButtonText}>{t('home.registerPetButton')}</Text>
                         </TouchableOpacity>
                     </View>
                 )}

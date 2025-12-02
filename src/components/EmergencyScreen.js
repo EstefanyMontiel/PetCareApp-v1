@@ -10,16 +10,21 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../context/LanguageContext';
 import { placesService } from '../services/placesService';
 import VeterinaryCard from './VeterinaryCard';
 import { emergencyStyles } from '../styles/emergencyStyles';
 import { colors } from '../styles/colors';
 
 export default function EmergencyScreen() {
+  const { t } = useLanguage();
   const [veterinaries, setVeterinaries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false); // 🆕 Loading para detalles
   const [showList, setShowList] = useState(false);
+
+  // Verificación de seguridad
+  if (!t) return null;
 
   const handleLocateEmergencyVets = async () => {
     try {
@@ -30,28 +35,25 @@ export default function EmergencyScreen() {
       let { status } = await Location.requestForegroundPermissionsAsync();
       
       if (status !== 'granted') {
-        Alert.alert('Error', 'Se necesita permiso de ubicación');
+        Alert.alert(t('common.error'), t('emergency.locationPermissionError'));
         setLoading(false);
         return;
       }
 
       // Obtener ubicación
-      console.log('📍 Obteniendo ubicación...');
       let location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.High,
       });
 
       const { latitude, longitude } = location.coords;
-      console.log(`📍 Ubicación: ${latitude}, ${longitude}`);
 
       // Buscar veterinarias
       const results = await placesService.search24HourVeterinaries(latitude, longitude);
-      console.log(`📋 Resultados obtenidos: ${results.length}`);
 
       if (results.length === 0) {
         Alert.alert(
-          'Sin resultados',
-          'No se encontraron veterinarias de emergencia cercanas.'
+          t('emergency.noResults'),
+          t('emergency.noResultsMessage')
         );
         setVeterinaries([]);
         setLoading(false);
@@ -95,14 +97,12 @@ export default function EmergencyScreen() {
 
         console.log('✅ Detalles cargados correctamente');
       } catch (detailError) {
-        console.log('⚠️ No se pudieron cargar algunos detalles');
       } finally {
         setLoadingDetails(false);
       }
       
     } catch (error) {
-      console.error('❌ Error completo:', error);
-      Alert.alert('Error', `No se pudieron cargar las veterinarias: ${error.message}`);
+      Alert.alert(t('common.error'), `${t('emergency.loadError')}: ${error.message}`);
       setVeterinaries([]);
       setLoading(false);
     }
@@ -122,11 +122,10 @@ export default function EmergencyScreen() {
             </View>
           </View>
 
-          <Text style={emergencyStyles.title}>Emergencia</Text>
+          <Text style={emergencyStyles.title}>{t('emergency.title')}</Text>
 
           <Text style={emergencyStyles.description}>
-            Encuentra rápidamente las clínicas veterinarias de emergencia 24/7 
-            más cercanas a tu ubicación actual.
+            {t('emergency.description')}
           </Text>
 
           <TouchableOpacity
@@ -140,7 +139,7 @@ export default function EmergencyScreen() {
               <>
                 <Ionicons name="location" size={24} color={colors.surface} />
                 <Text style={emergencyStyles.locateButtonText}>
-                  Localizar clínica
+                  {t('emergency.locateButton')}
                 </Text>
               </>
             )}

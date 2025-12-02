@@ -14,16 +14,21 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import SafeContainer from './SafeContainer';
 import styles from '../styles/LoginScreenStyles';
 
 const LoginScreen = ({ navigation }) => {
   const { login } = useAuth();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     correo: '',
     password: '',
   });
+
+  // Verificación de seguridad
+  if (!t) return null;
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -39,18 +44,18 @@ const LoginScreen = ({ navigation }) => {
       case 'correo':
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!value) {
-          newErrors.correo = 'El correo es requerido';
+          newErrors.correo = t('login.emailRequired');
         } else if (!emailRegex.test(value)) {
-          newErrors.correo = 'Ingresa un correo válido';
+          newErrors.correo = t('login.emailInvalid');
         } else {
           delete newErrors.correo;
         }
         break;
       case 'password':
         if (!value) {
-          newErrors.password = 'La contraseña es requerida';
+          newErrors.password = t('login.passwordRequired');
         } else if (value.length < 6) {
-          newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+          newErrors.password = t('login.passwordMinLength');
         } else {
           delete newErrors.password;
         }
@@ -107,9 +112,9 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = async () => {
     if (!validateForm()) {
       Alert.alert(
-        'Error en el formulario',
-        'Por favor, corrige los errores antes de continuar',
-        [{ text: 'OK' }]
+        t('login.formError'),
+        t('login.formErrorMessage'),
+        [{ text: t('common.ok') }]
       );
       return;
     }
@@ -129,29 +134,29 @@ const LoginScreen = ({ navigation }) => {
       setTouched({});
     } catch (error) {
       console.error('Error en login:', error);
-      let errorMessage = 'Ocurrió un error durante el inicio de sesión';
+      let errorMessage = t('login.unknownError');
 
       switch (error.code) {
         case 'auth/user-not-found':
-          errorMessage = 'No existe una cuenta con este correo';
+          errorMessage = t('login.userNotFound');
           break;
         case 'auth/wrong-password':
-          errorMessage = 'Contraseña incorrecta';
+          errorMessage = t('login.wrongPassword');
           break;
         case 'auth/invalid-email':
-          errorMessage = 'El correo electrónico no es válido';
+          errorMessage = t('login.invalidEmail');
           break;
         case 'auth/too-many-requests':
-          errorMessage = 'Demasiados intentos fallidos. Intenta más tarde';
+          errorMessage = t('login.tooManyRequests');
           break;
         case 'auth/invalid-credential':
-          errorMessage = 'Credenciales inválidas. Verifica tu email y contraseña';
+          errorMessage = t('login.invalidCredential');
           break;
         default:
-          errorMessage = error.message || 'Error desconocido';
+          errorMessage = error.message || t('login.unknownError');
       }
 
-      Alert.alert('Error de inicio de sesión', errorMessage);
+      Alert.alert(t('login.loginError'), errorMessage);
     } finally {
       setLoading(false);
     }
@@ -178,15 +183,15 @@ const LoginScreen = ({ navigation }) => {
               source={require('../../assets/LogoApp.png')}
               resizeMode="contain"
             />
-            <Text style={styles.labelTitle}>¡Bienvenido!</Text>
-            <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
+            <Text style={styles.labelTitle}>{t('login.title')}</Text>
+            <Text style={styles.subtitle}>{t('login.subtitle')}</Text>
           </View>
 
           {/* Formulario */}
           <View style={styles.formContainer}>
             {/* Campo Correo */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Correo Electrónico</Text>
+              <Text style={styles.label}>{t('login.email')}</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={[
@@ -194,7 +199,7 @@ const LoginScreen = ({ navigation }) => {
                     focusedInput === 'correo' && styles.inputFocused,
                     touched.correo && errors.correo && styles.inputError,
                   ]}
-                  placeholder="ejemplo@correo.com"
+                  placeholder={t('login.emailPlaceholder')}
                   placeholderTextColor="#BDC3C7"
                   value={formData.correo}
                   onChangeText={(text) => handleChange('correo', text)}
@@ -216,7 +221,7 @@ const LoginScreen = ({ navigation }) => {
 
             {/* Campo Contraseña */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Contraseña</Text>
+              <Text style={styles.label}>{t('login.password')}</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={[
@@ -225,7 +230,7 @@ const LoginScreen = ({ navigation }) => {
                     touched.password && errors.password && styles.inputError,
                     { paddingRight: 50 },
                   ]}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder={t('login.passwordPlaceholder')}
                   placeholderTextColor="#BDC3C7"
                   value={formData.password}
                   onChangeText={(text) => handleChange('password', text)}
@@ -262,7 +267,7 @@ const LoginScreen = ({ navigation }) => {
               {loading ? (
                 <ActivityIndicator color="white" size="small" />
               ) : (
-                <Text style={styles.buttonText}>Iniciar Sesión</Text>
+                <Text style={styles.buttonText}>{t('login.loginButton')}</Text>
               )}
             </TouchableOpacity>
 
@@ -272,7 +277,7 @@ const LoginScreen = ({ navigation }) => {
               style={styles.link}
             >
               <Text style={styles.linkText}>
-                ¿No tienes cuenta? Regístrate aquí
+                {t('login.noAccount')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -280,7 +285,7 @@ const LoginScreen = ({ navigation }) => {
           {/* Footer */}
           <View style={styles.footerContainer}>
             <Text style={styles.footerText}>
-              Al continuar, aceptas nuestros términos y condiciones
+              {t('login.footer')}
             </Text>
           </View>
         </ScrollView>

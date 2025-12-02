@@ -14,16 +14,21 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import styles from '../styles/LoginScreenStyles';
 import SafeContainer from './SafeContainer';
 
 export default function RegisterScreen({ navigation }) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     nombre: '',
     correo: '',
     password: '',
     confirmPassword: '',
   });
+
+  // Verificación de seguridad
+  if (!t) return null;
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [loading, setLoading] = useState(false);
@@ -39,9 +44,9 @@ export default function RegisterScreen({ navigation }) {
     switch (name) {
       case 'nombre':
         if (!value.trim()) {
-          newErrors.nombre = 'El nombre es requerido';
+          newErrors.nombre = t('register.nameRequired');
         } else if (value.trim().length < 2) {
-          newErrors.nombre = 'El nombre debe tener al menos 2 caracteres';
+          newErrors.nombre = t('register.nameMin');
         } else {
           delete newErrors.nombre;
         }
@@ -49,27 +54,27 @@ export default function RegisterScreen({ navigation }) {
       case 'correo':
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!value) {
-          newErrors.correo = 'El correo es requerido';
+          newErrors.correo = t('register.emailRequired');
         } else if (!emailRegex.test(value)) {
-          newErrors.correo = 'Ingresa un correo válido';
+          newErrors.correo = t('register.emailInvalid');
         } else {
           delete newErrors.correo;
         }
         break;
       case 'password':
         if (!value) {
-          newErrors.password = 'La contraseña es requerida';
+          newErrors.password = t('register.passwordRequired');
         } else if (value.length < 6) {
-          newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+          newErrors.password = t('register.passwordMin');
         } else {
           delete newErrors.password;
         }
         break;
       case 'confirmPassword':
         if (!value) {
-          newErrors.confirmPassword = 'Confirma tu contraseña';
+          newErrors.confirmPassword = t('register.confirmPasswordRequired');
         } else if (value !== formData.password) {
-          newErrors.confirmPassword = 'Las contraseñas no coinciden';
+          newErrors.confirmPassword = t('register.passwordMismatch');
         } else {
           delete newErrors.confirmPassword;
         }
@@ -151,11 +156,11 @@ export default function RegisterScreen({ navigation }) {
       setErrors({});
 
       Alert.alert(
-        '¡Registro Exitoso!',
-        'Tu cuenta ha sido creada correctamente',
+        t('register.successTitle'),
+        t('register.successMessage'),
         [
           {
-            text: 'Continuar',
+            text: t('register.continueButton'),
             onPress: () => {},
           },
         ]
@@ -163,26 +168,26 @@ export default function RegisterScreen({ navigation }) {
     } catch (error) {
       console.error('❌ Error en registro:', error);
 
-      let errorMessage = 'Ocurrió un error durante el registro';
+      let errorMessage = t('register.unknownError');
 
       switch (error.code) {
         case 'auth/email-already-in-use':
-          errorMessage = 'Este correo electrónico ya está registrado';
+          errorMessage = t('register.emailInUse');
           break;
         case 'auth/invalid-email':
-          errorMessage = 'El correo electrónico no es válido';
+          errorMessage = t('register.emailInvalid2');
           break;
         case 'auth/weak-password':
-          errorMessage = 'La contraseña es demasiado débil';
+          errorMessage = t('register.weakPassword');
           break;
         case 'auth/network-request-failed':
-          errorMessage = 'Error de conexión. Verifica tu internet';
+          errorMessage = t('register.networkError');
           break;
         default:
-          errorMessage = error.message || 'Error desconocido';
+          errorMessage = error.message || t('register.unknownError');
       }
 
-      Alert.alert('Error de registro', errorMessage);
+      Alert.alert(t('register.registerError'), errorMessage);
     } finally {
       setLoading(false);
     }
@@ -225,15 +230,15 @@ export default function RegisterScreen({ navigation }) {
               source={require('../../assets/LogoApp.png')}
               resizeMode="contain"
             />
-            <Text style={styles.labelTitle}>Crear Cuenta</Text>
-            <Text style={styles.subtitle}>Únete a nuestra comunidad</Text>
+            <Text style={styles.labelTitle}>{t('register.title')}</Text>
+            <Text style={styles.subtitle}>{t('register.subtitle')}</Text>
           </View>
 
           {/* Formulario */}
           <View style={styles.formContainer}>
             {/* Campo Nombre */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Nombre Completo</Text>
+              <Text style={styles.label}>{t('register.name')}</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={[
@@ -241,7 +246,7 @@ export default function RegisterScreen({ navigation }) {
                     focusedInput === 'nombre' && styles.inputFocused,
                     touched.nombre && errors.nombre && styles.inputError,
                   ]}
-                  placeholder="Tu nombre completo"
+                  placeholder={t('register.namePlaceholder')}
                   placeholderTextColor="#BDC3C7"
                   value={formData.nombre}
                   onChangeText={(text) => handleChange('nombre', text)}
@@ -262,7 +267,7 @@ export default function RegisterScreen({ navigation }) {
 
             {/* Campo Correo */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Correo Electrónico</Text>
+              <Text style={styles.label}>{t('register.email')}</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={[
@@ -270,7 +275,7 @@ export default function RegisterScreen({ navigation }) {
                     focusedInput === 'correo' && styles.inputFocused,
                     touched.correo && errors.correo && styles.inputError,
                   ]}
-                  placeholder="ejemplo@correo.com"
+                  placeholder={t('register.emailPlaceholder')}
                   placeholderTextColor="#BDC3C7"
                   value={formData.correo}
                   onChangeText={(text) => handleChange('correo', text)}
@@ -292,7 +297,7 @@ export default function RegisterScreen({ navigation }) {
 
             {/* Campo Contraseña */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Contraseña</Text>
+              <Text style={styles.label}>{t('register.password')}</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={[
@@ -301,7 +306,7 @@ export default function RegisterScreen({ navigation }) {
                     touched.password && errors.password && styles.inputError,
                     { paddingRight: 50 },
                   ]}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder={t('register.passwordPlaceholder')}
                   placeholderTextColor="#BDC3C7"
                   value={formData.password}
                   onChangeText={(text) => handleChange('password', text)}
@@ -344,7 +349,7 @@ export default function RegisterScreen({ navigation }) {
 
             {/* Campo Confirmar Contraseña */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Confirmar Contraseña</Text>
+              <Text style={styles.label}>{t('register.confirmPassword')}</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={[
@@ -355,7 +360,7 @@ export default function RegisterScreen({ navigation }) {
                       styles.inputError,
                     { paddingRight: 50 },
                   ]}
-                  placeholder="Confirma tu contraseña"
+                  placeholder={t('register.confirmPasswordPlaceholder')}
                   placeholderTextColor="#BDC3C7"
                   value={formData.confirmPassword}
                   onChangeText={(text) => handleChange('confirmPassword', text)}
@@ -392,7 +397,7 @@ export default function RegisterScreen({ navigation }) {
               {loading ? (
                 <ActivityIndicator color="white" size="small" />
               ) : (
-                <Text style={styles.buttonText}>Crear Cuenta</Text>
+                <Text style={styles.buttonText}>{t('register.registerButton')}</Text>
               )}
             </TouchableOpacity>
 
@@ -402,7 +407,7 @@ export default function RegisterScreen({ navigation }) {
               style={styles.link}
             >
               <Text style={styles.linkText}>
-                ¿Ya tienes cuenta? Inicia sesión aquí
+                {t('register.hasAccount')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -410,7 +415,7 @@ export default function RegisterScreen({ navigation }) {
           {/* Footer */}
           <View style={styles.footerContainer}>
             <Text style={styles.footerText}>
-              Al registrarte, aceptas nuestros términos y condiciones
+              {t('register.footer')}
             </Text>
           </View>
         </ScrollView>

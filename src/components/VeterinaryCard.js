@@ -2,15 +2,21 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Linking, Platform, Alert, Share} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../context/LanguageContext';
 import { emergencyStyles } from '../styles/emergencyStyles';
 import { colors } from '../styles/colors';
 
 export default function VeterinaryCard({ veterinary, showActions = true }) {
+  const { t } = useLanguage();
+  
+  // Verificación de seguridad
+  if (!t) return null;
+  
   const handleCall = () => {
     if (veterinary.formatted_phone_number) {
       Linking.openURL(`tel:${veterinary.formatted_phone_number}`);
     } else {
-      Alert.alert('Información', 'No hay número de teléfono disponible');
+      Alert.alert(t('veterinary.information'), t('veterinary.noPhone'));
     }
   };
 
@@ -26,16 +32,16 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
     try {
       const message = `🐾 ${veterinary.name}\n\n` +
         `📍 ${veterinary.formatted_address || veterinary.vicinity}\n` +
-        `📞 ${veterinary.formatted_phone_number || 'Sin teléfono'}\n` +
-        `⭐ ${veterinary.rating ? `Calificación: ${veterinary.rating}` : 'Sin calificación'}\n\n` +
-        `📱 Ver en Maps: https://www.google.com/maps/search/?api=1&query=${veterinary.geometry.location.lat},${veterinary.geometry.location.lng}`;
+        `📞 ${veterinary.formatted_phone_number || t('veterinary.noPhoneAvailable')}\n` +
+        `⭐ ${veterinary.rating ? `${t('veterinary.rating')}: ${veterinary.rating}` : t('veterinary.noRating')}\n\n` +
+        `📱 ${t('veterinary.viewOnMaps')}: https://www.google.com/maps/search/?api=1&query=${veterinary.geometry.location.lat},${veterinary.geometry.location.lng}`;
 
       await Share.share({
         message: message,
-        title: `Compartir ${veterinary.name}`,
+        title: `${t('veterinary.share')} ${veterinary.name}`,
       });
     } catch (error) {
-      Alert.alert('Error', 'No se pudo compartir la información');
+      Alert.alert(t('veterinary.error'), t('veterinary.shareError'));
     }
   };
 
@@ -48,7 +54,7 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
             {veterinary.name}
           </Text>
           <Text style={emergencyStyles.vetCategory}>
-            Clínica Veterinaria
+            {t('veterinary.clinic')}
           </Text>
         </View>
         
@@ -57,7 +63,7 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
             <View style={[emergencyStyles.badge, emergencyStyles.badgeOpen]}>
               <Ionicons name="time" size={10} color={colors.success} />
               <Text style={[emergencyStyles.badgeText, emergencyStyles.badgeTextOpen]}>
-                Abierto
+                {t('veterinary.open')}
               </Text>
             </View>
           )}
@@ -65,7 +71,7 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
             <View style={[emergencyStyles.badge, emergencyStyles.badgeEmergency]}>
               <Ionicons name="flash" size={10} color={colors.secondary} />
               <Text style={[emergencyStyles.badgeText, emergencyStyles.badgeTextEmergency]}>
-                Cerca
+                {t('veterinary.nearby')}
               </Text>
             </View>
           )}
@@ -108,7 +114,7 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
             <Text style={emergencyStyles.metricValue}>
               ⭐ {veterinary.rating}
             </Text>
-            <Text style={emergencyStyles.metricLabel}>Calificación</Text>
+            <Text style={emergencyStyles.metricLabel}>{t('veterinary.rating')}</Text>
           </View>
         )}
         <View style={emergencyStyles.metric}>
@@ -127,7 +133,7 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
             onPress={handleCall}
           >
             <Ionicons name="call" size={18} color={colors.surface} />
-            <Text style={emergencyStyles.actionButtonText}>Llamar</Text>
+            <Text style={emergencyStyles.actionButtonText}>{t('veterinary.call')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -135,7 +141,7 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
             onPress={handleNavigate}
           >
             <Ionicons name="navigate" size={18} color={colors.surface} />
-            <Text style={emergencyStyles.actionButtonText}>Ir</Text>
+            <Text style={emergencyStyles.actionButtonText}>{t('veterinary.navigate')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

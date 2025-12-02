@@ -2,11 +2,12 @@
 import React, { useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../../../context/LanguageContext';
 import styles from '../../../styles/AgendaScreenStyles';
 import { getUpcomingEvents, getEventColor, getEventTypeIcon } from '../../../utils/agenda/eventHelpers';
 import { formatDate, formatTime, formatDateToString } from '../../../utils/agenda/dateFormatters';
 
-const UpcomingEventCard = React.memo(({ event, onPress }) => {
+const UpcomingEventCard = React.memo(({ event, onPress, language }) => {
     const eventDate = event.date.toDate ? event.date.toDate() : new Date(event.date);
     const eventColor = getEventColor(event.type);
     const eventIcon = getEventTypeIcon(event.type);
@@ -32,7 +33,7 @@ const UpcomingEventCard = React.memo(({ event, onPress }) => {
             <View style={styles.upcomingInfo}>
                 <Text style={styles.upcomingTitle}>{event.title}</Text>
                 <Text style={styles.upcomingDate}>
-                    📅 {formatDate(eventDate)} • {formatTime(eventDate)}
+                    📅 {formatDate(eventDate, language)} • {formatTime(eventDate, language)}
                 </Text>
                 {event.petName && (
                     <Text style={styles.upcomingPet}>🐾 {event.petName}</Text>
@@ -44,6 +45,11 @@ const UpcomingEventCard = React.memo(({ event, onPress }) => {
 });
 
 const UpcomingEvents = ({ events, onEventPress }) => {
+    const { t, language } = useLanguage();
+    
+    // Verificación de seguridad
+    if (!t || !language) return null;
+    
     const upcomingEvents = useMemo(() => getUpcomingEvents(events), [events]);
 
     const handleEventPress = useCallback((event) => {
@@ -56,12 +62,13 @@ const UpcomingEvents = ({ events, onEventPress }) => {
 
     return (
         <View style={styles.upcomingSection}>
-            <Text style={styles.upcomingSectionTitle}>📋 Próximos Eventos</Text>
+            <Text style={styles.upcomingSectionTitle}>📋 {t('agenda.upcomingEvents')}</Text>
             {upcomingEvents.map((event) => (
                 <UpcomingEventCard
                     key={event.id}
                     event={event}
                     onPress={() => handleEventPress(event)}
+                    language={language}
                 />
             ))}
         </View>
