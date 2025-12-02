@@ -714,7 +714,7 @@ const handlePublishNewMemory = async () => {
     };
 
     const formatDate = (date) => {
-        if (!date) return language === 'es' ? 'Fecha desconocida' : 'Unknown date';
+        if (!date) return t('common.unknownDate');
         const d = date.toDate ? date.toDate() : new Date(date);
         return d.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
             day: 'numeric',
@@ -891,9 +891,9 @@ const handlePublishNewMemory = async () => {
                         onPress={() => handleOpenComments(post)}
                     >
                         <Text style={styles.viewCommentsText}>
-                            {language === 'es' 
-                                ? `Ver ${post.comments.length === 1 ? 'el comentario' : `los ${post.comments.length} comentarios`}`
-                                : `View ${post.comments.length === 1 ? 'comment' : `all ${post.comments.length} comments`}`
+                            {post.comments.length === 1 
+                                ? t('huellitas.viewComment')
+                                : t('huellitas.viewComments').replace('{count}', post.comments.length)
                             }
                         </Text>
                     </TouchableOpacity>

@@ -84,7 +84,9 @@
         "search": "Buscar",
         "noResults": "Sin resultados",
         "retry": "Reintentar",
-        "required": "Requerido"
+        "required": "Requerido",
+        "notSet": "No establecida",
+        "unknownDate": "Fecha desconocida"
     },
     "auth": {
         "welcome": "¡Bienvenido!",
@@ -323,7 +325,7 @@
         "restore": "Restaurar",
         "restored": "{petName} ha sido restaurada",
         "restoreError": "No se pudo restaurar",
-        "viewComment": "el comentario",
-        "viewComments": "los {count} comentarios"
+        "viewComment": "Ver el comentario",
+        "viewComments": "Ver los {count} comentarios"
     }
 }

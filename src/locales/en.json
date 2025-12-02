@@ -86,7 +86,9 @@
         "search": "Search",
         "noResults": "No results",
         "retry": "Retry",
-        "required": "Required"
+        "required": "Required",
+        "notSet": "Not set",
+        "unknownDate": "Unknown date"
     },
     "auth": {
         "welcome": "Welcome!",
@@ -325,7 +327,7 @@
         "restore": "Restore",
         "restored": "{petName} has been restored",
         "restoreError": "Could not restore",
-        "viewComment": "the comment",
-        "viewComments": "all {count} comments"
+        "viewComment": "View comment",
+        "viewComments": "View all {count} comments"
     }
 }

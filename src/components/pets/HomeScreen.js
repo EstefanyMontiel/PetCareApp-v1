@@ -205,7 +205,7 @@ const handleDeletePet = (pet) => {
                         Alert.alert(`✓ ${t('home.deleted')}`, t('home.deletedSuccess').replace('{petName}', pet.nombre));
                     } catch (error) {
                         console.error('Error eliminando mascota:', error);
-                        Alert.alert(t('common.error'), t('home.deleteError') + ': ' + error.message);
+                        Alert.alert(t('common.error'), `${t('home.deleteError')}: ${error.message}`);
                     }
                 }
             }

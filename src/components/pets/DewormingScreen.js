@@ -48,7 +48,7 @@ const DewormingScreen = ({ route, navigation }) => {
 
     // Formatear fecha
     const formatDate = (date) => {
-        if (!date) return language === 'es' ? 'No establecida' : 'Not set';
+        if (!date) return t('common.notSet');
         const dateObj = date?.seconds 
             ? new Date(date.seconds * 1000) 
             : new Date(date);
