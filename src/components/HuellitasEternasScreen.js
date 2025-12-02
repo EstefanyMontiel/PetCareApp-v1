@@ -17,6 +17,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { petArchiveService } from '../services/petServices';
 import { communityService } from '../services/communityService';
 import styles from '../styles/HuellitasScreenStyles';
@@ -26,6 +27,7 @@ import { notificationService } from '../services/notificationService';
 
 export default function HuellitasEternasScreen({ navigation, route }) {
     const { user, userProfile } = useAuth();
+    const { t, language } = useLanguage();
     const [archivedPets, setArchivedPets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -185,25 +187,25 @@ useEffect(() => {
 const handleSelectImageForNewMemory = () => {
     console.log('🎯 handleSelectImageForNewMemory llamada');
     Alert.alert(
-        'Agregar Foto',
-        'Selecciona una opción',
+        t('huellitas.addPhoto'),
+        t('huellitas.selectOption'),
         [
             { 
-                text: 'Cámara', 
+                text: t('huellitas.camera'), 
                 onPress: () => {
                     console.log('📸 Opción cámara seleccionada');
                     takePhotoForNewMemory();
                 }
             },
             { 
-                text: 'Galería', 
+                text: t('huellitas.gallery'), 
                 onPress: () => {
                     console.log('🖼️ Opción galería seleccionada');
                     pickImageForNewMemory();
                 }
             },
             { 
-                text: 'Cancelar', 
+                text: t('common.cancel'), 
                 style: 'cancel',
                 onPress: () => console.log('❌ Selección cancelada')
             }
@@ -238,17 +240,17 @@ const takePhotoForNewMemory = async () => {
             setNewMemoryImage(imageUri);
             console.log('✅ Estado actualizado con imagen');
             
-            Alert.alert('Éxito', 'Foto capturada correctamente');
+            Alert.alert(t('common.success'), t('huellitas.photoSuccess'));
             return imageUri;
         } else {
             console.log('⚠️ Captura cancelada o sin assets');
-            Alert.alert('Aviso', 'No se capturó ninguna foto');
+            Alert.alert(t('common.error'), t('huellitas.noPhotoTaken'));
         }
         
         return null;
     } catch (error) {
         console.error('❌ Error tomando foto:', error);
-        Alert.alert('Error', 'No se pudo tomar la foto: ' + error.message);
+        Alert.alert(t('common.error'), t('huellitas.takePhotoError') + ': ' + error.message);
         return null;
     }
 };
@@ -280,17 +282,17 @@ const pickImageForNewMemory = async () => {
             setNewMemoryImage(imageUri);
             console.log('✅ Estado actualizado con imagen');
             
-            Alert.alert('Éxito', 'Imagen seleccionada correctamente');
+            Alert.alert(t('common.success'), t('huellitas.imageSuccess'));
             return imageUri;
         } else {
             console.log('⚠️ Selección cancelada o sin assets');
-            Alert.alert('Aviso', 'No se seleccionó ninguna imagen');
+            Alert.alert(t('common.error'), t('huellitas.noImageSelected'));
         }
         
         return null;
     } catch (error) {
         console.error('❌ Error seleccionando imagen:', error);
-        Alert.alert('Error', 'No se pudo seleccionar la imagen: ' + error.message);
+        Alert.alert(t('common.error'), t('huellitas.selectImageError') + ': ' + error.message);
         return null;
     }
 };
@@ -306,12 +308,12 @@ const handlePublishNewMemory = async () => {
         
         // ✅ VALIDACIONES
         if (!newMemoryImage) {
-            Alert.alert('Error', 'Debes agregar una foto');
+            Alert.alert(t('common.error'), t('huellitas.photoRequired'));
             return;
         }
         
         if (!newMemoryPetName || newMemoryPetName.trim() === '') {
-            Alert.alert('Error', 'Ingresa el nombre de tu mascota');
+            Alert.alert(t('common.error'), t('huellitas.nameRequired'));
             return;
         }
 
@@ -346,10 +348,10 @@ const handlePublishNewMemory = async () => {
         // Recargar posts
         await loadCommunityPosts();
 
-        Alert.alert('Publicado', 'Tu recuerdo ha sido compartido con la comunidad');
+        Alert.alert(t('huellitas.published'), t('huellitas.publishedMessage'));
     } catch (error) {
         console.error('❌ Error publicando recuerdo:', error);
-        Alert.alert('Error', 'No se pudo publicar: ' + error.message);
+        Alert.alert(t('common.error'), t('huellitas.publishError') + ': ' + error.message);
     } finally {
         setCreatingMemory(false);
     }
@@ -358,12 +360,12 @@ const handlePublishNewMemory = async () => {
 
     const handleAddPhoto = async (pet) => {
         Alert.alert(
-            'Agregar Foto',
-            'Elige una opción',
+            t('huellitas.addPhoto'),
+            t('huellitas.selectOption'),
             [
-                { text: 'Cancelar', style: 'cancel' },
-                { text: 'Tomar Foto', onPress: () => takePhoto(pet) },
-                { text: 'Elegir de Galería', onPress: () => pickImageFromGallery(pet) },
+                { text: t('common.cancel'), style: 'cancel' },
+                { text: t('huellitas.camera'), onPress: () => takePhoto(pet) },
+                { text: t('huellitas.gallery'), onPress: () => pickImageFromGallery(pet) },
             ]
         );
     };
@@ -382,7 +384,7 @@ const handlePublishNewMemory = async () => {
             }
         } catch (error) {
             console.error('Error tomando foto:', error);
-            Alert.alert('Error', 'No se pudo tomar la foto');
+            Alert.alert(t('common.error'), t('huellitas.takePhotoError'));
         }
     };
 
@@ -400,7 +402,7 @@ const handlePublishNewMemory = async () => {
             }
         } catch (error) {
             console.error('Error eligiendo imagen:', error);
-            Alert.alert('Error', 'No se pudo seleccionar la imagen');
+            Alert.alert(t('common.error'), t('huellitas.selectImageError'));
         }
     };
 
@@ -408,11 +410,11 @@ const handlePublishNewMemory = async () => {
         try {
             setUploadingImage(prev => ({ ...prev, [petId]: true }));
             await petArchiveService.uploadArchivedPetImage(petId, imageUri);
-            Alert.alert('Éxito', 'Foto actualizada correctamente');
+            Alert.alert(t('common.success'), t('huellitas.photoUpdated'));
             await loadArchivedPets();
         } catch (error) {
             console.error('Error subiendo imagen:', error);
-            Alert.alert('Error', 'No se pudo actualizar la foto');
+            Alert.alert(t('common.error'), t('huellitas.photoUpdateError'));
         } finally {
             setUploadingImage(prev => ({ ...prev, [petId]: false }));
         }
@@ -454,11 +456,11 @@ const handlePublishNewMemory = async () => {
     const handleShareToCommunity = (pet) => {
         if (!pet.imageUrl) {
             Alert.alert(
-                'Foto requerida',
-                'Para compartir en la comunidad, necesitas agregar una foto de tu mascota.',
+                t('huellitas.shareRequired').split('.')[0],
+                t('huellitas.shareRequired'),
                 [
-                    { text: 'Agregar Foto', onPress: () => handleAddPhoto(pet) },
-                    { text: 'Cancelar', style: 'cancel' }
+                    { text: t('huellitas.addPhoto'), onPress: () => handleAddPhoto(pet) },
+                    { text: t('common.cancel'), style: 'cancel' }
                 ]
             );
             return;
@@ -480,22 +482,22 @@ const handlePublishNewMemory = async () => {
             setSelectedPet(null);
             
             Alert.alert(
-                'Compartido', 
-                'El recuerdo de tu mascota ha sido compartido',
+                t('huellitas.shared'), 
+                t('huellitas.sharedMessage'),
                 [
                     {
-                        text: 'Ver en Comunidad',
+                        text: t('huellitas.viewInCommunity'),
                         onPress: async () => {
                             setActiveTab('community');
                             await loadCommunityPosts();
                         }
                     },
-                    { text: 'OK' }
+                    { text: t('common.ok') }
                 ]
             );
         } catch (error) {
             console.error('Error compartiendo:', error);
-            Alert.alert('Error', 'No se pudo compartir el recuerdo');
+            Alert.alert(t('common.error'), t('huellitas.shareError'));
         } finally {
             setSharing(false);
         }
@@ -596,7 +598,7 @@ const handlePublishNewMemory = async () => {
             Keyboard.dismiss();
         } catch (error) {
             console.error('Error agregando comentario:', error);
-            Alert.alert('Error', 'No se pudo agregar el comentario');
+            Alert.alert(t('common.error'), t('huellitas.commentError'));
         } finally {
             setAddingComment(false);
         }
@@ -634,7 +636,7 @@ const handlePublishNewMemory = async () => {
             Keyboard.dismiss();
         } catch (error) {
             console.error('Error respondiendo comentario:', error);
-            Alert.alert('Error', 'No se pudo responder');
+            Alert.alert(t('common.error'), t('huellitas.replyError'));
         } finally {
             setAddingComment(false);
         }
@@ -645,32 +647,32 @@ const handlePublishNewMemory = async () => {
 
         const buttons = isOwnPost
             ? [
-                { text: 'Cancelar', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 { 
-                    text: 'Eliminar', 
+                    text: t('common.delete'), 
                     style: 'destructive',
                     onPress: () => handleDeletePost(post)
                 }
             ]
             : [
-                { text: 'Cancelar', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 { 
-                    text: 'Reportar', 
-                    onPress: () => Alert.alert('Reportar', 'Función en desarrollo')
+                    text: t('huellitas.report'), 
+                    onPress: () => Alert.alert(t('huellitas.report'), t('huellitas.reportInProgress'))
                 }
             ];
 
-        Alert.alert('Opciones', 'Selecciona una opción', buttons);
+        Alert.alert(t('huellitas.options'), t('huellitas.selectOptionAction'), buttons);
     };
 
     const handleDeletePost = (post) => {
         Alert.alert(
-            'Eliminar Post',
-            `¿Eliminar el recuerdo de ${post.petName}?`,
+            t('huellitas.deletePost'),
+            t('huellitas.deletePostConfirm').replace('{petName}', post.petName),
             [
-                { text: 'Cancelar', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Eliminar',
+                    text: t('common.delete'),
                     style: 'destructive',
                     onPress: async () => {
                         try {
@@ -678,10 +680,10 @@ const handlePublishNewMemory = async () => {
                             setCommunityPosts(prevPosts => 
                                 prevPosts.filter(p => p.id !== post.id)
                             );
-                            Alert.alert('Eliminado', 'El post ha sido eliminado');
+                            Alert.alert(t('common.success'), t('huellitas.postDeleted'));
                         } catch (error) {
                             console.error('Error eliminando:', error);
-                            Alert.alert('Error', 'No se pudo eliminar el post');
+                            Alert.alert(t('common.error'), t('huellitas.deletePostError'));
                         }
                     }
                 }
@@ -691,19 +693,19 @@ const handlePublishNewMemory = async () => {
 
     const handleRestorePet = (pet) => {
         Alert.alert(
-            'Restaurar Mascota',
-            `¿Restaurar a ${pet.nombre}?`,
+            t('huellitas.restorePet'),
+            t('huellitas.restoreConfirm').replace('{petName}', pet.nombre),
             [
-                { text: 'Cancelar', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Restaurar',
+                    text: t('huellitas.restore'),
                     onPress: async () => {
                         try {
                             await petArchiveService.restorePet(pet.id);
                             await loadArchivedPets();
-                            Alert.alert('Éxito', `${pet.nombre} ha sido restaurada`);
+                            Alert.alert(t('common.success'), t('huellitas.restored').replace('{petName}', pet.nombre));
                         } catch (error) {
-                            Alert.alert('Error', 'No se pudo restaurar');
+                            Alert.alert(t('common.error'), t('huellitas.restoreError'));
                         }
                     },
                 },
@@ -712,9 +714,9 @@ const handlePublishNewMemory = async () => {
     };
 
     const formatDate = (date) => {
-        if (!date) return 'Fecha desconocida';
+        if (!date) return language === 'es' ? 'Fecha desconocida' : 'Unknown date';
         const d = date.toDate ? date.toDate() : new Date(date);
-        return d.toLocaleDateString('es-ES', {
+        return d.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
             day: 'numeric',
             month: 'long',
             year: 'numeric'
@@ -775,7 +777,7 @@ const handlePublishNewMemory = async () => {
                     ) : (
                         <View style={styles.cardImagePlaceholder}>
                             <Ionicons name="camera" size={60} color="#c7c7cc" />
-                            <Text style={styles.placeholderText}>Agregar Foto</Text>
+                            <Text style={styles.placeholderText}>{t('huellitas.addPhoto')}</Text>
                         </View>
                     )}
                     {isUploading && (
@@ -870,14 +872,14 @@ const handlePublishNewMemory = async () => {
 
                 {post.likes > 0 && (
                     <Text style={styles.likesText}>
-                        {post.likes} {post.likes === 1 ? 'me gusta' : 'me gusta'}
+                        {post.likes} {t('huellitas.likes')}
                     </Text>
                 )}
 
                 <View style={styles.captionContainer}>
                     <Text style={styles.captionText}>
                         <Text style={styles.captionUserName}>{post.userName} </Text>
-                        En memoria de <Text style={styles.petNameBold}>{post.petName}</Text>
+                        {t('huellitas.inMemoryOf')} <Text style={styles.petNameBold}>{post.petName}</Text>
                         {post.petSpecies && <Text style={styles.petBreed}> • {post.petSpecies}</Text>}
                         {post.message && `\n${post.message}`}
                     </Text>
@@ -889,7 +891,10 @@ const handlePublishNewMemory = async () => {
                         onPress={() => handleOpenComments(post)}
                     >
                         <Text style={styles.viewCommentsText}>
-                            Ver {post.comments.length === 1 ? 'el comentario' : `los ${post.comments.length} comentarios`}
+                            {language === 'es' 
+                                ? `Ver ${post.comments.length === 1 ? 'el comentario' : `los ${post.comments.length} comentarios`}`
+                                : `View ${post.comments.length === 1 ? 'comment' : `all ${post.comments.length} comments`}`
+                            }
                         </Text>
                     </TouchableOpacity>
                 )}
@@ -903,7 +908,7 @@ const handlePublishNewMemory = async () => {
         return (
             <View style={styles.centerContainer}>
                 <ActivityIndicator size="large" color="#FF6B6B" />
-                <Text style={{ marginTop: 10, color: '#666' }}>Cargando...</Text>
+                <Text style={{ marginTop: 10, color: '#666' }}>{t('common.loading')}</Text>
             </View>
         );
     }
@@ -911,7 +916,7 @@ const handlePublishNewMemory = async () => {
     return (
         <View style={styles.container}>
             <View style={styles.instagramHeader}>
-                <Text style={styles.instagramHeaderTitle}>Huellitas Eternas</Text>
+                <Text style={styles.instagramHeaderTitle}>{t('huellitas.title')}</Text>
                 <View style={styles.headerIcons}>
                     <TouchableOpacity 
                         style={styles.headerIconButton}
@@ -940,7 +945,7 @@ const handlePublishNewMemory = async () => {
                         color={activeTab === 'personal' ? '#262626' : '#8e8e8e'} 
                     />
                     <Text style={[styles.tabButtonText, activeTab === 'personal' && styles.activeTabButtonText]}>
-                        Mis Recuerdos
+                        {t('huellitas.myMemories')}
                     </Text>
                     {activeTab === 'personal' && <View style={styles.tabIndicator} />}
                 </TouchableOpacity>
@@ -955,7 +960,7 @@ const handlePublishNewMemory = async () => {
                         color={activeTab === 'community' ? '#262626' : '#8e8e8e'} 
                     />
                     <Text style={[styles.tabButtonText, activeTab === 'community' && styles.activeTabButtonText]}>
-                        Comunidad
+                        {t('huellitas.community')}
                     </Text>
                     {activeTab === 'community' && <View style={styles.tabIndicator} />}
                 </TouchableOpacity>
@@ -978,10 +983,10 @@ const handlePublishNewMemory = async () => {
                             <View style={styles.emptyState}>
                                 <Ionicons name="heart-outline" size={80} color="#c7c7cc" />
                                 <Text style={styles.emptyStateTitle}>
-                                    Aún no hay recuerdos
+                                    {t('huellitas.noMemories')}
                                 </Text>
                                 <Text style={styles.emptyStateText}>
-            Los recuerdos de tus mascotas aparecerán aquí
+                                    {t('huellitas.noMemoriesSubtitle')}
                                 </Text>
                             </View>
                         )}
@@ -996,11 +1001,11 @@ const handlePublishNewMemory = async () => {
                             <View style={styles.emptyState}>
                                 <Ionicons name="people-outline" size={80} color="#c7c7cc" />
                                 <Text style={styles.emptyStateTitle}>
-                                    Sin publicaciones
+                                    {t('huellitas.noPosts')}
                                 </Text>
                                 <Text style={styles.emptyStateText}>
                                     {/* ✅ CAMBIO: Texto actualizado */}
-                                    Comparte tu primer recuerdo presionando el botón +
+                                    {t('huellitas.noPostsSubtitle')}
                                 </Text>
                             </View>
                         )}
@@ -1050,10 +1055,10 @@ const handlePublishNewMemory = async () => {
                 >
             <View style={styles.createModalHeader}>
                 <TouchableOpacity onPress={() => setShowCreateModal(false)}>
-                    <Text style={styles.cancelButton}>Cancelar</Text>
+                    <Text style={styles.cancelButton}>{t('common.cancel')}</Text>
                 </TouchableOpacity>
                 {/* ✅ CAMBIO: Texto más claro */}
-                <Text style={styles.createModalTitle}>Compartir en Comunidad</Text>
+                <Text style={styles.createModalTitle}>{t('huellitas.shareInCommunity')}</Text>
                 <TouchableOpacity 
                     onPress={handlePublishNewMemory}
                     disabled={creatingMemory || !newMemoryImage || !newMemoryPetName}
@@ -1065,7 +1070,7 @@ const handlePublishNewMemory = async () => {
                             styles.publishButton,
                             (!newMemoryImage || !newMemoryPetName) && styles.publishButtonDisabled
                         ]}>
-                            Compartir
+                            {t('huellitas.share')}
                         </Text>
                     )}
                 </TouchableOpacity>
@@ -1087,7 +1092,7 @@ const handlePublishNewMemory = async () => {
                             ) : (
                                 <View style={styles.imageSelectorPlaceholder}>
                                     <Ionicons name="camera" size={60} color="#c7c7cc" />
-                                    <Text style={styles.imageSelectorText}>Agregar Foto</Text>
+                                    <Text style={styles.imageSelectorText}>{t('huellitas.addPhoto')}</Text>
                                 </View>
                             )}
                         </TouchableOpacity>
@@ -1095,7 +1100,7 @@ const handlePublishNewMemory = async () => {
                         <View style={styles.formContainer}>
                             <TextInput
                                 style={styles.inputField}
-                                placeholder="Nombre de tu mascota *"
+                                placeholder={t('huellitas.petNamePlaceholder')}
                                 value={newMemoryPetName}
                                 onChangeText={setNewMemoryPetName}
                                 placeholderTextColor="#8e8e8e"
@@ -1103,7 +1108,7 @@ const handlePublishNewMemory = async () => {
 
                             <TextInput
                                 style={styles.inputField}
-                                placeholder="Especie (ej: Perro, Gato)"
+                                placeholder={t('huellitas.speciesPlaceholder')}
                                 value={newMemorySpecies}
                                 onChangeText={setNewMemorySpecies}
                                 placeholderTextColor="#8e8e8e"
@@ -1111,7 +1116,7 @@ const handlePublishNewMemory = async () => {
 
                             <TextInput
                                 style={[styles.inputField, styles.messageInput]}
-                                placeholder="Comparte un recuerdo especial..."
+                                placeholder={t('huellitas.messagePlaceholder')}
                                 value={newMemoryMessage}
                                 onChangeText={setNewMemoryMessage}
                                 multiline
@@ -1142,7 +1147,7 @@ const handlePublishNewMemory = async () => {
                         }}>
                             <Ionicons name="arrow-back" size={28} color="#262626" />
                         </TouchableOpacity>
-                        <Text style={styles.commentsHeaderTitle}>Comentarios</Text>
+                        <Text style={styles.commentsHeaderTitle}>{t('huellitas.comments')}</Text>
                         <View style={{ width: 28 }} />
                     </View>
 
@@ -1182,7 +1187,7 @@ const handlePublishNewMemory = async () => {
                                                     style={styles.commentAction}
                                                     onPress={() => handleReplyToComment(comment)}
                                                 >
-                                                    <Text style={styles.replyButton}>Responder</Text>
+                                                    <Text style={styles.replyButton}>{t('huellitas.reply')}</Text>
                                                 </TouchableOpacity>
                                                 
                                                 <Text style={styles.commentTime}>{formatRelativeTime(comment.createdAt)}</Text>
@@ -1212,7 +1217,7 @@ const handlePublishNewMemory = async () => {
                         ) : (
                             <View style={styles.noComments}>
                                 <Ionicons name="chatbubbles-outline" size={80} color="#c7c7cc" />
-                                <Text style={styles.noCommentsText}>Sin comentarios</Text>
+                                <Text style={styles.noCommentsText}>{t('huellitas.noComments')}</Text>
                             </View>
                         )}
                     </ScrollView>
@@ -1222,7 +1227,7 @@ const handlePublishNewMemory = async () => {
                         {replyingTo && (
                             <View style={styles.replyingToBar}>
                                 <Text style={styles.replyingToText}>
-                                    Respondiendo a {replyingTo.userName}
+                                    {t('huellitas.replyingTo').replace('{userName}', replyingTo.userName)}
                                 </Text>
                                 <TouchableOpacity onPress={() => setReplyingTo(null)}>
                                     <Ionicons name="close" size={20} color="#262626" />
@@ -1236,7 +1241,7 @@ const handlePublishNewMemory = async () => {
                             <TextInput
                                 ref={commentInputRef}
                                 style={styles.commentInputField}
-                                placeholder={replyingTo ? "Escribe tu respuesta..." : "Agrega un comentario..."}
+                                placeholder={replyingTo ? t('huellitas.writeReply') : t('huellitas.addComment')}
                                 value={replyingTo ? replyText : commentText}
                                 onChangeText={replyingTo ? setReplyText : setCommentText}
                                 placeholderTextColor="#8e8e8e"                                multiline
@@ -1249,7 +1254,7 @@ const handlePublishNewMemory = async () => {
                                     styles.sendCommentButton,
                                     (addingComment || (replyingTo ? !replyText.trim() : !commentText.trim())) && styles.sendCommentButtonDisabled
                                 ]}>
-                                    {addingComment ? '...' : 'Publicar'}
+                                    {addingComment ? '...' : t('huellitas.publish')}
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -1269,7 +1274,7 @@ const handlePublishNewMemory = async () => {
                 >
                     <View style={styles.shareModalContent}>
                         <View style={styles.shareModalHeader}>
-                            <Text style={styles.shareModalTitle}>Compartir Recuerdo</Text>
+                            <Text style={styles.shareModalTitle}>{t('huellitas.shareMemory')}</Text>
                             <TouchableOpacity onPress={() => setShowShareModal(false)}>
                                 <Ionicons name="close" size={28} color="#262626" />
                             </TouchableOpacity>
@@ -1285,7 +1290,7 @@ const handlePublishNewMemory = async () => {
 
                             <TextInput
                                 style={styles.shareMessageInput}
-                                placeholder="Escribe un mensaje..."
+                                placeholder={t('huellitas.writeMessage')}
                                 value={shareMessage}
                                 onChangeText={setShareMessage}
                                 multiline
@@ -1301,7 +1306,7 @@ const handlePublishNewMemory = async () => {
                             {sharing ? (
                                 <ActivityIndicator color="#fff" />
                             ) : (
-                                <Text style={styles.shareConfirmButtonText}>Compartir</Text>
+                                <Text style={styles.shareConfirmButtonText}>{t('huellitas.share')}</Text>
                             )}
                         </TouchableOpacity>
                     </View>

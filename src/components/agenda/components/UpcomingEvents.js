@@ -2,6 +2,7 @@
 import React, { useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../../../context/LanguageContext';
 import styles from '../../../styles/AgendaScreenStyles';
 import { getUpcomingEvents, getEventColor, getEventTypeIcon } from '../../../utils/agenda/eventHelpers';
 import { formatDate, formatTime, formatDateToString } from '../../../utils/agenda/dateFormatters';
@@ -44,6 +45,7 @@ const UpcomingEventCard = React.memo(({ event, onPress }) => {
 });
 
 const UpcomingEvents = ({ events, onEventPress }) => {
+    const { t } = useLanguage();
     const upcomingEvents = useMemo(() => getUpcomingEvents(events), [events]);
 
     const handleEventPress = useCallback((event) => {
@@ -56,7 +58,7 @@ const UpcomingEvents = ({ events, onEventPress }) => {
 
     return (
         <View style={styles.upcomingSection}>
-            <Text style={styles.upcomingSectionTitle}>📋 Próximos Eventos</Text>
+            <Text style={styles.upcomingSectionTitle}>📋 {t('agenda.upcomingEvents')}</Text>
             {upcomingEvents.map((event) => (
                 <UpcomingEventCard
                     key={event.id}

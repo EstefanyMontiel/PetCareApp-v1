@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
+import { useLanguage } from '../../../context/LanguageContext';
 import styles from '../../../styles/AgendaScreenStyles';
 import DatePickerModal from '../../DatePickerModal';
 import TimePickerModal from '../../TimePickerModal';
@@ -29,6 +30,8 @@ const AddEventModal = ({
     saving,
     userPets,
 }) => {
+    const { t } = useLanguage();
+    
     return (
         <Modal
             isVisible={visible}
@@ -48,7 +51,7 @@ const AddEventModal = ({
             <View style={styles.modalContent}>
                 <View style={styles.modalHandle} />
                 <View style={styles.modalHeader}>
-                    <Text style={styles.modalTitle}>Nuevo Evento</Text>
+                    <Text style={styles.modalTitle}>{t('agenda.newEvent')}</Text>
                     <TouchableOpacity 
                         onPress={onClose}
                         style={styles.modalCloseButton}
@@ -60,7 +63,7 @@ const AddEventModal = ({
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {/* Tipo de evento */}
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Tipo de evento *</Text>
+                        <Text style={styles.label}>{t('agenda.eventType')} *</Text>
                         <View style={styles.typeButtonsContainer}>
                             {EVENT_TYPES.map((item) => (
                                 <TouchableOpacity
@@ -98,10 +101,10 @@ const AddEventModal = ({
 
                     {/* Título */}
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Título *</Text>
+                        <Text style={styles.label}>{t('agenda.eventTitle')} *</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="Ej: Vacuna antirrábica"
+                            placeholder={t('agenda.eventTitlePlaceholder')}
                             value={formData.eventTitle}
                             onChangeText={(text) => updateFormField('eventTitle', text)}
                             placeholderTextColor="#BDC3C7"
@@ -110,7 +113,7 @@ const AddEventModal = ({
 
                     {/* Mascota */}
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Mascota (Opcional)</Text>
+                        <Text style={styles.label}>{t('agenda.petOptional')}</Text>
                         {userPets && userPets.length > 0 ? (
                             <View style={styles.petButtonsContainer}>
                                 <TouchableOpacity
@@ -126,7 +129,7 @@ const AddEventModal = ({
                                             formData.selectedPet === '' && styles.petButtonTextActive,
                                         ]}
                                     >
-                                        Ninguna
+                                        {t('agenda.none')}
                                     </Text>
                                 </TouchableOpacity>
                                 {userPets.map((pet) => (
@@ -155,13 +158,13 @@ const AddEventModal = ({
                                 ))}
                             </View>
                         ) : (
-                            <Text style={styles.noPetsText}>No tienes mascotas registradas</Text>
+                            <Text style={styles.noPetsText}>{t('agenda.noPets')}</Text>
                         )}
                     </View>
 
                     {/* Fecha */}
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>📅 Fecha *</Text>
+                        <Text style={styles.label}>📅 {t('agenda.date')} *</Text>
                         <TouchableOpacity
                             style={styles.dateButton}
                             onPress={() => updateFormField('showDatePicker', true)}
@@ -183,7 +186,7 @@ const AddEventModal = ({
 
                     {/* Hora */}
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>🕐 Hora *</Text>
+                        <Text style={styles.label}>🕐 {t('agenda.time')} *</Text>
                         <TouchableOpacity
                             style={styles.dateButton}
                             onPress={() => updateFormField('showTimePicker', true)}
@@ -205,10 +208,10 @@ const AddEventModal = ({
 
                     {/* Descripción */}
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>📝 Descripción (Opcional)</Text>
+                        <Text style={styles.label}>📝 {t('agenda.descriptionOptional')}</Text>
                         <TextInput
                             style={styles.textArea}
-                            placeholder="Agrega detalles adicionales..."
+                            placeholder={t('agenda.descriptionPlaceholder')}
                             value={formData.eventDescription}
                             onChangeText={(text) => updateFormField('eventDescription', text)}
                             multiline
@@ -235,7 +238,7 @@ const AddEventModal = ({
                                 styles.notificationText,
                                 formData.sendNotification && styles.notificationTextActive
                             ]}>
-                                Enviar recordatorio
+                                {t('agenda.sendReminder')}
                             </Text>
                         </View>
                         <View style={[
@@ -256,7 +259,7 @@ const AddEventModal = ({
                             onPress={onClose}
                             disabled={saving}
                         >
-                            <Text style={styles.cancelButtonText}>Cancelar</Text>
+                            <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.saveButton, saving && styles.buttonDisabled]}
@@ -268,7 +271,7 @@ const AddEventModal = ({
                             ) : (
                                 <>
                                     <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                                    <Text style={styles.saveButtonText}>Guardar</Text>
+                                    <Text style={styles.saveButtonText}>{t('agenda.save')}</Text>
                                 </>
                             )}
                         </TouchableOpacity>

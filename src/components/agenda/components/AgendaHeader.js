@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../../../context/LanguageContext';
 import styles from '../../../styles/AgendaScreenStyles';
 
 const AgendaHeader = ({ onAddPress }) => {
+    const { t } = useLanguage();
+    
     return (
         <View style={styles.headerContainer}>
             <View style={styles.header}>
@@ -12,9 +15,9 @@ const AgendaHeader = ({ onAddPress }) => {
                         <Ionicons name="calendar" size={24} color="#fff" />
                     </View>
                     <View style={styles.headerTextContainer}>
-                        <Text style={styles.headerTitle}>Mi Agenda</Text>
+                        <Text style={styles.headerTitle}>{t('agenda.title')}</Text>
                         <Text style={styles.headerSubtitle}>
-                            Organiza las citas de tus mascotas
+                            {t('agenda.subtitle')}
                         </Text>
                     </View>
                 </View>

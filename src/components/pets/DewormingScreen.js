@@ -8,11 +8,13 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dewormingService } from '../../services/dewormingService';
+import { useLanguage } from '../../context/LanguageContext';
 import styles from '../../styles/DewormingScreenStyles';
 import KeyboardAwareForm from '../common/KeyboardAwareForm';
 
 const DewormingScreen = ({ route, navigation }) => {
     const { petId, petName, petSpecies } = route.params;
+    const { t, language } = useLanguage();
     
     const [dewormings, setDewormings] = useState([]);
     const [loadingList, setLoadingList] = useState(true);
@@ -29,7 +31,7 @@ const DewormingScreen = ({ route, navigation }) => {
             setDewormings(data);
         } catch (error) {
             console.error('Error cargando desparasitaciones:', error);
-            Alert.alert('Error', 'No se pudieron cargar las desparasitaciones');
+            Alert.alert(t('common.error'), t('deworming.loadError'));
         } finally {
             setLoadingList(false);
         }
@@ -46,12 +48,12 @@ const DewormingScreen = ({ route, navigation }) => {
 
     // Formatear fecha
     const formatDate = (date) => {
-        if (!date) return 'No establecida';
+        if (!date) return language === 'es' ? 'No establecida' : 'Not set';
         const dateObj = date?.seconds 
             ? new Date(date.seconds * 1000) 
             : new Date(date);
         
-        return dateObj.toLocaleDateString('es-ES', {
+        return dateObj.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
@@ -61,20 +63,20 @@ const DewormingScreen = ({ route, navigation }) => {
     // Eliminar desparasitación
     const handleDeleteDeworming = (dewormingId) => {
         Alert.alert(
-            'Eliminar Desparasitación',
-            '¿Estás seguro?',
+            t('deworming.deleteTitle'),
+            t('deworming.deleteConfirm'),
             [
-                { text: 'Cancelar', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Eliminar',
+                    text: t('common.delete'),
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await dewormingService.deleteDeworming(petId, dewormingId);
                             await loadDewormings();
-                            Alert.alert('✅', 'Desparasitación eliminada');
+                            Alert.alert('✅', t('deworming.deleted'));
                         } catch (error) {
-                            Alert.alert('Error', 'No se pudo eliminar');
+                            Alert.alert(t('common.error'), t('deworming.deleteError'));
                         }
                     }
                 }
@@ -94,7 +96,7 @@ const DewormingScreen = ({ route, navigation }) => {
                 </TouchableOpacity>
                 
                 <View style={styles.headerInfo}>
-                    <Text style={styles.title}> Desparasitación</Text>
+                    <Text style={styles.title}> {t('deworming.title')}</Text>
                     <Text style={styles.petName}>{petName}</Text>
                 </View>
                 
@@ -123,7 +125,7 @@ const DewormingScreen = ({ route, navigation }) => {
                                 <View style={styles.cardInfo}>
                                     <View style={styles.typeBadge}>
                                         <Text style={styles.typeBadgeText}>
-                                            {deworming.productType === 'interno' ? '🦠 Interna' : '🛡️ Externa'}
+                                            {deworming.productType === 'interno' ? `🦠 ${t('deworming.internal')}` : `🛡️ ${t('deworming.external')}`}
                                         </Text>
                                     </View>
                                     <Text style={styles.productName}>{deworming.productName}</Text>
@@ -132,17 +134,17 @@ const DewormingScreen = ({ route, navigation }) => {
                                     </Text>
                                     {deworming.nextDoseDate && (
                                         <Text style={styles.nextDose}>
-                                            🔔 Próxima: {formatDate(deworming.nextDoseDate)}
+                                            🔔 {t('deworming.nextDose')}: {formatDate(deworming.nextDoseDate)}
                                         </Text>
                                     )}
                                     {deworming.weight && (
                                         <Text style={styles.details}>
-                                            ⚖️ Peso: {deworming.weight} kg
+                                            ⚖️ {t('deworming.weight')}: {deworming.weight} kg
                                         </Text>
                                     )}
                                     {deworming.dose && (
                                         <Text style={styles.details}>
-                                            💊 Dosis: {deworming.dose}
+                                            💊 {t('deworming.dose')}: {deworming.dose}
                                         </Text>
                                     )}
                                 </View>
@@ -162,10 +164,10 @@ const DewormingScreen = ({ route, navigation }) => {
                     <View style={styles.emptyState}>
                         <Ionicons name="bug-outline" size={64} color="#ccc" />
                         <Text style={styles.emptyStateTitle}>
-                            Sin desparasitaciones registradas
+                            {t('deworming.noRecords')}
                         </Text>
                         <Text style={styles.emptyStateText}>
-                            Mantén un registro de las desparasitaciones de {petName}
+                            {t('deworming.noRecordsSubtitle').replace('{petName}', petName)}
                         </Text>
                     </View>
                 )}

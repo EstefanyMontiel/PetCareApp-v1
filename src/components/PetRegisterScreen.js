@@ -12,11 +12,13 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import SafeContainer from './SafeContainer';
 import styles from '../styles/PetRegisterStyles';
 
 const PetRegisterScreen = ({ navigation }) => {
     const { user, addPet } = useAuth();
+    const { t, language } = useLanguage();
     const [selectedSpecies, setSelectedSpecies] = useState('Perro');
     const [breed, setBreed] = useState('');
     const [birthDate, setBirthDate] = useState(new Date());
@@ -27,7 +29,10 @@ const PetRegisterScreen = ({ navigation }) => {
     // ✅ NUEVO: Estado para el género
     const [gender, setGender] = useState('');
 
-    const speciesOptions = ['Perro', 'Gato'];
+    const speciesOptions = [
+        { key: 'Perro', label: t('petRegister.dog') },
+        { key: 'Gato', label: t('petRegister.cat') }
+    ];
 
     const handleDateChange = (event, selectedDate) => {
         setShowDatePicker(Platform.OS === 'ios');
@@ -37,7 +42,7 @@ const PetRegisterScreen = ({ navigation }) => {
     };
 
     const formatDate = (date) => {
-        return date.toLocaleDateString('es-ES', {
+        return date.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
@@ -47,23 +52,23 @@ const PetRegisterScreen = ({ navigation }) => {
     const handleRegister = async () => {
         // Validaciones
         if (!petName.trim()) {
-            Alert.alert('Error', 'El nombre de la mascota es requerido');
+            Alert.alert(t('common.error'), t('petRegister.nameRequired'));
             return;
         }
         
         if (!breed.trim()) {
-            Alert.alert('Error', 'La raza es requerida');
+            Alert.alert(t('common.error'), t('petRegister.breedRequired'));
             return;
         }
 
         // ✅ NUEVO: Validar género
         if (!gender) {
-            Alert.alert('Error', 'Selecciona el sexo de tu mascota');
+            Alert.alert(t('common.error'), t('petRegister.sexRequired'));
             return;
         }
 
         if (!user) {
-            Alert.alert('Error', 'Debes iniciar sesión para registrar una mascota');
+            Alert.alert(t('common.error'), t('petRegister.loginRequired'));
             return;
         }
 
@@ -82,10 +87,10 @@ const PetRegisterScreen = ({ navigation }) => {
             await addPet(petData);
             
             Alert.alert(
-                '🎉 ¡Mascota registrada!',
-                `${petName} ha sido agregado exitosamente`,
+                t('petRegister.success'),
+                t('petRegister.successMessage').replace('{petName}', petName),
                 [{ 
-                    text: 'Ver mis mascotas', 
+                    text: t('petRegister.viewPets'), 
                     onPress: () => {
                         // Limpiar formulario
                         setPetName('');
@@ -99,7 +104,7 @@ const PetRegisterScreen = ({ navigation }) => {
             );
         } catch (error) {
             console.error('Error al registrar mascota:', error);
-            Alert.alert('Error', error.message);
+            Alert.alert(t('common.error'), error.message);
         } finally {
             setLoading(false);
         }
@@ -117,18 +122,18 @@ const PetRegisterScreen = ({ navigation }) => {
                     <View style={styles.iconCircle}>
                         <Ionicons name="paw" size={40} color="#4ECDC4" />
                     </View>
-                    <Text style={styles.title}>¡Registra a tu peludo!</Text>
+                    <Text style={styles.title}>{t('petRegister.title')}</Text>
                     <Text style={styles.subtitle}>
-                        Completa la información de tu nueva mascota
+                        {t('petRegister.subtitle')}
                     </Text>
                 </View>
 
                 {/* Nombre de la Mascota */}
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Nombre de la mascota *</Text>
+                    <Text style={styles.label}>{t('petRegister.petName')} *</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Ej: Max, Luna, Bella..."
+                        placeholder={t('petRegister.petNamePlaceholder')}
                         value={petName}
                         onChangeText={setPetName}
                         placeholderTextColor="#BDC3C7"
@@ -137,27 +142,27 @@ const PetRegisterScreen = ({ navigation }) => {
 
                 {/* Especie */}
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Especie *</Text>
+                    <Text style={styles.label}>{t('petRegister.species')} *</Text>
                     <View style={styles.speciesContainer}>
                         {speciesOptions.map((species) => (
                             <TouchableOpacity
-                                key={species}
+                                key={species.key}
                                 style={[
                                     styles.speciesButton,
-                                    selectedSpecies === species && styles.speciesButtonSelected
+                                    selectedSpecies === species.key && styles.speciesButtonSelected
                                 ]}
-                                onPress={() => setSelectedSpecies(species)}
+                                onPress={() => setSelectedSpecies(species.key)}
                             >
                                 <Ionicons 
-                                    name={species === 'Perro' ? 'paw' : 'paw'} 
+                                    name={species.key === 'Perro' ? 'paw' : 'paw'} 
                                     size={22} 
-                                    color={selectedSpecies === species ? '#4ECDC4' : '#95A5A6'}
+                                    color={selectedSpecies === species.key ? '#4ECDC4' : '#95A5A6'}
                                 />
                                 <Text style={[
                                     styles.speciesText,
-                                    selectedSpecies === species && styles.speciesTextSelected
+                                    selectedSpecies === species.key && styles.speciesTextSelected
                                 ]}>
-                                    {species}
+                                    {species.label}
                                 </Text>
                             </TouchableOpacity>
                         ))}
@@ -166,7 +171,7 @@ const PetRegisterScreen = ({ navigation }) => {
 
                {/* ✅ ACTUALIZADO: Selector de Género - Más compacto */}
 <View style={styles.inputContainer}>
-    <Text style={styles.label}>Sexo *</Text>
+    <Text style={styles.label}>{t('petRegister.sex')} *</Text>
     <View style={styles.genderContainer}>
         <TouchableOpacity
             style={[
@@ -189,7 +194,7 @@ const PetRegisterScreen = ({ navigation }) => {
                 styles.genderText,
                 gender === 'macho' && styles.genderTextActive
             ]}>
-                Macho
+                {t('petRegister.male')}
             </Text>
         </TouchableOpacity>
 
@@ -214,7 +219,7 @@ const PetRegisterScreen = ({ navigation }) => {
                 styles.genderText,
                 gender === 'hembra' && styles.genderTextActive
             ]}>
-                Hembra
+                {t('petRegister.female')}
             </Text>
         </TouchableOpacity>
     </View>
@@ -222,10 +227,10 @@ const PetRegisterScreen = ({ navigation }) => {
 
                 {/* Raza */}
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Raza *</Text>
+                    <Text style={styles.label}>{t('petRegister.breed')} *</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Ej: Golden Retriever, Mestizo..."
+                        placeholder={t('petRegister.breedPlaceholder')}
                         value={breed}
                         onChangeText={setBreed}
                         placeholderTextColor="#BDC3C7"
@@ -234,7 +239,7 @@ const PetRegisterScreen = ({ navigation }) => {
 
                 {/* Fecha de Nacimiento */}
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Fecha de nacimiento *</Text>
+                    <Text style={styles.label}>{t('petRegister.birthDate')} *</Text>
                     <TouchableOpacity
                         style={styles.dateButton}
                         onPress={() => setShowDatePicker(true)}
@@ -265,7 +270,7 @@ const PetRegisterScreen = ({ navigation }) => {
                     ) : (
                         <>
                             <Ionicons name="add-circle" size={20} color="#fff" />
-                            <Text style={styles.registerButtonText}>Registrar Mascota</Text>
+                            <Text style={styles.registerButtonText}>{t('petRegister.registerButton')}</Text>
                         </>
                     )}
                 </TouchableOpacity>
