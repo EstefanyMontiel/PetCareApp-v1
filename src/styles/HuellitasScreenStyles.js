@@ -496,14 +496,19 @@ export default StyleSheet.create({
         color: '#8e8e8e',
     },
 
-    // ✅ MEJORADO: Input de comentarios con barra de respuesta
-    commentInputArea: {
+        // ✅ MEJORADO: Input de comentarios con barra de respuesta
+        commentInputArea: {
         backgroundColor: '#fff',
         borderTopWidth: 1,
-        borderTopColor: '#efefef',
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        paddingBottom: Platform.OS === 'ios' ? 24 : 8, // Más espacio en iOS
+        borderTopColor: '#dbdbdb',
+        paddingHorizontal: 16,
+        paddingTop: 12,
+        paddingBottom: Platform.OS === 'ios' ?  32 : 12, // ✅ Más espacio en iOS
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 5, // ✅ Sombra para destacar
     },
     replyingToBar: {
         flexDirection: 'row',
@@ -519,26 +524,19 @@ export default StyleSheet.create({
         fontSize: 13,
         color: '#8e8e8e',
     },
-    commentInputRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    commentInputField: {
-        flex: 1,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 20,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        fontSize: 14,
-        maxHeight: 100,
-    },
-    sendCommentButton: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#0095f6',
-        paddingHorizontal: 12,
-    },
+    commentInputArea: {
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#dbdbdb',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ?  32 : 12, // ✅ Más espacio en iOS
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5, // ✅ Sombra para destacar
+},
     sendCommentButtonDisabled: {
         color: '#b2dffc',
     },
@@ -595,6 +593,27 @@ export default StyleSheet.create({
         fontWeight: '600',
         color: '#fff',
     },
+    sendCommentButtonDisabled: {
+    color: '#b3d7f6',
+},
+
+        // ✅ NUEVO: Agregar si no existe
+        replyingToBar: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            backgroundColor: '#f8f8f8',
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            marginBottom: 8,
+            borderRadius: 8,
+        },
+        replyingToText: {
+            fontSize: 13,
+            color: '#8e8e8e',
+            fontStyle: 'italic',
+        },
+
 
     // ===== ESTADOS VACÍOS =====
     emptyState: {

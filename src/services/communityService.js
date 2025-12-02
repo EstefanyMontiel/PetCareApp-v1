@@ -28,22 +28,15 @@ export const communityService = {
             };
 
             const docRef = await db.collection('memorialPosts').add(memorialPost);
-            
-            // ✅ CORREGIDO: Notificación de compartir con variables correctas
+                        
+                    // ✅ CÓDIGO CORREGIDO:
             await notificationService.createNotificationRecord(
                 currentUser.uid,
-                'share',
-                '🌈 Recuerdo compartido',
-                `Tu recuerdo de ${petData.nombre} ha sido compartido en Huellitas Eternas`,
-                { postId: docRef.id, petName: petData.nombre }
+                'new_post',
+                '¡Post compartido!',
+                `Tu recuerdo de ${petData.petName} ha sido compartido en Huellitas Eternas`, // ✅ Usar 'petData'
+                { postId: docRef.id, petName: petData.nombre } // ✅ Usar 'petData'
             );
-
-            await notificationService.sendLocalNotification(
-                '🌈 Recuerdo compartido',
-                `Tu recuerdo de ${petData.nombre} está ahora en la comunidad`,
-                { postId: docRef.id, type: 'share' }
-            );
-
             console.log('✅ Memorial compartido exitosamente con ID:', docRef.id);
 
             return { id: docRef.id, success: true };
@@ -156,6 +149,9 @@ export const communityService = {
                 userId: userId,
                 userName: userName,
                 text: commentText,
+                likes: 0,           // ✅ Asegurar que existe
+                likedBy: [],        // ✅ Asegurar que existe
+                replies: [],        // ✅ Asegurar que existe
                 createdAt: new Date()
             };
 
@@ -175,6 +171,7 @@ export const communityService = {
                     .where('recipientId', '==', postData.userId)
                     .where('type', '==', 'comment')
                     .where('data.postId', '==', postId)
+                    .where('userId', '==', userId) // ✅ Mismo usuario
                     .where('data.commenterId', '==', userId)
                     .where('createdAt', '>', fiveMinutesAgo)
                     .limit(1)
@@ -398,7 +395,7 @@ shareMemorialDirect: async (petData, message, imageUri) => {
 
             const comments = postData.comments || [];
              const updatedComments = postData.comments.map(comment => {
-                if (comment.id === commentId) {
+                if (comment.id === parentCommentId) {
                     // ✅ NUEVO: Notificar al dueño del comentario
                     if (comment.userId !== userId) {
                         notificationService.createNotificationRecord(

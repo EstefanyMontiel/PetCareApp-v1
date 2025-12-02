@@ -105,15 +105,25 @@ export default function HuellitasEternasScreen({ navigation }) {
         }
     };
 
-    // ✅ NUEVO: Cargar contador de notificaciones no leídas
-    const loadUnreadCount = async () => {
-        try {
-            const count = await notificationService.getUnreadCount(user.uid);
-            setUnreadCount(count);
-        } catch (error) {
-            console.error('Error cargando contador:', error);
-        }
-    };
+   // ✅ MEJORADO: Cargar contador de notificaciones no leídas
+const loadUnreadCount = async () => {
+    try {
+        const count = await notificationService.getUnreadCount(user.uid);
+        setUnreadCount(count);
+    } catch (error) {
+        console.error('Error cargando contador:', error);
+        setUnreadCount(0);
+    }
+};
+
+// ✅ NUEVO: Recargar contador periódicamente
+useEffect(() => {
+    const interval = setInterval(() => {
+        loadUnreadCount();
+    }, 30000); // Cada 30 segundos
+
+    return () => clearInterval(interval);
+}, []);
 
     // ✅ NUEVO: Ir a pantalla de notificaciones
     const handleOpenNotifications = () => {
