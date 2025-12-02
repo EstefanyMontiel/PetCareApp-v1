@@ -14,7 +14,6 @@ import KeyboardAwareForm from '../common/KeyboardAwareForm';
 const DewormingScreen = ({ route, navigation }) => {
     const { petId, petName, petSpecies } = route.params;
     
-    // ✅ SOLO ESTADOS DE LA LISTA (eliminar los del formulario)
     const [dewormings, setDewormings] = useState([]);
     const [loadingList, setLoadingList] = useState(true);
 
@@ -36,7 +35,6 @@ const DewormingScreen = ({ route, navigation }) => {
         }
     };
 
-    // ✅ AGREGAR: Navegar a la pantalla de formulario
     const handleAddDeworming = () => {
         navigation.navigate('AddDeworming', {
             petId,
@@ -96,11 +94,10 @@ const DewormingScreen = ({ route, navigation }) => {
                 </TouchableOpacity>
                 
                 <View style={styles.headerInfo}>
-                    <Text style={styles.title}>🦠 Desparasitación</Text>
+                    <Text style={styles.title}> Desparasitación</Text>
                     <Text style={styles.petName}>{petName}</Text>
                 </View>
                 
-                {/* ✅ BOTÓN QUE NAVEGA A LA NUEVA PANTALLA */}
                 <TouchableOpacity 
                     style={styles.addButton}
                     onPress={handleAddDeworming}
@@ -109,7 +106,6 @@ const DewormingScreen = ({ route, navigation }) => {
                 </TouchableOpacity>
             </View>
 
-            {/* ✅ SOLO LA LISTA (sin formulario) */}
             <KeyboardAwareForm style={styles.content}>
                 {loadingList ? (
                     <View style={styles.centerContainer}>

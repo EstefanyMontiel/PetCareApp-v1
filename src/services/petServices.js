@@ -394,9 +394,7 @@
     
 };
 
-// ✅ NUEVO: Servicio para eliminar mascota permanentemente
 export const petManagementService = {
-    // Eliminar mascota permanentemente
     deletePet: async (petId) => {
         try {
             console.log('🗑️ Eliminando mascota permanentemente:', petId);
@@ -407,7 +405,7 @@ export const petManagementService = {
             }
 
             // Obtener datos de la mascota antes de eliminar
-            const petDoc = await db.collection('mascotas').doc(petId).get();
+            const petDoc = await db. collection('mascotas').doc(petId).get();
             
             if (!petDoc.exists) {
                 throw new Error('La mascota no existe');
@@ -420,34 +418,63 @@ export const petManagementService = {
                 throw new Error('No tienes permiso para eliminar esta mascota');
             }
 
-            // Eliminar datos relacionados
             console.log('🧹 Eliminando registros relacionados...');
             
-            // Eliminar vacunas
-            const vaccinationsSnapshot = await db.collection('vaccinations')
-                .where('petId', '==', petId)
+            // Eliminar subcollección de vacunaciones
+            const vaccinationsSnapshot = await db
+                .collection('mascotas')
+                . doc(petId)
+                . collection('vacunaciones')
                 .get();
-            vaccinationsSnapshot.forEach(async (doc) => {
-                await doc.ref.delete();
-            });
+            
+            const vaccinationDeletes = vaccinationsSnapshot.docs.map(doc => 
+                doc.ref. delete()
+            );
+            await Promise.all(vaccinationDeletes);
+            console.log(`✅ ${vaccinationsSnapshot.size} vacunaciones eliminadas`);
 
-            // Eliminar desparasitaciones
-            const dewormingsSnapshot = await db.collection('dewormings')
-                .where('petId', '==', petId)
+            // Eliminar subcollección de desparasitaciones
+            const dewormingsSnapshot = await db
+                .collection('mascotas')
+                . doc(petId)
+                .collection('desparasitaciones')
                 .get();
-            dewormingsSnapshot.forEach(async (doc) => {
-                await doc.ref.delete();
-            });
+            
+            const dewormingDeletes = dewormingsSnapshot.docs.map(doc => 
+                doc.ref.delete()
+            );
+            await Promise.all(dewormingDeletes);
+            console.log(`✅ ${dewormingsSnapshot.size} desparasitaciones eliminadas`);
 
-            // Eliminar exámenes anuales
-            const examsSnapshot = await db.collection('annualExams')
-                .where('petId', '==', petId)
+            // Eliminar subcollección de exámenes anuales
+            const examsSnapshot = await db
+                .collection('mascotas')
+                .doc(petId)
+                .collection('examenesAnuales')
                 .get();
-            examsSnapshot.forEach(async (doc) => {
-                await doc.ref.delete();
-            });
+            
+            const examDeletes = examsSnapshot.docs.map(doc => 
+                doc. ref.delete()
+            );
+            await Promise.all(examDeletes);
+            console.log(`✅ ${examsSnapshot. size} exámenes anuales eliminados`);
 
-            // Finalmente eliminar la mascota
+            // ✅ CORREGIDO: Eliminar eventos del usuario relacionados con esta mascota
+            // Usar el userId del currentUser, no petId
+            const eventsSnapshot = await db
+                .collection('eventos')
+                .where('userId', '==', currentUser.uid)  // ✅ Filtrar por userId primero
+                .get();
+            
+            // Filtrar eventos que pertenecen a esta mascota
+            const petEventDeletes = eventsSnapshot.docs
+                .filter(doc => doc. data().petId === petId)  // Filtrar en el cliente
+                .map(doc => doc.ref.delete());
+            
+            await Promise.all(petEventDeletes);
+            console.log(`✅ ${petEventDeletes.length} eventos eliminados`);
+
+            // Finalmente eliminar el documento de la mascota
             await db.collection('mascotas').doc(petId).delete();
             
             console.log('✅ Mascota eliminada permanentemente');

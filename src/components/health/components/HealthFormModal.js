@@ -1,6 +1,4 @@
-// ============================================
-// 📋 HEALTH FORM MODAL (CON SOLUCIÓN DE TECLADO)
-// ============================================
+
 
 import React, { useRef } from 'react';
 import {

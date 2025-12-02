@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DatePickerModal from '../DatePickerModal';
 import ModernPicker from '../ModernPicker';
 import { vaccinationService } from '../../services/vaccionationService';
-import styles from '../../styles/HealthScreenStyles'; // ✅ MISMO ESTILO
+import styles from '../../styles/HealthScreenStyles'; 
 import KeyboardAwareForm from '../common/KeyboardAwareForm';
 
 const AddVaccinationScreen = ({ route, navigation }) => {
@@ -124,7 +124,6 @@ const AddVaccinationScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            {/* ✅ HEADER IGUAL AL ORIGINAL */}
             <View style={styles.header}>
                 <TouchableOpacity 
                     style={styles.backButton}
@@ -152,7 +151,6 @@ const AddVaccinationScreen = ({ route, navigation }) => {
                 </TouchableOpacity>
             </View>
 
-            {/* ✅ FORMULARIO CON EL MISMO ESTILO */}
             <KeyboardAwareForm style={styles.content}>
                 <View style={styles.formCard}>
                     <Text style={styles.formTitle}>Información de la Vacuna</Text>

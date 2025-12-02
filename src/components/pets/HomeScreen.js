@@ -155,27 +155,26 @@ const HomeScreen = ({ navigation }) => {
     };
 
     // Menú de opciones para cada mascota
-    // ✅ ACTUALIZADO: Menú con opción de eliminar
 const showPetOptions = (pet) => {
     Alert.alert(
         pet.nombre,
         'Selecciona una opción',
         [
             {
-                text: '✏️ Editar información',
+                text: 'Editar información',
                 onPress: () => navigateToOption(pet, 'edit')
             },
             {
-                text: '📸 Cambiar foto',
+                text: 'Cambiar foto',
                 onPress: () => handleImageSelection(pet.id)
             },
             {
-                text: '💔 Archivar mascota',
+                text: 'Archivar mascota',
                 onPress: () => handleArchivePet(pet),
                 style: 'default'
             },
             {
-                text: '🗑️ Eliminar permanentemente',
+                text: 'Eliminar permanentemente',
                 onPress: () => handleDeletePet(pet),
                 style: 'destructive'
             },
@@ -187,11 +186,10 @@ const showPetOptions = (pet) => {
     );
 };
 
-// ✅ NUEVA FUNCIÓN: Eliminar mascota
 const handleDeletePet = (pet) => {
     Alert.alert(
         '⚠️ Eliminar Permanentemente',
-        `¿Estás seguro de que deseas eliminar a ${pet.nombre}?\n\n⚠️ ESTA ACCIÓN NO SE PUEDE DESHACER.\n\nSe eliminarán todos los registros de vacunas, desparasitaciones y exámenes.\n\n💡 Si prefieres conservar los recuerdos, usa "Archivar mascota" en su lugar.`,
+        `¿Estás seguro de que deseas eliminar a ${pet.nombre}?\n\nESTA ACCIÓN NO SE PUEDE DESHACER.\n\nSi prefieres conservar los recuerdos, usa "Archivar mascota" en su lugar.`,
         [
             { text: 'Cancelar', style: 'cancel' },
             {
@@ -213,7 +211,6 @@ const handleDeletePet = (pet) => {
     );
 };
 
-    // 🎨 Tarjeta de mascota minimalista
     const PetCard = ({ pet }) => (
         <View style={styles.petCard}>
             {/* Botón de opciones en la esquina */}
@@ -309,7 +306,6 @@ const handleDeletePet = (pet) => {
     return (
         <SafeContainer style={styles.container}>
             {/* Header */}
-           {/* Header Mejorado con Gradiente y Logo */}
 <View style={styles.headerContainer}>
     <View style={styles.header}>
         {/* Logo con ícono */}
@@ -323,7 +319,6 @@ const handleDeletePet = (pet) => {
             </View>
         </View>
         
-        {/* Botón de agregar mascota */}
         <TouchableOpacity 
             style={styles.addPetButton}
             onPress={() => navigation.navigate('PetRegister')}
@@ -335,7 +330,6 @@ const handleDeletePet = (pet) => {
         </TouchableOpacity>
     </View>
 </View>
-            {/* Lista de mascotas */}
             <ScrollView 
                 style={styles.petsContainer}
                 contentContainerStyle={styles.petsContentContainer}
@@ -350,7 +344,6 @@ const handleDeletePet = (pet) => {
                             <PetCard key={pet.id} pet={pet} />
                         ))}
                         
-                        {/* 💝 Botón de Huellitas Eternas minimalista */}
                         <TouchableOpacity 
                             style={styles.huellitasButton}
                             onPress={() => navigation.navigate('HuellitasEternas')}

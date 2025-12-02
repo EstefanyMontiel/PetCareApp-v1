@@ -1,7 +1,3 @@
-// ============================================
-// 🎴 EVENT CARD COMPONENT
-// ============================================
-// ✅ Tarjeta individual de evento memoizada
 
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
@@ -81,5 +77,5 @@ const EventCard = ({ event, onToggleComplete, onDelete }) => {
 // ✅ Memoiza y compara solo event.id para re-render
 export default React.memo(EventCard, (prevProps, nextProps) => {
     return prevProps.event.id === nextProps.event.id &&
-           prevProps.event.completed === nextProps.event.completed;
+        prevProps.event.completed === nextProps.event.completed;
 });

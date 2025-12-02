@@ -264,6 +264,43 @@ export const notificationService = {
         }
     },
 
+    // ✅ NUEVO: Eliminar notificación
+async deleteNotification(notificationId) {
+    try {
+        await db. collection('notifications').doc(notificationId).delete();
+        console. log('✅ Notificación eliminada');
+        return { success: true };
+    } catch (error) {
+        console. error('❌ Error eliminando notificación:', error);
+        throw error;
+    }
+},
+
+// ✅ NUEVO: Marcar todas como leídas
+async markAllAsRead(userId) {
+    try {
+        const snapshot = await db.collection('notifications')
+            .where('recipientId', '==', userId)
+            .where('read', '==', false)
+            .get();
+
+        const batch = db.batch();
+        snapshot.docs.forEach(doc => {
+            batch.update(doc.ref, { 
+                read: true, 
+                readAt: new Date() 
+            });
+        });
+
+        await batch.commit();
+        console.log('✅ Todas las notificaciones marcadas como leídas');
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Error marcando todas como leídas:', error);
+        throw error;
+    }
+},
+
 
     // Programar notificación con hora específica
     async scheduleNotificationAtTime(title, body, dateTime, data = {}) {

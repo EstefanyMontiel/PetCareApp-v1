@@ -10,7 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import DatePickerModal from '../DatePickerModal';
 import { annualExamService } from '../../services/annualExamService';
-import styles from '../../styles/AnnualExamScreenStyles'; // ✅ USA LOS MISMOS ESTILOS
+import styles from '../../styles/AnnualExamScreenStyles'; 
 import KeyboardAwareForm from '../common/KeyboardAwareForm';
 
 const AddAnnualExamScreen = ({ route, navigation }) => {
@@ -135,7 +135,7 @@ const AddAnnualExamScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            {/* ✅ HEADER */}
+            {/* HEADER */}
             <View style={styles.header}>
                 <TouchableOpacity 
                     style={styles.backButton}

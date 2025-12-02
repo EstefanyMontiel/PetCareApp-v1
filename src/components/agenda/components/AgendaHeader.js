@@ -1,8 +1,3 @@
-// ============================================
-// 🎯 AGENDA HEADER COMPONENT
-// ============================================
-// ✅ Header optimizado con React.memo
-
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -37,5 +32,4 @@ const AgendaHeader = ({ onAddPress }) => {
     );
 };
 
-// ✅ Memoiza el componente - solo re-renderiza si onAddPress cambia
 export default React.memo(AgendaHeader);

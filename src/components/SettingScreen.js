@@ -18,7 +18,7 @@ import { useTheme } from '../context/ThemeContext';
 const SettingScreen = ({ navigation }) => {
     const { user, userProfile, logout } = useAuth();
     const { t, language, changeLanguage } = useLanguage();
-    const { isDarkMode, toggleTheme, colors } = useTheme(); // ⬅️ AGREGAR
+    const { isDarkMode, toggleTheme, colors } = useTheme(); 
 
 
     const handleLogout = () => {
@@ -51,7 +51,6 @@ const SettingScreen = ({ navigation }) => {
             'U';
     };
 
-    // ✅ PLUS: Mostrar información de la app
     const showAppInfo = () => {
         Alert.alert(
             'PetCare v1.0',
@@ -67,7 +66,6 @@ const SettingScreen = ({ navigation }) => {
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                {/* ✅ MEJORA: Header mejorado con degradado */}
                 <View style={styles.profileHeader}>
                     <View style={styles.profileImageContainer}>
                         {userProfile?.photoURL ? (
@@ -90,14 +88,12 @@ const SettingScreen = ({ navigation }) => {
                         {userProfile?.correo || user?.email}
                     </Text>
                     
-                    {/* ✅ PLUS: Badge de usuario verificado */}
                     <View style={styles.verifiedBadge}>
                         <Ionicons name="checkmark-circle" size={16} color="#4ECDC4" />
                         <Text style={styles.verifiedText}>Cuenta verificada</Text>
                     </View>
                 </View>
 
-                {/* Sección Perfil */}
                 <Text style={styles.sectionTitle}>{t('settings.profile')}</Text>
                 
                 <TouchableOpacity 
