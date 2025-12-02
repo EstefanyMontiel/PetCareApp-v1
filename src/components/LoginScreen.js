@@ -27,6 +27,9 @@ const LoginScreen = ({ navigation }) => {
     password: '',
   });
 
+  // Verificación de seguridad
+  if (!t) return null;
+
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [loading, setLoading] = useState(false);
@@ -41,18 +44,18 @@ const LoginScreen = ({ navigation }) => {
       case 'correo':
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!value) {
-          newErrors.correo = t('auth.emailRequired');
+          newErrors.correo = t('login.emailRequired');
         } else if (!emailRegex.test(value)) {
-          newErrors.correo = t('auth.emailInvalid');
+          newErrors.correo = t('login.emailInvalid');
         } else {
           delete newErrors.correo;
         }
         break;
       case 'password':
         if (!value) {
-          newErrors.password = t('auth.passwordRequired');
+          newErrors.password = t('login.passwordRequired');
         } else if (value.length < 6) {
-          newErrors.password = t('auth.passwordMinLength');
+          newErrors.password = t('login.passwordMinLength');
         } else {
           delete newErrors.password;
         }
@@ -109,8 +112,8 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = async () => {
     if (!validateForm()) {
       Alert.alert(
-        t('auth.formError'),
-        t('auth.formErrorMessage'),
+        t('login.formError'),
+        t('login.formErrorMessage'),
         [{ text: t('common.ok') }]
       );
       return;
@@ -131,29 +134,29 @@ const LoginScreen = ({ navigation }) => {
       setTouched({});
     } catch (error) {
       console.error('Error en login:', error);
-      let errorMessage = t('auth.genericLoginError');
+      let errorMessage = t('login.unknownError');
 
       switch (error.code) {
         case 'auth/user-not-found':
-          errorMessage = t('auth.userNotFound');
+          errorMessage = t('login.userNotFound');
           break;
         case 'auth/wrong-password':
-          errorMessage = t('auth.wrongPassword');
+          errorMessage = t('login.wrongPassword');
           break;
         case 'auth/invalid-email':
-          errorMessage = t('auth.invalidEmail');
+          errorMessage = t('login.invalidEmail');
           break;
         case 'auth/too-many-requests':
-          errorMessage = t('auth.tooManyRequests');
+          errorMessage = t('login.tooManyRequests');
           break;
         case 'auth/invalid-credential':
-          errorMessage = t('auth.invalidCredential');
+          errorMessage = t('login.invalidCredential');
           break;
         default:
-          errorMessage = error.message || t('auth.unknownError');
+          errorMessage = error.message || t('login.unknownError');
       }
 
-      Alert.alert(t('auth.loginError'), errorMessage);
+      Alert.alert(t('login.loginError'), errorMessage);
     } finally {
       setLoading(false);
     }
@@ -180,15 +183,15 @@ const LoginScreen = ({ navigation }) => {
               source={require('../../assets/LogoApp.png')}
               resizeMode="contain"
             />
-            <Text style={styles.labelTitle}>{t('auth.welcome')}</Text>
-            <Text style={styles.subtitle}>{t('auth.loginSubtitle')}</Text>
+            <Text style={styles.labelTitle}>{t('login.title')}</Text>
+            <Text style={styles.subtitle}>{t('login.subtitle')}</Text>
           </View>
 
           {/* Formulario */}
           <View style={styles.formContainer}>
             {/* Campo Correo */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>{t('auth.email')}</Text>
+              <Text style={styles.label}>{t('login.email')}</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={[
@@ -196,7 +199,7 @@ const LoginScreen = ({ navigation }) => {
                     focusedInput === 'correo' && styles.inputFocused,
                     touched.correo && errors.correo && styles.inputError,
                   ]}
-                  placeholder={t('auth.emailPlaceholder')}
+                  placeholder={t('login.emailPlaceholder')}
                   placeholderTextColor="#BDC3C7"
                   value={formData.correo}
                   onChangeText={(text) => handleChange('correo', text)}
@@ -218,7 +221,7 @@ const LoginScreen = ({ navigation }) => {
 
             {/* Campo Contraseña */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>{t('auth.password')}</Text>
+              <Text style={styles.label}>{t('login.password')}</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={[
@@ -227,7 +230,7 @@ const LoginScreen = ({ navigation }) => {
                     touched.password && errors.password && styles.inputError,
                     { paddingRight: 50 },
                   ]}
-                  placeholder={t('auth.passwordPlaceholder')}
+                  placeholder={t('login.passwordPlaceholder')}
                   placeholderTextColor="#BDC3C7"
                   value={formData.password}
                   onChangeText={(text) => handleChange('password', text)}
@@ -264,7 +267,7 @@ const LoginScreen = ({ navigation }) => {
               {loading ? (
                 <ActivityIndicator color="white" size="small" />
               ) : (
-                <Text style={styles.buttonText}>{t('auth.login')}</Text>
+                <Text style={styles.buttonText}>{t('login.loginButton')}</Text>
               )}
             </TouchableOpacity>
 
@@ -274,7 +277,7 @@ const LoginScreen = ({ navigation }) => {
               style={styles.link}
             >
               <Text style={styles.linkText}>
-                {t('auth.noAccount')}
+                {t('login.noAccount')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -282,7 +285,7 @@ const LoginScreen = ({ navigation }) => {
           {/* Footer */}
           <View style={styles.footerContainer}>
             <Text style={styles.footerText}>
-              {t('auth.termsFooter')}
+              {t('login.footer')}
             </Text>
           </View>
         </ScrollView>

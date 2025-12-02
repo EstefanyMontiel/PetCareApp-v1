@@ -26,6 +26,9 @@ export default function RegisterScreen({ navigation }) {
     password: '',
     confirmPassword: '',
   });
+
+  // Verificación de seguridad
+  if (!t) return null;
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [loading, setLoading] = useState(false);
@@ -41,9 +44,9 @@ export default function RegisterScreen({ navigation }) {
     switch (name) {
       case 'nombre':
         if (!value.trim()) {
-          newErrors.nombre = t('auth.nameRequired');
+          newErrors.nombre = t('register.nameRequired');
         } else if (value.trim().length < 2) {
-          newErrors.nombre = t('auth.nameMinLength');
+          newErrors.nombre = t('register.nameMin');
         } else {
           delete newErrors.nombre;
         }
@@ -51,27 +54,27 @@ export default function RegisterScreen({ navigation }) {
       case 'correo':
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!value) {
-          newErrors.correo = t('auth.emailRequired');
+          newErrors.correo = t('register.emailRequired');
         } else if (!emailRegex.test(value)) {
-          newErrors.correo = t('auth.emailInvalid');
+          newErrors.correo = t('register.emailInvalid');
         } else {
           delete newErrors.correo;
         }
         break;
       case 'password':
         if (!value) {
-          newErrors.password = t('auth.passwordRequired');
+          newErrors.password = t('register.passwordRequired');
         } else if (value.length < 6) {
-          newErrors.password = t('auth.passwordMinLength');
+          newErrors.password = t('register.passwordMin');
         } else {
           delete newErrors.password;
         }
         break;
       case 'confirmPassword':
         if (!value) {
-          newErrors.confirmPassword = t('auth.confirmPasswordRequired');
+          newErrors.confirmPassword = t('register.confirmPasswordRequired');
         } else if (value !== formData.password) {
-          newErrors.confirmPassword = t('auth.passwordsNotMatch');
+          newErrors.confirmPassword = t('register.passwordMismatch');
         } else {
           delete newErrors.confirmPassword;
         }
@@ -153,11 +156,11 @@ export default function RegisterScreen({ navigation }) {
       setErrors({});
 
       Alert.alert(
-        t('auth.registerSuccess'),
-        t('auth.registerSuccessMessage'),
+        t('register.successTitle'),
+        t('register.successMessage'),
         [
           {
-            text: t('auth.continue'),
+            text: t('register.continueButton'),
             onPress: () => {},
           },
         ]
@@ -165,26 +168,26 @@ export default function RegisterScreen({ navigation }) {
     } catch (error) {
       console.error('❌ Error en registro:', error);
 
-      let errorMessage = t('auth.genericRegisterError');
+      let errorMessage = t('register.unknownError');
 
       switch (error.code) {
         case 'auth/email-already-in-use':
-          errorMessage = t('auth.emailAlreadyInUse');
+          errorMessage = t('register.emailInUse');
           break;
         case 'auth/invalid-email':
-          errorMessage = t('auth.invalidEmail');
+          errorMessage = t('register.emailInvalid2');
           break;
         case 'auth/weak-password':
-          errorMessage = t('auth.weakPassword');
+          errorMessage = t('register.weakPassword');
           break;
         case 'auth/network-request-failed':
-          errorMessage = t('auth.networkError');
+          errorMessage = t('register.networkError');
           break;
         default:
-          errorMessage = error.message || t('auth.unknownError');
+          errorMessage = error.message || t('register.unknownError');
       }
 
-      Alert.alert(t('auth.registerError'), errorMessage);
+      Alert.alert(t('register.registerError'), errorMessage);
     } finally {
       setLoading(false);
     }
@@ -227,15 +230,15 @@ export default function RegisterScreen({ navigation }) {
               source={require('../../assets/LogoApp.png')}
               resizeMode="contain"
             />
-            <Text style={styles.labelTitle}>{t('auth.createAccount')}</Text>
-            <Text style={styles.subtitle}>{t('auth.registerSubtitle')}</Text>
+            <Text style={styles.labelTitle}>{t('register.title')}</Text>
+            <Text style={styles.subtitle}>{t('register.subtitle')}</Text>
           </View>
 
           {/* Formulario */}
           <View style={styles.formContainer}>
             {/* Campo Nombre */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>{t('auth.fullName')}</Text>
+              <Text style={styles.label}>{t('register.name')}</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={[
@@ -243,7 +246,7 @@ export default function RegisterScreen({ navigation }) {
                     focusedInput === 'nombre' && styles.inputFocused,
                     touched.nombre && errors.nombre && styles.inputError,
                   ]}
-                  placeholder={t('auth.fullNamePlaceholder')}
+                  placeholder={t('register.namePlaceholder')}
                   placeholderTextColor="#BDC3C7"
                   value={formData.nombre}
                   onChangeText={(text) => handleChange('nombre', text)}
@@ -264,7 +267,7 @@ export default function RegisterScreen({ navigation }) {
 
             {/* Campo Correo */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>{t('auth.email')}</Text>
+              <Text style={styles.label}>{t('register.email')}</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={[
@@ -272,7 +275,7 @@ export default function RegisterScreen({ navigation }) {
                     focusedInput === 'correo' && styles.inputFocused,
                     touched.correo && errors.correo && styles.inputError,
                   ]}
-                  placeholder={t('auth.emailPlaceholder')}
+                  placeholder={t('register.emailPlaceholder')}
                   placeholderTextColor="#BDC3C7"
                   value={formData.correo}
                   onChangeText={(text) => handleChange('correo', text)}
@@ -294,7 +297,7 @@ export default function RegisterScreen({ navigation }) {
 
             {/* Campo Contraseña */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>{t('auth.password')}</Text>
+              <Text style={styles.label}>{t('register.password')}</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={[
@@ -303,7 +306,7 @@ export default function RegisterScreen({ navigation }) {
                     touched.password && errors.password && styles.inputError,
                     { paddingRight: 50 },
                   ]}
-                  placeholder={t('auth.passwordPlaceholder')}
+                  placeholder={t('register.passwordPlaceholder')}
                   placeholderTextColor="#BDC3C7"
                   value={formData.password}
                   onChangeText={(text) => handleChange('password', text)}
@@ -346,7 +349,7 @@ export default function RegisterScreen({ navigation }) {
 
             {/* Campo Confirmar Contraseña */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>{t('auth.confirmPassword')}</Text>
+              <Text style={styles.label}>{t('register.confirmPassword')}</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={[
@@ -357,7 +360,7 @@ export default function RegisterScreen({ navigation }) {
                       styles.inputError,
                     { paddingRight: 50 },
                   ]}
-                  placeholder={t('auth.confirmPasswordPlaceholder')}
+                  placeholder={t('register.confirmPasswordPlaceholder')}
                   placeholderTextColor="#BDC3C7"
                   value={formData.confirmPassword}
                   onChangeText={(text) => handleChange('confirmPassword', text)}
@@ -394,7 +397,7 @@ export default function RegisterScreen({ navigation }) {
               {loading ? (
                 <ActivityIndicator color="white" size="small" />
               ) : (
-                <Text style={styles.buttonText}>{t('auth.register')}</Text>
+                <Text style={styles.buttonText}>{t('register.registerButton')}</Text>
               )}
             </TouchableOpacity>
 
@@ -404,7 +407,7 @@ export default function RegisterScreen({ navigation }) {
               style={styles.link}
             >
               <Text style={styles.linkText}>
-                {t('auth.hasAccount')}
+                {t('register.hasAccount')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -412,7 +415,7 @@ export default function RegisterScreen({ navigation }) {
           {/* Footer */}
           <View style={styles.footerContainer}>
             <Text style={styles.footerText}>
-              {t('auth.registerTerms')}
+              {t('register.footer')}
             </Text>
           </View>
         </ScrollView>

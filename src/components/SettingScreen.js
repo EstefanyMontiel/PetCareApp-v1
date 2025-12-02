@@ -20,11 +20,13 @@ const SettingScreen = ({ navigation }) => {
     const { t, language, changeLanguage } = useLanguage();
     const { isDarkMode, toggleTheme, colors } = useTheme(); 
 
+    // Verificación de seguridad
+    if (!t) return null;
 
     const handleLogout = () => {
         Alert.alert(
             t('settings.logout'),
-            '¿Estás seguro que deseas cerrar sesión?',
+            t('settings.logoutConfirm'),
             [
                 {
                     text: t('common.cancel'),
@@ -36,7 +38,7 @@ const SettingScreen = ({ navigation }) => {
                         try {
                             await logout();
                         } catch (error) {
-                            Alert.alert(t('common.error'), 'Error al cerrar sesión');
+                            Alert.alert(t('common.error'), t('settings.logoutError'));
                         }
                     },
                     style: 'destructive'
@@ -53,9 +55,9 @@ const SettingScreen = ({ navigation }) => {
 
     const showAppInfo = () => {
         Alert.alert(
-            'PetCare v1.0',
-            'Aplicación desarrollada para el cuidado integral de tus mascotas.\n\n© 2024 PetCare',
-            [{ text: 'OK' }]
+            t('settings.appInfoTitle'),
+            t('settings.appInfoDesc'),
+            [{ text: t('common.ok') }]
         );
     };
 
@@ -82,7 +84,7 @@ const SettingScreen = ({ navigation }) => {
                         )}
                     </View>
                     <Text style={styles.profileName}>
-                        {userProfile?.nombre || user?.displayName || 'Usuario'}
+                        {userProfile?.nombre || user?.displayName || t('settings.defaultUser')}
                     </Text>
                     <Text style={styles.profileEmail}>
                         {userProfile?.correo || user?.email}
@@ -90,7 +92,7 @@ const SettingScreen = ({ navigation }) => {
                     
                     <View style={styles.verifiedBadge}>
                         <Ionicons name="checkmark-circle" size={16} color="#4ECDC4" />
-                        <Text style={styles.verifiedText}>Cuenta verificada</Text>
+                        <Text style={styles.verifiedText}>{t('settings.verifiedAccount')}</Text>
                     </View>
                 </View>
 
@@ -108,7 +110,7 @@ const SettingScreen = ({ navigation }) => {
                             {t('settings.editProfile')}
                         </Text>
                         <Text style={styles.settingDescription}>
-                            Editar nombre y foto de perfil
+                            {t('settings.editProfileDesc')}
                         </Text>
                     </View>
                     <Ionicons 
@@ -142,8 +144,32 @@ const SettingScreen = ({ navigation }) => {
                     />
                 </TouchableOpacity>
 
+                {/* Opción Huellitas Eternas restaurada */}
+                <TouchableOpacity 
+                    style={styles.settingCard}
+                    onPress={() => navigation.navigate('HuellitasEternas')}
+                >
+                    <View style={styles.settingIcon}>
+                        <Ionicons name="heart" size={24} color="#E74C3C" />
+                    </View>
+                    <View style={styles.settingContent}>
+                        <Text style={styles.settingTitle}>
+                            {t('settings.huellitasEternas')}
+                        </Text>
+                        <Text style={styles.settingDescription}>
+                            {t('settings.huellitasDesc')}
+                        </Text>
+                    </View>
+                    <Ionicons 
+                        name="chevron-forward" 
+                        size={20} 
+                        color="#999" 
+                        style={styles.settingArrow}
+                    />
+                </TouchableOpacity>
+
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                            Apariencia
+                            {t('settings.appearance')}
                         </Text>
                         
                         <TouchableOpacity 
@@ -159,10 +185,10 @@ const SettingScreen = ({ navigation }) => {
                             </View>
                             <View style={styles.settingContent}>
                                 <Text style={[styles.settingTitle, { color: colors.text }]}>
-                                    Modo {isDarkMode ? 'Oscuro' : 'Claro'}
+                                    {isDarkMode ? t('settings.darkMode') : t('settings.lightMode')}
                                 </Text>
                                 <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
-                                    {isDarkMode ? 'Desactivar' : 'Activar'} tema oscuro
+                                    {isDarkMode ? t('settings.disableDark') : t('settings.enableDark')}
                                 </Text>
                             </View>
                             <View style={[
@@ -188,7 +214,7 @@ const SettingScreen = ({ navigation }) => {
                         onPress={() => changeLanguage('es')}
                     >
                         <Text style={styles.languageFlag}>🇪🇸</Text>
-                        <Text style={styles.languageText}>Español</Text>
+                        <Text style={styles.languageText}>{t('settings.spanish')}</Text>
                         {language === 'es' && (
                             <Ionicons 
                                 name="checkmark-circle" 
@@ -204,7 +230,7 @@ const SettingScreen = ({ navigation }) => {
                         onPress={() => changeLanguage('en')}
                     >
                         <Text style={styles.languageFlag}>🇺🇸</Text>
-                        <Text style={styles.languageText}>English</Text>
+                        <Text style={styles.languageText}>{t('settings.english')}</Text>
                         {language === 'en' && (
                             <Ionicons 
                                 name="checkmark-circle" 
@@ -228,9 +254,8 @@ const SettingScreen = ({ navigation }) => {
                     </Text>
                 </TouchableOpacity>
 
-                {/* ✅ PLUS: Footer con copyright */}
                 <Text style={styles.footerText}>
-                    PetCare © 2025 • Hecho con ❤️ para tus mascotas
+                    {t('settings.footer')}
                 </Text>
             </ScrollView>
         </SafeContainer>

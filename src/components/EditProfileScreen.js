@@ -92,7 +92,6 @@ const EditProfileScreen = ({ navigation }) => {
                             setPhotoURL('');
                             Alert.alert('✅ Éxito', 'Foto eliminada correctamente');
                         } catch (error) {
-                            console.error('Error eliminando foto:', error);
                             Alert.alert('Error', 'No se pudo eliminar la foto');
                         } finally {
                             setUploadingPhoto(false);
@@ -110,7 +109,6 @@ const EditProfileScreen = ({ navigation }) => {
                 await uploadPhoto(imageUri);
             }
         } catch (error) {
-            console.error('Error con cámara:', error);
             Alert.alert('Error', 'No se pudo tomar la foto');
         }
     };
@@ -122,7 +120,6 @@ const EditProfileScreen = ({ navigation }) => {
                 await uploadPhoto(imageUri);
             }
         } catch (error) {
-            console.error('Error con galería:', error);
             Alert.alert('Error', 'No se pudo seleccionar la foto');
         }
     };
@@ -137,7 +134,6 @@ const EditProfileScreen = ({ navigation }) => {
                 Alert.alert('✅ Éxito', 'Foto actualizada correctamente');
             }
         } catch (error) {
-            console.error('Error subiendo foto:', error);
             Alert.alert('Error', 'No se pudo actualizar la foto');
         } finally {
             setUploadingPhoto(false);
@@ -164,7 +160,6 @@ const EditProfileScreen = ({ navigation }) => {
                 { text: 'OK', onPress: () => navigation.goBack() }
             ]);
         } catch (error) {
-            console.error('Error:', error);
             Alert.alert('Error', 'No se pudo actualizar el perfil');
         } finally {
             setLoading(false);

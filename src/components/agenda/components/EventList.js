@@ -8,28 +8,27 @@ import { useLanguage } from '../../../context/LanguageContext';
 import styles from '../../../styles/AgendaScreenStyles';
 import { formatDate } from '../../../utils/agenda/dateFormatters';
 
-const EmptyState = React.memo(({ onAddPress }) => {
-    const { t } = useLanguage();
-    
-    return (
-        <View style={styles.emptyState}>
-            <Ionicons name="calendar-outline" size={56} color="#BDC3C7" />
-            <Text style={styles.emptyStateText}>
-                {t('agenda.noEventsForDay')}
-            </Text>
-            <TouchableOpacity 
-                style={styles.emptyStateButton}
-                onPress={onAddPress}
-            >
-                <Ionicons name="add" size={20} color="#fff" />
-                <Text style={styles.emptyStateButtonText}>{t('agenda.addEvent')}</Text>
-            </TouchableOpacity>
-        </View>
-    );
-});
+const EmptyState = React.memo(({ onAddPress, t }) => (
+    <View style={styles.emptyState}>
+        <Ionicons name="calendar-outline" size={56} color="#BDC3C7" />
+        <Text style={styles.emptyStateText}>
+            {t('agenda.noEventsMessage')}
+        </Text>
+        <TouchableOpacity 
+            style={styles.emptyStateButton}
+            onPress={onAddPress}
+        >
+            <Ionicons name="add" size={20} color="#fff" />
+            <Text style={styles.emptyStateButtonText}>{t('agenda.addEvent')}</Text>
+        </TouchableOpacity>
+    </View>
+));
 
 const EventList = ({ events, selectedDate, onDelete, onToggleComplete, onAddPress }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    
+    // Verificación de seguridad
+    if (!t || !language) return null;
     
     const renderEventItem = useCallback(({ item }) => (
         <EventCard
@@ -47,8 +46,8 @@ const EventList = ({ events, selectedDate, onDelete, onToggleComplete, onAddPres
         <View style={styles.eventsSection}>
             <Text style={styles.eventsSectionTitle}>
                 {events.length > 0
-                    ? t('agenda.eventsFor').replace('{date}', formatDate(selectedDate))
-                    : t('agenda.noEventsFor').replace('{date}', formatDate(selectedDate))}
+                    ? `${t('agenda.eventsFor')} ${formatDate(selectedDate, language)}`
+                    : `${t('agenda.noEventsFor')} ${formatDate(selectedDate, language)}`}
             </Text>
 
             {events.length > 0 ? (
@@ -62,7 +61,7 @@ const EventList = ({ events, selectedDate, onDelete, onToggleComplete, onAddPres
                     windowSize={5}
                 />
             ) : (
-                <EmptyState onAddPress={onAddPress} />
+                <EmptyState onAddPress={onAddPress} t={t} />
             )}
         </View>
     );

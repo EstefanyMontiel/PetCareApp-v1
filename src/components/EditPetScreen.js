@@ -95,7 +95,6 @@ const EditPetScreen = ({ route, navigation }) => {
                 ]
             );
         } catch (error) {
-            console.error('Error actualizando mascota:', error);
             Alert.alert('Error', 'No se pudo actualizar la información: ' + error.message);
         } finally {
             setLoading(false);

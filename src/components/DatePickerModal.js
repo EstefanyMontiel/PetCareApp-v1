@@ -9,6 +9,7 @@ import {
     TouchableWithoutFeedback,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../context/LanguageContext';
 
 const DatePickerModal = ({ 
     visible, 
@@ -18,14 +19,15 @@ const DatePickerModal = ({
     minimumDate,
     maximumDate 
 }) => {
+    const { t, language } = useLanguage();
     const [tempDate, setTempDate] = useState(selectedDate);
     const [currentMonth, setCurrentMonth] = useState(selectedDate.getMonth());
     const [currentYear, setCurrentYear] = useState(selectedDate.getFullYear());
 
-    const months = [
-        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-    ];
+    // Verificación de seguridad
+    if (!t || !language) return null;
+
+    const months = t('agenda.monthNames');
 
     const daysInMonth = (month, year) => {
         return new Date(year, month + 1, 0).getDate();
@@ -136,7 +138,7 @@ const DatePickerModal = ({
                             <View style={styles.header}>
                                 <View style={styles.headerLeft}>
                                     <Ionicons name="calendar" size={24} color="#4ECDC4" />
-                                    <Text style={styles.headerTitle}>Selecciona una fecha</Text>
+                                    <Text style={styles.headerTitle}>{t('datePicker.selectDate')}</Text>
                                 </View>
                                 <TouchableOpacity onPress={onClose}>
                                     <Ionicons name="close" size={24} color="#7F8C8D" />
@@ -167,8 +169,8 @@ const DatePickerModal = ({
 
                             {/* Días de la semana */}
                             <View style={styles.weekDaysContainer}>
-                                {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day) => (
-                                    <View key={day} style={styles.weekDayCell}>
+                                {t('agenda.dayNamesShort').map((day, index) => (
+                                    <View key={index} style={styles.weekDayCell}>
                                         <Text style={styles.weekDayText}>{day}</Text>
                                     </View>
                                 ))}
@@ -185,14 +187,14 @@ const DatePickerModal = ({
                                     style={styles.cancelButton}
                                     onPress={onClose}
                                 >
-                                    <Text style={styles.cancelButtonText}>Cancelar</Text>
+                                    <Text style={styles.cancelButtonText}>{t('datePicker.cancel')}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.confirmButton}
                                     onPress={handleConfirm}
                                 >
                                     <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                                    <Text style={styles.confirmButtonText}>Confirmar</Text>
+                                    <Text style={styles.confirmButtonText}>{t('datePicker.confirm')}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>

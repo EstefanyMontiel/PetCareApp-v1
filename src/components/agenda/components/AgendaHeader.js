@@ -7,6 +7,9 @@ import styles from '../../../styles/AgendaScreenStyles';
 const AgendaHeader = ({ onAddPress }) => {
     const { t } = useLanguage();
     
+    // Verificación de seguridad
+    if (!t) return null;
+    
     return (
         <View style={styles.headerContainer}>
             <View style={styles.header}>
