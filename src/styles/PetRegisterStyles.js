@@ -10,8 +10,8 @@ export default StyleSheet.create({
     },
     contentContainer: {
         padding: 20,
-        paddingBottom: 40,
-    },
+        paddingBottom: 100, 
+        },
     iconContainer: {
         alignItems: 'center',
         marginTop: 20,
@@ -66,10 +66,10 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 8,
         backgroundColor: '#F8F9FA',
         borderRadius: 12,
         paddingVertical: 16,
-        gap: 8,
         borderWidth: 2,
         borderColor: '#E9ECEF',
     },
@@ -96,12 +96,16 @@ export default StyleSheet.create({
         borderWidth: 1,
         borderColor: '#E9ECEF',
     },
+    dateButtonContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
     dateText: {
         fontSize: 16,
         color: '#2C3E50',
+        fontWeight: '500',
     },
-    
-    // ✅ Estilos para selector de género
     genderContainer: {
         flexDirection: 'row',
         gap: 12,
@@ -111,11 +115,12 @@ export default StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#F8F9FA',
-        borderRadius: 16,
-        paddingVertical: 20,
-        paddingHorizontal: 16,
+        borderRadius: 12,
+        paddingVertical: 16,
         borderWidth: 2,
         borderColor: '#E9ECEF',
+        flexDirection: 'row',
+        gap: 8,
     },
     genderButtonMaleActive: {
         backgroundColor: '#EBF5FB',
@@ -126,13 +131,12 @@ export default StyleSheet.create({
         borderColor: '#E74C3C',
     },
     genderIconCircle: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 12,
         borderWidth: 2,
         borderColor: '#E9ECEF',
     },
@@ -148,80 +152,33 @@ export default StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         color: '#7F8C8D',
-        marginTop: 4,
     },
     genderTextActive: {
         color: '#2C3E50',
     },
-    
     registerButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 8,
         backgroundColor: '#4ECDC4',
         borderRadius: 12,
         paddingVertical: 16,
-        marginTop: 32,
-        gap: 8,
+        marginTop: 8,
+        marginBottom: 20,
+        elevation: 2,
+        shadowColor: '#4ECDC4',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
     },
     buttonDisabled: {
-        opacity: 0.6,
+        backgroundColor: '#BDC3C7',
+        elevation: 0,
     },
     registerButtonText: {
-        fontSize: 17,
-        fontWeight: '700',
         color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '700',
     },
- // ✅ ACTUALIZADO: Estilos para selector de género (más pequeños)
-genderContainer: {
-    flexDirection: 'row',
-    gap: 12,
-},
-genderButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    paddingVertical: 14, // ← Reducido de 20 a 14
-    paddingHorizontal: 12, // ← Reducido de 16 a 12
-    borderWidth: 2,
-    borderColor: '#E9ECEF',
-    gap: 8, // ← Nuevo: espacio entre ícono y texto
-},
-genderButtonMaleActive: {
-    backgroundColor: '#EBF5FB',
-    borderColor: '#3498DB',
-},
-genderButtonFemaleActive: {
-    backgroundColor: '#FADBD8',
-    borderColor: '#E74C3C',
-},
-genderIconCircle: {
-    width: 32, // ← Reducido de 56 a 32
-    height: 32, // ← Reducido de 56 a 32
-    borderRadius: 16, // ← Reducido de 28 a 16
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#E9ECEF',
-},
-genderIconCircleMaleActive: {
-    backgroundColor: '#3498DB',
-    borderColor: '#3498DB',
-},
-genderIconCircleFemaleActive: {
-    backgroundColor: '#E74C3C',
-    borderColor: '#E74C3C',
-},
-genderText: {
-    fontSize: 15, // ← Reducido de 16 a 15
-    fontWeight: '600',
-    color: '#7F8C8D',
-},
-genderTextActive: {
-    color: '#2C3E50',
-},
 });
