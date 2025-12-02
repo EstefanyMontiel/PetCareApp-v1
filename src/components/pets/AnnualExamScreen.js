@@ -8,11 +8,13 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { annualExamService } from '../../services/annualExamService';
+import { useLanguage } from '../../context/LanguageContext';
 import styles from '../../styles/AnnualExamScreenStyles';
 import KeyboardAwareForm from '../common/KeyboardAwareForm';
 
 const AnnualExamScreen = ({ route, navigation }) => {
     const { petId, petName, petSpecies } = route.params;
+    const { t, language } = useLanguage();
     
     const [exams, setExams] = useState([]);
     const [loadingList, setLoadingList] = useState(true);
@@ -29,7 +31,7 @@ const AnnualExamScreen = ({ route, navigation }) => {
             setExams(data);
         } catch (error) {
             console.error('Error cargando exámenes:', error);
-            Alert.alert('Error', 'No se pudieron cargar los exámenes');
+            Alert.alert(t('common.error'), t('annualExam.loadError'));
         } finally {
             setLoadingList(false);
         }
@@ -46,12 +48,12 @@ const AnnualExamScreen = ({ route, navigation }) => {
 
     // Formatear fecha
     const formatDate = (date) => {
-        if (!date) return 'No establecida';
+        if (!date) return t('common.notSet');
         const dateObj = date?.seconds 
             ? new Date(date.seconds * 1000) 
             : new Date(date);
         
-        return dateObj.toLocaleDateString('es-ES', {
+        return dateObj.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
@@ -71,10 +73,10 @@ const AnnualExamScreen = ({ route, navigation }) => {
 
     const getConditionLabel = (condition) => {
         switch(condition) {
-            case 'excelente': return '✨ Excelente';
-            case 'bueno': return '👍 Bueno';
-            case 'regular': return '⚠️ Regular';
-            case 'preocupante': return '🚨 Preocupante';
+            case 'excelente': return `✨ ${t('annualExam.excellent')}`;
+            case 'bueno': return `👍 ${t('annualExam.good')}`;
+            case 'regular': return `⚠️ ${t('annualExam.regular')}`;
+            case 'preocupante': return `🚨 ${t('annualExam.concerning')}`;
             default: return condition;
         }
     };
@@ -82,20 +84,20 @@ const AnnualExamScreen = ({ route, navigation }) => {
     // Eliminar examen
     const handleDeleteExam = (examId) => {
         Alert.alert(
-            'Eliminar Examen',
-            '¿Estás seguro?',
+            t('annualExam.deleteTitle'),
+            t('annualExam.deleteConfirm'),
             [
-                { text: 'Cancelar', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Eliminar',
+                    text: t('common.delete'),
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await annualExamService.deleteExam(petId, examId);
                             await loadExams();
-                            Alert.alert('✅', 'Examen eliminado');
+                            Alert.alert('✅', t('annualExam.deleted'));
                         } catch (error) {
-                            Alert.alert('Error', 'No se pudo eliminar');
+                            Alert.alert(t('common.error'), t('annualExam.deleteError'));
                         }
                     }
                 }
@@ -115,7 +117,7 @@ const AnnualExamScreen = ({ route, navigation }) => {
                 </TouchableOpacity>
                 
                 <View style={styles.headerInfo}>
-                    <Text style={styles.title}>Examen Anual</Text>
+                    <Text style={styles.title}>{t('annualExam.title')}</Text>
                     <Text style={styles.petName}>{petName}</Text>
                 </View>
                 
@@ -170,26 +172,26 @@ const AnnualExamScreen = ({ route, navigation }) => {
 
                             {/* Detalles expandibles */}
                             {exam.weight && (
-                                <Text style={styles.detail}>⚖️ Peso: {exam.weight} kg</Text>
+                                <Text style={styles.detail}>⚖️ {t('annualExam.weight')}: {exam.weight} kg</Text>
                             )}
                             {exam.temperature && (
-                                <Text style={styles.detail}>🌡️ Temperatura: {exam.temperature}°C</Text>
+                                <Text style={styles.detail}>🌡️ {t('annualExam.temperature')}: {exam.temperature}°C</Text>
                             )}
                             {exam.findings && (
                                 <View style={styles.detailSection}>
-                                    <Text style={styles.detailTitle}>Hallazgos:</Text>
+                                    <Text style={styles.detailTitle}>{t('annualExam.findings')}:</Text>
                                     <Text style={styles.detailText}>{exam.findings}</Text>
                                 </View>
                             )}
                             {exam.recommendations && (
                                 <View style={styles.detailSection}>
-                                    <Text style={styles.detailTitle}>Recomendaciones:</Text>
+                                    <Text style={styles.detailTitle}>{t('annualExam.recommendations')}:</Text>
                                     <Text style={styles.detailText}>{exam.recommendations}</Text>
                                 </View>
                             )}
                             {exam.nextExamDate && (
                                 <Text style={styles.nextExam}>
-                                    🔔 Próximo examen: {formatDate(exam.nextExamDate)}
+                                    🔔 {t('annualExam.nextExam')}: {formatDate(exam.nextExamDate)}
                                 </Text>
                             )}
                         </View>
@@ -198,10 +200,10 @@ const AnnualExamScreen = ({ route, navigation }) => {
                     <View style={styles.emptyState}>
                         <Ionicons name="clipboard-outline" size={64} color="#ccc" />
                         <Text style={styles.emptyStateTitle}>
-                            Sin exámenes anuales registrados
+                            {t('annualExam.noRecords')}
                         </Text>
                         <Text style={styles.emptyStateText}>
-                            Registra los chequeos anuales de {petName} para un control completo de su salud
+                            {t('annualExam.noRecordsSubtitle').replace('{petName}', petName)}
                         </Text>
                     </View>
                 )}
