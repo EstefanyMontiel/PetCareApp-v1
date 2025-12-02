@@ -8,11 +8,13 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { vaccinationService } from '../../services/vaccionationService';
+import { useLanguage } from '../../context/LanguageContext';
 import styles from '../../styles/HealthScreenStyles';
 import KeyboardAwareForm from '../common/KeyboardAwareForm';
 
 const VaccinationScreen = ({ route, navigation }) => {
     const { petId, petName, petSpecies } = route.params;
+    const { t, language } = useLanguage();
     
     // Estados (solo para la lista)
     const [vaccinations, setVaccinations] = useState([]);
@@ -29,7 +31,7 @@ const VaccinationScreen = ({ route, navigation }) => {
             setVaccinations(data);
         } catch (error) {
             console.error('Error cargando vacunaciones:', error);
-            Alert.alert('Error', 'No se pudieron cargar las vacunas');
+            Alert.alert(t('common.error'), t('vaccination.loadError'));
         } finally {
             setLoadingList(false);
         }
@@ -41,7 +43,7 @@ const VaccinationScreen = ({ route, navigation }) => {
             ? new Date(date.seconds * 1000) 
             : new Date(date);
         
-        return dateObj.toLocaleDateString('es-ES', {
+        return dateObj.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
@@ -51,20 +53,20 @@ const VaccinationScreen = ({ route, navigation }) => {
     // 🗑️ Eliminar vacunación
     const handleDeleteVaccination = (vaccinationId) => {
         Alert.alert(
-            'Eliminar Vacuna',
-            '¿Estás seguro de que deseas eliminar esta vacuna?',
+            t('vaccination.deleteTitle'),
+            t('vaccination.deleteConfirm'),
             [
-                { text: 'Cancelar', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Eliminar',
+                    text: t('common.delete'),
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await vaccinationService.deleteVaccination(petId, vaccinationId);
                             await loadVaccinations();
-                            Alert.alert('Vacuna eliminada');
+                            Alert.alert(t('vaccination.deleted'));
                         } catch (error) {
-                            Alert.alert('Error', 'No se pudo eliminar la vacuna');
+                            Alert.alert(t('common.error'), t('vaccination.deleteError'));
                         }
                     }
                 }
@@ -93,7 +95,7 @@ const VaccinationScreen = ({ route, navigation }) => {
                 </TouchableOpacity>
                 
                 <View style={styles.headerInfo}>
-                    <Text style={styles.title}>💉 Vacunación</Text>
+                    <Text style={styles.title}>💉 {t('vaccination.title')}</Text>
                     <Text style={styles.petName}>{petName}</Text>
                 </View>
                 
@@ -141,10 +143,10 @@ const VaccinationScreen = ({ route, navigation }) => {
                     <View style={styles.emptyState}>
                         <Ionicons name="medkit-outline" size={64} color="#ccc" />
                         <Text style={styles.emptyStateTitle}>
-                            Sin vacunaciones registradas
+                            {t('vaccination.noRecords')}
                         </Text>
                         <Text style={styles.emptyStateText}>
-                            Agrega las vacunas de {petName} para llevar un control completo
+                            {t('vaccination.noRecordsSubtitle').replace('{petName}', petName)}
                         </Text>
                     </View>
                 )}

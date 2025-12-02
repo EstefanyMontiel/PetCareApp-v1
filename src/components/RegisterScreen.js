@@ -131,9 +131,9 @@ export default function RegisterScreen({ navigation }) {
   const handleRegister = async () => {
     if (!validateForm()) {
       Alert.alert(
-        'Error en el formulario',
-        'Por favor, corrige los errores antes de continuar',
-        [{ text: 'OK' }]
+        t('auth.formError'),
+        t('auth.formErrorMessage'),
+        [{ text: t('common.ok') }]
       );
       return;
     }

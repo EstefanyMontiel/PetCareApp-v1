@@ -32,8 +32,11 @@ const PetRegisterScreen = ({ navigation }) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [loading, setLoading] = useState(false);
     const [gender, setGender] = useState('');
-    
-    const speciesOptions = ['Perro', 'Gato'];
+
+    const speciesOptions = [
+        { key: 'Perro', label: t('petRegister.dog') },
+        { key: 'Gato', label: t('petRegister.cat') }
+    ];
 
     const handleDateSelect = (selectedDate) => {
         setBirthDate(selectedDate);
@@ -41,7 +44,7 @@ const PetRegisterScreen = ({ navigation }) => {
     };
 
     const formatDate = (date) => {
-        return date.toLocaleDateString('es-ES', {
+        return date.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
             day: '2-digit',
             month: 'long',
             year: 'numeric'

@@ -197,7 +197,7 @@ const AddEventModal = ({
                             <Text style={styles.dateButtonText}>
                                 {formatTime(formData.eventTime, language)}
                             </Text>
-                            <Ionicons name="time-outline" size={22} color="#4ECDC4" />
+             https://github.com/EstefanyMontiel/PetCareApp-v1/pull/28/conflict?name=src%252Fcomponents%252Fagenda%252Fcomponents%252FAddEventModal.js&ancestor_oid=eb15a3ba87945f9237ba45d6e8b09752a9b585c9&base_oid=64708112f80d98447f9ec405c96acce2b94efa07&head_oid=af574b060c3fb31bfae4e5dca2430f5e73c70cb7               <Ionicons name="time-outline" size={22} color="#4ECDC4" />
                         </TouchableOpacity>
                     </View>
 
