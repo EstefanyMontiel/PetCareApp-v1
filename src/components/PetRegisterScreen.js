@@ -21,7 +21,7 @@ import styles from '../styles/PetRegisterStyles';
 
 const PetRegisterScreen = ({ navigation }) => {
     const { user, addPet } = useAuth();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [selectedSpecies, setSelectedSpecies] = useState('Perro');
 
     // Verificación de seguridad
@@ -33,10 +33,8 @@ const PetRegisterScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
     const [gender, setGender] = useState('');
 
-    const speciesOptions = [
-        { key: 'Perro', label: t('petRegister.dog') },
-        { key: 'Gato', label: t('petRegister.cat') }
-    ];
+    const speciesOptions = ['Perro', 'Gato'];
+
 
     const handleDateSelect = (selectedDate) => {
         setBirthDate(selectedDate);

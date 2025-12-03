@@ -68,7 +68,6 @@ export default function HuellitasEternasScreen({ navigation, route }) {
     loadUnreadCount();
 }, []);
 
-// ✅ NUEVO: Listener para el teclado
 useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
         'keyboardDidShow',
@@ -103,13 +102,6 @@ useEffect(() => {
                 
                 if (post) {
                     console.log('✅ Post encontrado, abriendo modal');
-                    // Abrir el modal de comentarios con ese post
-                    setTimeout(() => {
-                        setSelectedPost(post);
-                        setShowCommentsModal(true);
-                    }, 300); // Pequeño delay para que la UI se actualice
-                } else {
-                    Alert. alert('Post no encontrado', 'El post que buscas ya no está disponible');
                 }
                 
                 // Limpiar el parámetro para evitar que se abra de nuevo
@@ -120,7 +112,6 @@ useEffect(() => {
             }
         };
         
-        // Ejecutar después de un breve delay para asegurar que el componente esté montado
         setTimeout(openSpecificPost, 500);
     }
 }, [route.params?.openPost]);
@@ -136,7 +127,7 @@ useEffect(() => {
 
     
 
-     // ✅ NUEVO: Inicializar notificaciones
+     //  Inicializar notificaciones
     const initializeNotifications = async () => {
         try {
             const hasPermission = await notificationService.requestPermissions();
@@ -148,7 +139,7 @@ useEffect(() => {
         }
     };
 
-   // ✅ MEJORADO: Cargar contador de notificaciones no leídas
+   //  Cargar contador de notificaciones no leídas
 const loadUnreadCount = async () => {
     try {
         const count = await notificationService.getUnreadCount(user.uid);
@@ -168,7 +159,7 @@ useEffect(() => {
     return () => clearInterval(interval);
 }, []);
 
-    // ✅ NUEVO: Ir a pantalla de notificaciones
+    //  Ir a pantalla de notificaciones
     const handleOpenNotifications = () => {
         navigation.navigate('UserNotifications'); // Crearemos esta pantalla
     };
@@ -180,31 +171,23 @@ useEffect(() => {
         setNewMemorySpecies('');
         setNewMemoryMessage('');
     };
-// ✅ FUNCIÓN CORREGIDA: Abrir selector de imagen
+//  Abrir selector de imagen
 const handleSelectImageForNewMemory = () => {
-    console.log('🎯 handleSelectImageForNewMemory llamada');
     Alert.alert(
         t('huellitas.addPhoto'),
         t('huellitas.selectOption'),
         [
             { 
                 text: t('huellitas.camera'), 
-                onPress: () => {
-                    console.log('📸 Opción cámara seleccionada');
-                    takePhotoForNewMemory();
-                }
+                onPress: () => takePhotoForNewMemory()
             },
             { 
                 text: t('huellitas.gallery'), 
-                onPress: () => {
-                    console.log('🖼️ Opción galería seleccionada');
-                    pickImageForNewMemory();
-                }
+                onPress: () => pickImageForNewMemory()
             },
             { 
                 text: t('common.cancel'), 
-                style: 'cancel',
-                onPress: () => console.log('❌ Selección cancelada')
+                style: 'cancel'
             }
         ]
     );
@@ -213,8 +196,6 @@ const handleSelectImageForNewMemory = () => {
 // ✅ FUNCIÓN CORREGIDA: Tomar foto
 const takePhotoForNewMemory = async () => {
     try {
-        console.log('📸 Iniciando cámara...');
-        
         const result = await ImagePicker.launchCameraAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
@@ -222,25 +203,12 @@ const takePhotoForNewMemory = async () => {
             quality: 0.8,
         });
 
-        console.log('📦 Resultado de cámara:', result);
-
         if (!result.canceled && result.assets && result.assets[0]) {
             const imageUri = result.assets[0].uri;
-            console.log('✅ Imagen capturada:', imageUri);
-            console.log('📊 Detalles:', {
-                width: result.assets[0].width,
-                height: result.assets[0].height,
-                type: result.assets[0].type
-            });
-            
-            // ✅ CRÍTICO: Actualizar el estado
             setNewMemoryImage(imageUri);
-            console.log('✅ Estado actualizado con imagen');
-            
             Alert.alert(t('common.success'), t('huellitas.photoSuccess'));
             return imageUri;
         } else {
-            console.log('⚠️ Captura cancelada o sin assets');
             Alert.alert(t('common.error'), t('huellitas.noPhotoTaken'));
         }
         
@@ -255,8 +223,6 @@ const takePhotoForNewMemory = async () => {
 // ✅ FUNCIÓN CORREGIDA: Seleccionar de galería
 const pickImageForNewMemory = async () => {
     try {
-        console.log('🖼️ Abriendo galería...');
-        
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
@@ -264,25 +230,12 @@ const pickImageForNewMemory = async () => {
             quality: 0.8,
         });
 
-        console.log('📦 Resultado de galería:', result);
-
         if (!result.canceled && result.assets && result.assets[0]) {
             const imageUri = result.assets[0].uri;
-            console.log('✅ Imagen seleccionada:', imageUri);
-            console.log('📊 Detalles:', {
-                width: result.assets[0].width,
-                height: result.assets[0].height,
-                type: result.assets[0].type
-            });
-            
-            // ✅ CRÍTICO: Actualizar el estado
             setNewMemoryImage(imageUri);
-            console.log('✅ Estado actualizado con imagen');
-            
             Alert.alert(t('common.success'), t('huellitas.imageSuccess'));
             return imageUri;
         } else {
-            console.log('⚠️ Selección cancelada o sin assets');
             Alert.alert(t('common.error'), t('huellitas.noImageSelected'));
         }
         
@@ -297,13 +250,6 @@ const pickImageForNewMemory = async () => {
 // ✅ FUNCIÓN CORREGIDA: Publicar recuerdo
 const handlePublishNewMemory = async () => {
     try {
-        console.log('🚀 Iniciando publicación...');
-        console.log('📝 Nombre:', newMemoryPetName);
-        console.log('🐾 Especie:', newMemorySpecies);
-        console.log('💬 Mensaje:', newMemoryMessage);
-        console.log('📸 Imagen:', newMemoryImage);
-        
-        // ✅ VALIDACIONES
         if (!newMemoryImage) {
             Alert.alert(t('common.error'), t('huellitas.photoRequired'));
             return;
@@ -316,24 +262,17 @@ const handlePublishNewMemory = async () => {
 
         setCreatingMemory(true);
 
-        // ✅ Construir objeto limpio
         const petData = {
             nombre: newMemoryPetName.trim(),
             especie: newMemorySpecies.trim() || 'Mascota',
             raza: ''
         };
 
-        console.log('📦 Datos a enviar:', petData);
-        console.log('💬 Mensaje:', newMemoryMessage.trim());
-        console.log('📸 URI:', newMemoryImage);
-
         await communityService.shareMemorialDirect(
             petData,
             newMemoryMessage.trim(),
             newMemoryImage
         );
-
-        console.log('✅ Recuerdo compartido exitosamente');
         
         // Cerrar modal y limpiar
         setShowCreateModal(false);
@@ -913,24 +852,30 @@ const handlePublishNewMemory = async () => {
     return (
         <View style={styles.container}>
             <View style={styles.instagramHeader}>
-                <Text style={styles.instagramHeaderTitle}>{t('huellitas.title')}</Text>
-                <View style={styles.headerIcons}>
-                    <TouchableOpacity 
-                        style={styles.headerIconButton}
-                        onPress={handleOpenNotifications}
-                    >
-                        <Ionicons name="notifications-outline" size={26} color="#262626" />
-                        {unreadCount > 0 && (
-                            <View style={styles.notificationBadge}>
-                                <Text style={styles.notificationBadgeText}>
-                                    {unreadCount > 9 ? '9+' : unreadCount}
-                                </Text>
-                            </View>
-                        )}
-                    </TouchableOpacity>
-                </View>
+        <View style={styles.headerTitleContainer}>
+            <View style={styles.headerIconWrapper}>
+                <Ionicons name="heart" size={20} color="#E74C3C" />
             </View>
-
+            <View>
+                <Text style={styles.instagramHeaderTitle}>{t('huellitas.title')}</Text>
+            </View>
+        </View>
+        <View style={styles.headerIcons}>
+            <TouchableOpacity 
+                style={styles.headerIconButton}
+                onPress={handleOpenNotifications}
+            >
+                <Ionicons name="notifications-outline" size={26} color="#2C3E50" />
+                {unreadCount > 0 && (
+                    <View style={styles.notificationBadge}>
+                        <Text style={styles.notificationBadgeText}>
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                        </Text>
+                    </View>
+                )}
+            </TouchableOpacity>
+        </View>
+    </View>
             <View style={styles.tabBar}>
                 <TouchableOpacity 
                     style={[styles.tabButton, activeTab === 'personal' && styles.activeTabButton]}
