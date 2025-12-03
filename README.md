@@ -314,6 +314,6 @@ Este proyecto es privado y está protegido por derechos de autor.
 
 **Hecho con ❤️ para el cuidado de nuestras mascotas**
 
-⭐ Si te gusta este proyecto, considera darle una estrella en GitHub ⭐
+
 
 </div>
