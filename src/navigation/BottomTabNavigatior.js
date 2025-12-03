@@ -93,6 +93,7 @@ const Tab = createBottomTabNavigator();
                     component={SettingScreen}
                     options={{ title: 'Ajustes' }}
                 />
+                
             </Tab.Navigator>
     );
     }

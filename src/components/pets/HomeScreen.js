@@ -46,17 +46,17 @@ const HomeScreen = ({ navigation }) => {
 
     const calculateAge = (birthDate) => {
         const today = new Date();
-        const birth = new Date(birthDate.seconds ? birthDate.seconds * 1000 : birthDate);
+        const birth = new Date(birthDate. seconds ?  birthDate.seconds * 1000 : birthDate);
         const diffTime = Math.abs(today - birth);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffDays = Math. ceil(diffTime / (1000 * 60 * 60 * 24));
         
         if (diffDays < 30) {
             return `${diffDays} ${t('common.days')}`;
         } else if (diffDays < 365) {
             const months = Math.floor(diffDays / 30);
-            return `${months} ${months === 1 ? t('common.month') : t('common.months')}`;
+            return `${months} ${months === 1 ? t('common.month') : t('common. months')}`;
         } else {
-            const years = Math.floor(diffDays / 365);
+            const years = Math. floor(diffDays / 365);
             return `${years} ${years === 1 ? t('common.year') : t('common.years')}`;
         }
     };
@@ -65,7 +65,7 @@ const HomeScreen = ({ navigation }) => {
         switch(option) {
             case 'vaccination':
                 navigation.navigate('Vacunación', { 
-                    petId: pet.id, 
+                    petId: pet. id, 
                     petName: pet.nombre,
                     petSpecies: pet.especie
                 });
@@ -86,7 +86,7 @@ const HomeScreen = ({ navigation }) => {
                 break;
             case 'edit':
                 navigation.navigate('EditPet', {
-                    petId: pet.id,
+                    petId: pet. id,
                     petData: pet
                 });
                 break;
@@ -139,7 +139,7 @@ const HomeScreen = ({ navigation }) => {
             console.error('Error uploading image:', error);
             Alert.alert(t('common.error'), t('home.photoUpdateError'));
         } finally {
-            setUploadingImage(prev => ({ ...prev, [petId]: false }));
+            setUploadingImage(prev => ({ ... prev, [petId]: false }));
         }
     };
 
@@ -154,7 +154,7 @@ const HomeScreen = ({ navigation }) => {
                     style: 'destructive',
                     onPress: async () => {
                         try {
-                            await petArchiveService.archivePet(pet.id);
+                            await petArchiveService.archivePet(pet. id);
                             await loadUserPets(user.uid);
                             Alert.alert(t('home.archiveSuccess'), t('home.archiveSuccessMessage', { petName: pet.nombre }));
                         } catch (error) {
@@ -200,9 +200,9 @@ const showPetOptions = (pet) => {
 };
 
 const handleDeletePet = (pet) => {
-    Alert.alert(
-        t('home.deleteTitle'),
-        t('home.deleteMessage', { petName: pet.nombre }),
+    Alert. alert(
+        t('home. deleteTitle'),
+        t('home. deleteMessage', { petName: pet.nombre }),
         [
             { text: t('common.cancel'), style: 'cancel' },
             {
@@ -240,9 +240,9 @@ const handleDeletePet = (pet) => {
                     style={styles.petImageWrapper}
                     onPress={() => handleImageSelection(pet.id)}
                 >
-                    {pet.imageUrl ? (
+                    {pet.imageUrl ?  (
                         <Image 
-                            source={{ uri: pet.imageUrl }} 
+                            source={{ uri: pet. imageUrl }} 
                             style={styles.petImageStyle}
                             resizeMode="cover"
                         />
@@ -319,28 +319,29 @@ const handleDeletePet = (pet) => {
     return (
         <SafeContainer style={styles.container}>
             {/* Header */}
-<View style={styles.headerContainer}>
-    <View style={styles.header}>
-        {/* Logo con ícono */}
-            <View style={styles.logoContainer}>
-            <View style={styles.logoIconWrapper}>
-                <Ionicons name="paw" size={18} color="#fff" />
+            <View style={styles.headerContainer}>
+                <View style={styles.header}>
+                    {/* Logo con ícono */}
+                    <View style={styles.logoContainer}>
+                        <View style={styles.logoIconWrapper}>
+                            <Ionicons name="paw" size={18} color="#fff" />
+                        </View>
+                        <View style={styles.logoTextContainer}>
+                            <Text style={styles.logoText}>{t('home.title')}</Text>
+                            <Text style={styles.logoSubtext}>{t('home.subtitle')}</Text>
+                        </View>
+                    </View>
+                    <TouchableOpacity 
+                        style={styles.addPetButton}
+                        onPress={() => navigation.navigate('PetRegister')}
+                        activeOpacity={0.7}
+                    >
+                        <View style={styles.addPetButtonInner}>
+                            <Ionicons name="add" size={20} color="#fff" />
+                        </View>
+                    </TouchableOpacity>
+                </View>
             </View>
-            <View style={styles.logoTextContainer}>
-                <Text style={styles.logoText}>{t('home.title')}</Text>
-                <Text style={styles.logoSubtext}>{t('home.subtitle')}</Text>
-            </View>
-        </View>        <TouchableOpacity 
-            style={styles.addPetButton}
-            onPress={() => navigation.navigate('PetRegister')}
-            activeOpacity={0.7}
-        >
-            <View style={styles.addPetButtonInner}>
-                <Ionicons name="add" size={20} color="#fff" />
-            </View>
-        </TouchableOpacity>
-    </View>
-</View>
             <ScrollView 
                 style={styles.petsContainer}
                 contentContainerStyle={styles.petsContentContainer}
@@ -351,7 +352,7 @@ const handleDeletePet = (pet) => {
             >
                 {userPets.length > 0 ? (
                     <>
-                        {userPets.map((pet) => (
+                        {userPets. map((pet) => (
                             <PetCard key={pet.id} pet={pet} />
                         ))}
                         

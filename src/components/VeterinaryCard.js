@@ -14,15 +14,15 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
   
   const handleCall = () => {
     if (veterinary.formatted_phone_number) {
-      Linking.openURL(`tel:${veterinary.formatted_phone_number}`);
+      Linking.openURL(`tel:${veterinary. formatted_phone_number}`);
     } else {
-      Alert.alert(t('veterinary.information'), t('veterinary.noPhone'));
+      Alert. alert(t('veterinary.information'), t('veterinary.noPhone'));
     }
   };
 
   const handleNavigate = () => {
-    const url = Platform.select({
-      ios: `maps:0,0?q=${veterinary.geometry.location.lat},${veterinary.geometry.location.lng}`,
+    const url = Platform. select({
+      ios: `maps:0,0?q=${veterinary.geometry.location.lat},${veterinary.geometry.location. lng}`,
       android: `geo:0,0?q=${veterinary.geometry.location.lat},${veterinary.geometry.location.lng}`,
     });
     Linking.openURL(url);
@@ -30,11 +30,11 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
 
   const handleShare = async () => {
     try {
-      const message = `🐾 ${veterinary.name}\n\n` +
-        `📍 ${veterinary.formatted_address || veterinary.vicinity}\n` +
+      const message = `🐾 ${veterinary. name}\n\n` +
+        `📍 ${veterinary.formatted_address || veterinary. vicinity}\n` +
         `📞 ${veterinary.formatted_phone_number || t('veterinary.noPhoneAvailable')}\n` +
-        `⭐ ${veterinary.rating ? `${t('veterinary.rating')}: ${veterinary.rating}` : t('veterinary.noRating')}\n\n` +
-        `📱 ${t('veterinary.viewOnMaps')}: https://www.google.com/maps/search/?api=1&query=${veterinary.geometry.location.lat},${veterinary.geometry.location.lng}`;
+        `⭐ ${veterinary.rating ? `${t('veterinary. rating')}: ${veterinary.rating}` : t('veterinary. noRating')}\n\n` +
+        `📱 ${t('veterinary.viewOnMaps')}: https://www. google.com/maps/search/? api=1&query=${veterinary.geometry.location.lat},${veterinary.geometry.location.lng}`;
 
       await Share.share({
         message: message,
@@ -46,11 +46,11 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
   };
 
   return (
-    <View style={emergencyStyles.vetCard}>
+    <View style={emergencyStyles. vetCard}>
       {/* Header */}
       <View style={emergencyStyles.vetHeader}>
         <View style={emergencyStyles.vetTitleContainer}>
-          <Text style={emergencyStyles.vetName} numberOfLines={2}>
+          <Text style={emergencyStyles. vetName} numberOfLines={2}>
             {veterinary.name}
           </Text>
           <Text style={emergencyStyles.vetCategory}>
@@ -67,8 +67,8 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
               </Text>
             </View>
           )}
-          {veterinary.distance <= 2 && (
-            <View style={[emergencyStyles.badge, emergencyStyles.badgeEmergency]}>
+          {veterinary. distance <= 2 && (
+            <View style={[emergencyStyles.badge, emergencyStyles. badgeEmergency]}>
               <Ionicons name="flash" size={10} color={colors.secondary} />
               <Text style={[emergencyStyles.badgeText, emergencyStyles.badgeTextEmergency]}>
                 {t('veterinary.nearby')}
@@ -80,7 +80,7 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
 
       {/* Información */}
       <View style={emergencyStyles.vetInfo}>
-        <View style={emergencyStyles.infoRow}>
+        <View style={emergencyStyles. infoRow}>
           <View style={emergencyStyles.iconCircle}>
             <Ionicons name="location" size={16} color={colors.primary} />
           </View>
@@ -107,27 +107,33 @@ export default function VeterinaryCard({ veterinary, showActions = true }) {
           <Text style={emergencyStyles.metricValue}>
             {veterinary.distance.toFixed(1)}
           </Text>
-          <Text style={emergencyStyles.metricLabel}>km</Text>
+          <Text style={emergencyStyles.metricLabel}>
+            <Text>km</Text>
+          </Text>
         </View>
         {veterinary.rating && (
           <View style={emergencyStyles.metric}>
             <Text style={emergencyStyles.metricValue}>
-              ⭐ {veterinary.rating}
+              {`⭐ ${veterinary.rating}`}
             </Text>
-            <Text style={emergencyStyles.metricLabel}>{t('veterinary.rating')}</Text>
+            <Text style={emergencyStyles.metricLabel}>
+              <Text>{t('veterinary.rating')}</Text>
+            </Text>
           </View>
         )}
         <View style={emergencyStyles.metric}>
           <Text style={emergencyStyles.metricValue}>
             {Math.ceil(veterinary.distance * 3)}
           </Text>
-          <Text style={emergencyStyles.metricLabel}>min</Text>
+          <Text style={emergencyStyles.metricLabel}>
+            <Text>min</Text>
+          </Text>
         </View>
       </View>
 
       {/* Botones de acción */}
       {showActions && (
-        <View style={emergencyStyles.actionButtons}>
+        <View style={emergencyStyles. actionButtons}>
           <TouchableOpacity
             style={[emergencyStyles.actionButton, emergencyStyles.actionButtonPrimary]}
             onPress={handleCall}

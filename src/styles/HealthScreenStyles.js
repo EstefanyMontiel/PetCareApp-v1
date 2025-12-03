@@ -28,7 +28,9 @@ export default StyleSheet.create({
             elevation: 6,
         },
     }),
+    
 },
+
 backButton: {
     width: 40,
     height: 40,

@@ -121,11 +121,7 @@ const LoginScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
-      console.log('🔐 Intentando inicio de sesión...');
-
       await login(formData.correo, formData.password);
-
-      console.log('✅ Login exitoso');
 
       setFormData({
         correo: '',
